@@ -1,0 +1,7 @@
+packages:
+  - apps/*
+
+ignoredBuiltDependencies:
+  - '@parcel/watcher'
+  - esbuild
+  - sharp

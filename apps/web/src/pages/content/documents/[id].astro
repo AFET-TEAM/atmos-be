@@ -1,0 +1,103 @@
+---
+import Card from "@/components/Card.astro";
+import Layout from "@/components/Layout.astro";
+import { del, get, patch } from "@/lib/api";
+
+const { params, request, redirect } = Astro;
+const id = Number(params.id);
+
+let row = await get<any>(`/documents/${id}`);
+let msg = "";
+
+if (request.method === "POST") {
+  const form = await request.formData();
+  const action = String(form.get("action") || "");
+  try {
+    if (action === "update") {
+      const res = await patch(`/documents/${id}`, {
+        title: String(form.get("title")),
+        description: String(form.get("description") || ""),
+        file_url: String(form.get("file_url") || ""),
+        date: String(form.get("date") || "") || null
+      });
+      row = res;
+      msg = "Saved";
+    } else if (action === "delete") {
+      await del(`/documents/${id}`);
+      return redirect("/content/documents");
+    }
+  } catch (e:any) {
+    msg = e.message || String(e);
+  }
+}
+---
+
+<Layout title={`Document #${id}`}>
+  <Card title="Document Detail">
+    {msg && <div class="badge">{msg}</div>}
+
+    {row ? (
+      <form method="POST" class="grid">
+        <div>
+          <label>ID</label>
+          <div>{row.id}</div>
+        </div>
+
+        <div>
+          <label>Owner (userId)</label>
+          <div>{row.userId}</div>
+        </div>
+
+        <div class="full">
+          <label>Title</label>
+          <input name="title" value={row.title} required />
+        </div>
+
+        <div class="full">
+          <label>Description</label>
+          <input name="description" value={row.description || ""} />
+        </div>
+
+        <div class="full">
+          <label>File URL</label>
+          <input name="file_url" value={row.fileUrl || ""} placeholder="https://…" />
+          {row.fileUrl && <a class="badge" href={row.fileUrl} target="_blank" style="margin-top:.4rem;">Open</a>}
+        </div>
+
+        <div>
+          <label>Date</label>
+          <input type="date" name="date" value={row.date || ""} />
+        </div>
+
+        <div class="full" style="display:flex; gap:.5rem; align-items:center; margin-top:.6rem;">
+          <input type="hidden" name="action" value="update" />
+          <button class="badge" type="submit">Save</button>
+
+          <button
+            class="badge danger"
+            name="action"
+            value="delete"
+            formaction=""
+            formmethod="POST"
+            type="submit"
+          >
+            Delete
+          </button>
+
+          <a class="badge" href="/content/documents">Back</a>
+        </div>
+      </form>
+    ) : (
+      <p class="muted">Not found.</p>
+    )}
+  </Card>
+
+  <style lang="scss">
+    .grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:.7rem .9rem; }
+    .grid .full { grid-column: 1 / -1; }
+    label { font-size:.9rem; color:#666; display:block; margin-bottom:.25rem; }
+    .badge { border:1px solid #ccc; padding:.3rem .5rem; border-radius:.4rem; background:#fafafa; cursor:pointer; text-decoration:none; }
+    .badge.danger { border-color:#e04545; color:#e04545; }
+    .muted { color:#666; }
+  </style>
+</Layout>

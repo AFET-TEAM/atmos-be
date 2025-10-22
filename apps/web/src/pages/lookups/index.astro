@@ -1,0 +1,22 @@
+---
+import Layout from "@/components/Layout.astro";
+import Card from "@/components/Card.astro";
+import Table from "@/components/Table.astro";
+import { get } from "@/lib/api";
+const userStatuses = await get<any[]>("/user-statuses");
+const taskStatuses = await get<any[]>("/task-statuses");
+const ideaAssignees = await get<any[]>("/idea-assignees");
+---
+<Layout title="Lookups">
+  <div class="row">
+    <div class="col-4"><Card title="User Statuses"><Table rows={userStatuses} cols={[
+      { key: "id", label: "ID" }, { key: "name", label: "Name" }
+    ]}/></Card></div>
+    <div class="col-4"><Card title="Task Statuses"><Table rows={taskStatuses} cols={[
+      { key: "id", label: "ID" }, { key: "name", label: "Name" }
+    ]}/></Card></div>
+    <div class="col-4"><Card title="Idea Assignees"><Table rows={ideaAssignees} cols={[
+      { key: "id", label: "ID" }, { key: "name", label: "Name" }
+    ]}/></Card></div>
+  </div>
+</Layout>

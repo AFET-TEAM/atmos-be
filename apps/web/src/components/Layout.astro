@@ -1,0 +1,21 @@
+---
+import "../styles/global.scss";
+import Nav from "./Nav.astro";
+const { title = "Dev Portal", subtitle = "" } = Astro.props as {
+  title?: string;
+  subtitle?: string;
+};
+---
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <title>{title} {subtitle && `– ${subtitle}`}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <Nav />
+    <main class="container">
+      <slot />
+    </main>
+  </body>
+</html>

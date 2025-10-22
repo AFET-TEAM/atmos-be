@@ -1,0 +1,17 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "bun: dev",
+      "type": "shell",
+      "command": "bun run --hot src/index.ts",
+      "problemMatcher": []
+    },
+    {
+      "label": "tsc: watch",
+      "type": "shell",
+      "command": "bunx tsc -w --noEmit",
+      "problemMatcher": "$tsc-watch"
+    }
+  ]
+}

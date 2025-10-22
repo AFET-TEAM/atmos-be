@@ -1,0 +1,72 @@
+---
+import Card from "@/components/Card.astro";
+import Layout from "@/components/Layout.astro";
+import { del, get, patch } from "@/lib/api";
+
+const { params, request, redirect } = Astro;
+const id = Number(params.id);
+
+let row = await get<any>(`/comments/${id}`);
+let msg = "";
+
+if (request.method === "POST") {
+  const form = await request.formData();
+  const action = String(form.get("action") || "");
+  try {
+    if (action === "update") {
+      const res = await patch(`/comments/${id}`, {
+        text: String(form.get("text"))
+      });
+      row = res;
+      msg = "Saved";
+    } else if (action === "delete") {
+      await del(`/comments/${id}`);
+      return redirect("/comments");
+    }
+  } catch (e:any) {
+    msg = e.message || String(e);
+  }
+}
+---
+
+<Layout title={`Comment #${id}`}>
+  <Card title="Comment Detail">
+    {msg && <div class="badge">{msg}</div>}
+    {row ? (
+      <div class="grid">
+        <div><label>ID</label><div>{row.id}</div></div>
+        <div><label>User</label><div>{row.userId}</div></div>
+        <div><label>Type</label><div>{row.targetType}</div></div>
+        <div><label>Target</label><div>{row.targetId}</div></div>
+        <div class="full">
+          <form method="POST" class="form-inline">
+            <input type="hidden" name="action" value="update" />
+            <label>Text</label>
+            <input name="text" value={row.text} style="width:420px" />
+            <button class="badge" type="submit">Save</button>
+          </form>
+        </div>
+
+        <div class="full" style="margin-top:.6rem;">
+          <form method="POST">
+            <input type="hidden" name="action" value="delete" />
+            <button class="badge danger" type="submit">Delete</button>
+            <a class="badge" href="/comments" style="margin-left:.5rem;">Back</a>
+          </form>
+        </div>
+      </div>
+    ) : (
+      <p class="muted">Not found.</p>
+    )}
+  </Card>
+
+  <style lang="scss">
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap:.7rem .9rem; }
+    .grid .full { grid-column: 1 / -1; }
+    label { font-size:.9rem; color:#666; display:block; margin-bottom:.25rem; }
+    .form-inline { display:flex; gap:.5rem; align-items:center; }
+    .badge { border:1px solid #ccc; padding:.3rem .5rem; border-radius:.4rem; background:#fafafa; cursor:pointer; text-decoration:none; }
+    .badge.danger { border-color:#e04545; color:#e04545; }
+    .muted { color:#666; }
+  </style>
+</Layout>

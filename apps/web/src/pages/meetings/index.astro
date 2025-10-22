@@ -1,0 +1,17 @@
+---
+import Layout from "@/components/Layout.astro";
+import Card from "@/components/Card.astro";
+import Table from "@/components/Table.astro";
+import { get } from "@/lib/api";
+const rows = await get<any[]>("/meetings", { limit: 50, offset: 0 });
+---
+<Layout title="Meetings">
+  <Card title="Meetings">
+    <Table rows={rows} cols={[
+      { key: "id", label: "ID" },
+      { key: "title", label: "Title" },
+      { key: "startsAt", label: "Starts" },
+      { key: "endsAt", label: "Ends" }
+    ]}/>
+  </Card>
+</Layout>

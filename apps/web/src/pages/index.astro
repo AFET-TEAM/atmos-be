@@ -1,0 +1,24 @@
+---
+import Layout from "@/components/Layout.astro";
+import Card from "@/components/Card.astro";
+import { get } from "@/lib/api";
+
+let dbHealth: { ok: boolean } | null = null;
+try { dbHealth = await get<{ ok: boolean }>("/health"); } catch {}
+---
+<Layout title="Dev Portal" subtitle="Dashboard">
+  <div class="row">
+    <div class="col-6"><Card title="DB Health">
+      {dbHealth ? <span class="badge" style={`border-color:${dbHealth.ok?'#2e7':'#f66'}`}>{dbHealth.ok ? "OK" : "DOWN"}</span> : <em>n/a</em>}
+    </Card></div>
+    <div class="col-6"><Card title="Quick Links">
+      <div class="toolbar">
+        <a class="badge" href="/users">Users</a>
+        <a class="badge" href="/teams">Teams</a>
+        <a class="badge" href="/meetings">Meetings</a>
+        <a class="badge" href="/tasks">Tasks</a>
+        <a class="badge" href="/comments">Comments</a>
+      </div>
+    </Card></div>
+  </div>
+</Layout>

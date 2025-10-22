@@ -1,0 +1,36 @@
+{
+  "files.eol": "\n",
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit",
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  "typescript.preferences.importModuleSpecifier": "shortest",
+  "typescript.preferences.quoteStyle": "single",
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+  "typescript.tsserver.maxTsServerMemory": 3072,
+
+  "files.exclude": {
+    "node_modules": true,
+    ".bun": true,
+    "dist": true
+  },
+  "search.exclude": {
+    "node_modules": true,
+    ".bun": true,
+    "dist": true
+  },
+
+  "terminal.integrated.env.windows": {
+    "BUN_INSTALL": "${workspaceFolder}\\.bun"
+  }
+}
