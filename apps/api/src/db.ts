@@ -12,7 +12,7 @@ const SLOW_MS = Number(process.env.SQL_SLOW_MS ?? 200);
 /** pg bağlantı ayarları (prod için opsiyonel SSL, statement_timeout vb.) */
 const config = {
   host: process.env.PGHOST,
-  port: process.env.PGPORT ? Number(process.env.PGPORT) : 5432,
+  port: process.env.PGPORT ? Number(process.env.PGPORT) : 5430,
   database: process.env.PGDATABASE,
   user: process.env.PGUSER,
   password: process.env.PGPASSWORD,
