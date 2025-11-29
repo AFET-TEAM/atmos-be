@@ -1,0 +1,20 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Ideas from "@/components/Ideas/Ideas.astro";
+import "./ideas.scss";
+
+---
+
+<Layout title="Ideas">
+  <section class="ideasWrapper">
+    <div class="content">
+      <div class="info-container">
+        <div class="title">Ideas Page</div>
+        <div class="description">Page description</div>
+      </div>
+      <div class="ideas-container">
+        <Ideas />
+      </div>
+    </div>
+  </section>
+</Layout>

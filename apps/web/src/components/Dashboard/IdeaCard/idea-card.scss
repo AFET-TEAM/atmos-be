@@ -1,0 +1,31 @@
+.idea-card {
+  @include flexible(flex, column, center, center);
+  height: 100%;
+  padding: 2.5rem 2rem;
+  box-sizing: border-box;
+  background: linear-gradient(to right, #3498db, #2c7bb6);
+  color: #fff;
+  border-radius: 1rem;
+  gap: 1rem;
+}
+
+.card-container {
+  @include flexible($display: flex, $align-items: center, $gap: 16px);
+  width: 100%;
+}
+
+.text-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.header {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.content {
+  font-size: 14px;
+  line-height: 1.5;
+}

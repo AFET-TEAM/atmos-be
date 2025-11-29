@@ -1,18 +1,28 @@
 {
-  "name": "web",
-  "private": true,
+  "name": "atos",
   "type": "module",
+  "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/node": "^9.5.1",
-    "astro": "^5.16.0",
-    "typescript": "^5.4.0"
+    "@astrojs/react": "^4.1.0",
+    "@astrojs/svelte": "^7.0.1",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.2",
+    "astro": "^5.0.5",
+    "axios": "^1.7.9",
+    "json-server": "^1.0.0-beta.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sass": "^1.83.4",
+    "svelte": "^5.14.0",
+    "typescript": "^5.7.2"
   },
   "devDependencies": {
-    "sass": "^1.93.2"
+    "sass-embedded": "^1.93.3"
   }
 }

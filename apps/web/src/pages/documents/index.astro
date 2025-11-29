@@ -1,0 +1,55 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getAllDocuments } from "@/api/DocumentsApi";
+import DynamicCard from "@/components/UI/DynamicCard.svelte";
+import DocumentsHeader from "@/components/Documents/DocumentsHeader.svelte";
+
+const allDocuments = await getAllDocuments();
+const $admin: boolean = true;
+function onDownload(document: DocumentType) {
+  console.log("Download document:", document);
+}
+function onUpdate(document: DocumentType) {
+  console.log("Update document:", document);
+}
+function onDelete(documentId: string) {
+  console.log("Delete document with ID:", documentId);
+}
+---
+
+<Layout title="Documents">
+  <DocumentsHeader client:load />
+  {
+    allDocuments.map((document: DocumentType) => (
+      <DynamicCard
+        title={document.title}
+        description={document.description}
+        owner={document.author}
+        titleHref={`/documents/${document.id}`}
+        isAdmin={$admin}
+        actions={[
+          {
+            label: "Download",
+            onClick: () => onDownload(document),
+            variant: "blue",
+            icon: "download",
+          },
+          {
+            label: "Update",
+            onClick: () => onUpdate(document),
+            variant: "green",
+            icon: "update",
+            adminOnly: true,
+          },
+          {
+            label: "Delete",
+            onClick: () => onDelete(document.id),
+            variant: "red",
+            icon: "delete",
+            adminOnly: true,
+          },
+        ]}
+      />
+    ))
+  }
+</Layout>

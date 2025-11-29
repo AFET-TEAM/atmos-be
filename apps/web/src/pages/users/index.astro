@@ -1,157 +1,18 @@
 ---
-import Card from "@/components/Card.astro";
-import Layout from "@/components/Layout.astro";
-import Pager from "@/components/Pager.astro";
-import Table from "@/components/Table.astro";
-import { del, get, paginateDefaults, patch, post } from "@/lib/api";
-
-// paging
-const url = new URL(Astro.request.url);
-const limit = Number(url.searchParams.get("limit") ?? paginateDefaults.limit);
-const offset = Number(url.searchParams.get("offset") ?? paginateDefaults.offset);
-
-// liste verisi
-let rows = await get<any[]>("/users", { limit, offset });
-
-// ---- güvenli body parse (form/json)
-const ct = (Astro.request.headers.get("content-type") || "").toLowerCase();
-const isPost = Astro.request.method === "POST";
-const isFormPost =
-  isPost &&
-  (ct.includes("application/x-www-form-urlencoded") ||
-    ct.startsWith("multipart/form-data"));
-const isJsonPost = isPost && ct.includes("application/json");
-
-let msg = "";
-if (isFormPost || isJsonPost) {
-  try {
-    const payload: Record<string, any> = isJsonPost
-      ? await Astro.request.json()
-      : Object.fromEntries((await Astro.request.formData()).entries());
-    const action = String(payload.action || "");
-
-    if (action === "create") {
-      await post("/users", {
-        email: String(payload.email),
-        full_name: String(payload.full_name),
-        team: payload.team ? String(payload.team) : undefined,
-        profession: payload.profession ? String(payload.profession) : undefined,
-        profile_picture: payload.profile_picture ? String(payload.profile_picture) : undefined,
-        address: payload.address ? String(payload.address) : undefined,
-        connection: payload.connection === "on" ? true : payload.connection === true,
-        user_status_id: payload.user_status_id ? Number(payload.user_status_id) : undefined
-      });
-    } else if (action === "update") {
-      const id = Number(payload.id);
-      await patch(`/users/${id}`, {
-        full_name: String(payload.full_name),
-        team: payload.team ? String(payload.team) : undefined,
-        profession: payload.profession ? String(payload.profession) : undefined
-      });
-    } else if (action === "delete") {
-      const id = Number(payload.id);
-      await del(`/users/${id}`);
-    }
-
-    // aynı sayfaya, mevcut query ile geri dön
-    return Astro.redirect(`/users?${url.searchParams.toString()}`);
-  } catch (e: any) {
-    msg = e?.message || String(e);
-  }
-}
+import Users from "../../components/Users/Users.astro";
+import Layout from "@/layouts/Layout.astro";
 ---
 
 <Layout title="Users">
-  <Card title="Create User">
-    {msg && <div class="badge">{msg}</div>}
-    <form method="POST" enctype="application/x-www-form-urlencoded" class="grid">
-      <input type="hidden" name="action" value="create" />
-      <label>
-        <span>Email</span>
-        <input name="email" type="email" required />
-      </label>
-      <label>
-        <span>Full Name</span>
-        <input name="full_name" required />
-      </label>
-      <label>
-        <span>Team</span>
-        <input name="team" />
-      </label>
-      <label>
-        <span>Profession</span>
-        <input name="profession" />
-      </label>
-      <label class="full">
-        <span>Profile Picture URL</span>
-        <input name="profile_picture" placeholder="https://…" />
-      </label>
-      <label class="full">
-        <span>Address</span>
-        <input name="address" />
-      </label>
-      <label>
-        <span>Connection</span>
-        <input name="connection" type="checkbox" />
-      </label>
-      <label>
-        <span>Status ID</span>
-        <input name="user_status_id" type="number" min="1" />
-      </label>
-      <div class="full">
-        <button class="primary" type="submit">Add</button>
+  <section class="usersWrapper">
+    <div class="content">
+      <div class="info-container">
+        <div class="title">Users Page</div>
+        <div class="description">Page description</div>
       </div>
-    </form>
-  </Card>
-
-  <Card title="Users">
-    <div class="toolbar">
-      <a class="badge" href={`/users?limit=${limit}&offset=${offset}`}>Refresh</a>
-      <a class="badge" href="/v1/users" target="_blank">Raw /v1/users</a>
+      <div class="users-container">
+        <Users />
+      </div>
     </div>
-
-    <Table
-      rows={rows}
-      cols={[
-        { key: "id", label: "ID", render: (r:any) => `<a href="/users/${r.id}">${r.id}</a>` },
-        { key: "fullName", label: "Full Name" },
-        { key: "email", label: "Email" },
-        { key: "team", label: "Team" },
-        {
-          key: "id",
-          label: "Actions",
-          render: (r:any) =>
-            `
-            <form method="POST" enctype="application/x-www-form-urlencoded" class="inline">
-              <input type="hidden" name="action" value="update" />
-              <input type="hidden" name="id" value="${r.id}" />
-              <input name="full_name" value="${r.fullName ?? ""}" placeholder="full_name" />
-              <input name="team" value="${r.team ?? ""}" placeholder="team" />
-              <input name="profession" value="${r.profession ?? ""}" placeholder="profession" />
-              <button class="badge" type="submit">Save</button>
-            </form>
-            <form method="POST" enctype="application/x-www-form-urlencoded" class="inline">
-              <input type="hidden" name="action" value="delete" />
-              <input type="hidden" name="id" value="${r.id}" />
-              <button class="badge danger" type="submit">Delete</button>
-            </form>
-            <a class="badge" href="/users/${r.id}">Detail</a>
-            `
-        }
-      ]}
-    />
-
-    <Pager basePath="/users" limit={limit} offset={offset} />
-  </Card>
-
-  <style lang="scss">
-    .toolbar { display:flex; gap:.5rem; margin-bottom:.6rem; flex-wrap:wrap; }
-    .grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:.6rem .8rem; }
-    .grid .full { grid-column: 1 / -1; }
-    .grid label { display:flex; flex-direction:column; gap:.3rem; }
-    .inline { display:inline-flex; gap:.4rem; flex-wrap:wrap; align-items:center; margin-right:.4rem; }
-    .badge { border:1px solid #ccc; padding:.3rem .5rem; border-radius:.4rem; background:#fafafa; cursor:pointer; text-decoration:none; }
-    .badge.danger { border-color:#e04545; color:#e04545; }
-    .primary { padding:.45rem .75rem; border:1px solid #ddd; border-radius:.5rem; background:#222; color:#fff; cursor:pointer; }
-  </style>
+  </section>
 </Layout>

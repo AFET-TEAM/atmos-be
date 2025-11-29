@@ -1,0 +1,98 @@
+.techtalk-card {
+  position: relative;
+
+  .card-image-container {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+
+    .card-image {
+      margin-top: 40px;
+      width: 90%;
+      height: 80%;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .tech-talk-badge {
+      @include badges(
+              $position: absolute,
+              $background-color: $primary,
+              $color: $white,
+              $padding: 5px 10px,
+              $font-weight: normal
+      );
+      font-size: 12px;
+    }
+  }
+
+  .card-content {
+    padding: 24px;
+
+    .header-row {
+      @include flexible($display: flex, $align-items: center);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .date-badge {
+      @include flexible(flex, column, center, center);
+      background-color: $primary;
+      color: #fff;
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      font-weight: 700;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+
+      .day {
+        font-size: 24px;
+        line-height: 1;
+      }
+
+      .month {
+        font-size: 14px;
+        line-height: 1;
+      }
+    }
+
+    .title-description {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+      margin: 0 0 4px 0;
+    }
+
+    .description {
+      font-size: 14px;
+      color: #777;
+      margin: 0;
+      font-style: italic;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+
+      .info-text {
+        font-size: 14px;
+        color: $greyTextColor;
+
+        &.link {
+          color: $primary;
+          text-decoration: none;
+        }
+      }
+    }
+  }
+}

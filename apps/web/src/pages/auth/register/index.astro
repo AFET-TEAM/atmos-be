@@ -1,0 +1,128 @@
+---
+import { registerUser } from "@/api/AuthApi";
+import AuthLayout from "../../../layouts/AuthLayout.astro";
+
+let errorMessage = "";
+
+
+if (Astro.request.method === "GET") {
+  const authCookie = Astro.cookies.get("auth");
+  if (authCookie) {
+    return Astro.redirect("/dashboard");
+  }
+}
+
+if (Astro.request.method === "POST") {
+  try {
+    const data = await Astro.request.formData();
+    const name = data.get("name")?.toString();
+    const email = data.get("email")?.toString();
+    const password = data.get("password")?.toString();
+    const passwordAgain = data.get("passwordAgain")?.toString();
+
+    if (!name || !email || !password || !passwordAgain) {
+      errorMessage = "Tüm alanlar zorunludur";
+    } else if (password !== passwordAgain) {
+      errorMessage = "Şifreler eşleşmiyor";
+    } else {
+      await registerUser(email, password, name);
+      return Astro.redirect("/auth/login");
+    }
+  } catch (error: any) {
+
+    const errorInfo = {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data
+    };
+    console.error("Registration error:", errorInfo);
+    errorMessage = error.response?.data?.message || "Kayıt sırasında bir hata oluştu";
+  }
+}
+---
+
+<AuthLayout title="Kayıt Ol - ATOS">
+  <section class="authWrapper">
+    <form method="POST" class="form-container">
+      <h2>Kayıt Ol</h2>
+      <p class="subtitle">Hesabınızı oluşturun ve başlayın</p>
+
+      {errorMessage && <div class="error-message">{errorMessage}</div>}
+
+      <div class="form-group">
+        <label for="name">Kullanıcı Adı</label>
+        <div class="input-wrapper">
+          <span class="input-icon">👤</span>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            placeholder="Kullanıcı adınızı girin"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">E-posta Adresi</label>
+        <div class="input-wrapper">
+          <span class="input-icon">📧</span>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="ornek@email.com"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Şifre</label>
+        <div class="input-wrapper">
+          <span class="input-icon">🔒</span>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Güçlü bir şifre seçin"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="passwordAgain">Şifre Tekrar</label>
+        <div class="input-wrapper">
+          <span class="input-icon">🔐</span>
+          <input
+            type="password"
+            id="passwordAgain"
+            name="passwordAgain"
+            placeholder="Şifrenizi tekrar girin"
+            required
+          />
+        </div>
+      </div>
+
+      <button type="submit" class="submit-button">Hesap Oluştur</button>
+
+      <p class="auth-link">
+        Zaten hesabınız var mı? <a href="/auth/login">Giriş Yapın</a>
+      </p>
+    </form>
+  </section>
+
+
+   <script>
+    import { redirectIfAuthenticated } from '@/utils/authGuard';
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+      redirectIfAuthenticated();
+    });
+  </script>
+</AuthLayout>
+
+
+

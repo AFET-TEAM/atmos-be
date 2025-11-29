@@ -1,0 +1,29 @@
+.ideasWrapper {
+  height: 100vh;
+
+  @include flexible(flex, row, null, null);
+
+  .content {
+    width: 90%;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+
+    .info-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 1rem;
+
+      .title {
+        margin: 0;
+        @include Typgraphy(1rem, 700, null);
+      }
+
+      .description {
+        font-size: 14px;
+        @include Typgraphy(0.75rem, 500, null, italic);
+      }
+    }
+  }
+}

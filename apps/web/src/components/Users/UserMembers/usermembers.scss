@@ -1,0 +1,47 @@
+.team-members-card {
+  background-color: $white;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  
+
+  -ms-overflow-style: none;  
+  scrollbar-width: none;    
+  
+  min-width: 30%;
+  max-width: 40%;
+  height: 18rem;
+  padding: 1rem;
+  border-radius: 10px;
+  position: relative;
+  
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  ul {
+    li {
+      @include flexible(flex, row, space-between, center);
+
+      font-size: 0.75rem;
+    }
+  }
+
+  .team-members {
+    margin-top: 10px;
+  }
+
+  .team-member{
+    margin-bottom: 10px;
+  }
+  .card-tag {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: $colorPurple;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    padding: 0.2rem;
+    color: $white;
+  }
+}

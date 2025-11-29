@@ -1,0 +1,101 @@
+---
+import "./dashboard.scss";
+import Calendar from "./Calendar/Calendar.svelte";
+import WelcomeCard from "./WelcomeCard/WelcomeCard.astro";
+import StatsCard from "./StatsCard/StatsCard.astro";
+import TotalTaskCard from "./TotalTaskCard/TotalTaskCard.astro";
+import TechTalkCard from "./TechTalkCard/TechTalkCard.astro";
+import LinksCard from "./LinksCard/LinksCard.astro";
+import IdeaCard from "./IdeaCard/IdeaCard.astro";
+import MapCard from "./MapCard/MapCard.astro";
+---
+
+<div class="dashboard">
+  <div class="top-section">
+    <div class="left-group">
+      <div class="card">
+        <WelcomeCard/>
+      </div>
+      <div class="stats-row">
+        <StatsCard/>
+      </div>
+    </div>
+    <div class="calendar">
+      <Calendar client:load/>
+    </div>
+  </div>
+
+  <div class="middle-section">
+    <div class="card">
+      <TotalTaskCard/>
+    </div>
+    <div class="card">
+      <TechTalkCard/>
+    </div>
+    <div class="card">
+      <LinksCard/>
+    </div>
+  </div>
+
+  <div class="bottom-section">
+    <div class="card">
+      <IdeaCard/>
+    </div>
+    <div class="card">
+      <MapCard/>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { tokenManager } from '@/axios/axiosInstance';
+
+  document.addEventListener('DOMContentLoaded', () => {
+
+    const cookieToken = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('auth='))
+      ?.split('=')[1];
+
+    const cookieUser = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('user='))
+      ?.split('=')[1];
+
+    if (cookieToken && !tokenManager.getToken()) {
+      console.log('📥 Dashboard: Copying token from cookie to localStorage');
+      tokenManager.setToken(cookieToken);
+
+      if (cookieUser) {
+        try {
+          const userData = JSON.parse(decodeURIComponent(cookieUser));
+          tokenManager.setUser(userData);
+        } catch (e) {
+          console.error('User cookie parse error:', e);
+        }
+      }
+    }
+
+
+    const token = tokenManager.getToken();
+    console.log('🔍 Dashboard auth check:', {
+      hasToken: !!token,
+      isExpired: token ? tokenManager.isTokenExpired(token) : null
+    });
+
+    if (!token) {
+      console.log('❌ No token found, redirecting to login');
+      window.location.href = '/auth/login';
+      return;
+    }
+
+    if (tokenManager.isTokenExpired(token)) {
+      console.log('⏰ Token expired, redirecting to login');
+      tokenManager.removeToken();
+      window.location.href = '/auth/login';
+      return;
+    }
+
+    console.log('✅ Authentication successful, staying on dashboard');
+  });
+</script>

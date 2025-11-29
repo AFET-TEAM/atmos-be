@@ -1,0 +1,28 @@
+.sidebar {
+  @include flexible(flex, column, center, center);
+  border-radius: 50px;
+  width: 12rem;
+  height: 100%;
+  background-color: $white;
+
+  .logo {
+    @include flexible(flex, null, center, center);
+    width: 100%;
+    margin-bottom: 20px;
+
+    .sidebar-logo {
+      width: 100px;
+    }
+  }
+}
+
+.links {
+  @include flexible(flex, column, space-between, center, 20px);
+  margin-top: auto;
+  margin-bottom: auto;
+
+  .customLink {
+    @include flexible(flex, null, flex-start, center, 10px);
+    width: 100%;
+  }
+}

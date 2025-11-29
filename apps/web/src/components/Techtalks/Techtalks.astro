@@ -1,0 +1,19 @@
+---
+import TechTalksPage from "./TechTalksPage/TechTalksPage.svelte"; 
+const pageTitle = "TechTalks";
+---
+
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <main>
+      <TechTalksPage client:load />
+      
+    </main>
+  </body>
+</html>

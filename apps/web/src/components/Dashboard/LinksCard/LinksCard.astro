@@ -1,0 +1,31 @@
+---
+import Icon from "../../../../public/icons/icon.astro";
+import { getImportantLinks } from "../../../api/UsersApi";
+import "./links-card.scss";
+
+type ImportantLink = {
+    key: string;
+    value: string;
+};
+
+const $importantLinks: ImportantLink[]  = await getImportantLinks();
+---
+
+<div class="links-card-container">
+    <div class="badge-area">
+        <div class="links-badge">Important Links</div>
+    </div>
+
+    <div class="content-area">
+        <div class="links-grid">
+            {
+                $importantLinks.map((link) => (
+                        <a href={link.key} class="link-item">
+                            <Icon name={"links"} />
+                            <span>{link.value}</span>
+                        </a>
+                ))
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,5 @@
+.map-card {
+  @include flexible(flex, null, center, center);
+  width: 100%;
+  height: 100%;
+}

@@ -1,0 +1,65 @@
+.tab-container {
+  .tab-links {
+    @include flexible(flex, row, space-around, center, 0.4rem);
+
+    &-button {
+      @include buttons(
+        100%,
+        0.5rem,
+        $white,
+        $white,
+        $white,
+        null,
+        null,
+        null,
+        null
+      );
+      border-top-right-radius: 12px;
+      border-top-left-radius: 12px;
+      @include flexible(flex, row-reverse, center, center, null);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: -10px -11px 100px -59px rgba(25, 160, 196, 1) inset;
+        -webkit-box-shadow: -10px -11px 100px -59px rgba(25, 160, 196, 1) inset;
+        -moz-box-shadow: -10px -11px 100px -59px rgba(25, 160, 196, 1) inset;
+      }
+
+      &.active {
+        color: $primary;
+        background-color: $white;
+        transform: translateY(-2px);
+        box-shadow: -10px -11px 100px -59px rgba(25, 160, 196, 1) inset;
+        -webkit-box-shadow: -10px -11px 100px -59px rgba(25, 160, 196, 1) inset;
+        -moz-box-shadow: -10px -11px 100px -59px rgba(25, 160, 196, 1) inset;
+      }
+
+      &.inactive {
+        background-color: $white;
+        color: $black;
+
+        &:hover {
+          background-color: $white;
+          color: $primary;
+        }
+      }
+    }
+  }
+
+  .tab-content {
+    padding: 1rem;
+    background-color: $white;
+    border-top: none;
+    border-bottom-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    max-width: 100%;
+    min-height: 500px;
+
+    .loading,
+    .error {
+      @include flexible(flex, null, center, center);
+      padding: 2rem;
+      @include Typgraphy(1rem, 400, $greyTextColor, null, center);
+    }
+  }
+}

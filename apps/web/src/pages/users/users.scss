@@ -1,0 +1,65 @@
+.usersWrapper {
+  height: 100vh;
+  @include flexible(flex, row, null, null);
+  background-color: $bgGrey;
+}
+
+.sidebar {
+  width: 200px;
+  height: 100vh;
+  @include flexible(flex, column, center, center);
+  gap: 10px;
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 50px;
+  width: 100%;
+  @include flexible(flex, row, flex-start, center);
+  z-index: 10;
+}
+
+.content {
+  margin-top: 30px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0 50px;
+
+  .info-container {
+    margin-top: 20px;
+
+    .title {
+      margin: 0;
+      @include Typgraphy(1rem, 700, null);
+    }
+
+    .description {
+      margin-top: 10px;
+      @include Typgraphy(0.75rem, 500, null, italic);
+    }
+  }
+
+  .users-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    margin-top: 30px;
+  }
+}
+
+.page-top {
+  @include flexible(flex, row, flex-start);
+  gap: 1rem;
+}
+
+.page-content {
+  display: grid;
+  grid-template-columns: 20% 80%;
+  gap: 1rem;
+  margin-top: 2rem;
+  width: 100%;
+}

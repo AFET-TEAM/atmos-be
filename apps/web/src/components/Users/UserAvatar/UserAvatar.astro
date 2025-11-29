@@ -1,0 +1,47 @@
+---
+import "./Avatar.scss";
+type propsType = {
+  user: {
+    id: number;
+    fullName?: string;
+    profilePicture: string;
+    status: string;
+  };
+  imageSize?: string;
+  disableIndicator: boolean;
+};
+const { user, imageSize, disableIndicator = true } = Astro.props as propsType;
+
+function getStatusClass(status: string) {
+  switch (status) {
+    case "Online":
+      return "status-info-online";
+    case "Away":
+      return "status-info-away";
+    case "Meeting":
+      return "status-info-meeting";
+    default:
+      return "status-info-offline";
+  }
+}
+---
+
+<div class="user-avatar-container">
+  <div class={`user-profile-img ${getStatusClass(user.status)}`}>
+    <div class="image-wrapper">
+      <img
+        class={imageSize}
+        src={user.profilePicture}
+        alt="user-profile-picture"
+      />
+      {
+        disableIndicator && (
+          <span class={`status-indicator ${getStatusClass(user.status)}`} />
+        )
+      }
+    </div>
+    <div class="user-name">
+      <p>{user.fullName}</p>
+    </div>
+  </div>
+</div>
