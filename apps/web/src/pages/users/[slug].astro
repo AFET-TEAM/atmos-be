@@ -1,20 +1,18 @@
 ---
-import Layout from "../../layouts/Layout.astro";
-import UserProfileCard from "@/components/Users/UserProfileCard/UserProfileCard.astro";
 import { getUserById } from "@/api/UsersApi";
-import "./users.scss";
-import UserMembers from "@/components/Users/UserMembers/UserMembers.astro";
-import TabsWrapper from "@/components/Users/TabMenu/TabsWrapper.svelte";
 import MeetList from "@/components/Users/MeetList/MeetList.astro";
+import TabsWrapper from "@/components/Users/TabMenu/TabsWrapper.svelte";
+import UserMembers from "@/components/Users/UserMembers/UserMembers.astro";
+import UserProfileCard from "@/components/Users/UserProfileCard/UserProfileCard.astro";
+import Layout from "../../layouts/Layout.astro";
+import "./users.scss";
 
 const { slug } = Astro.params;
 
-const $user = await getUserById(slug)
-  .then((response) => response.data)
-  .catch((error) => {
-    console.error("Error fetching user data:", error);
-    return null;
-  });
+const $user = await getUserById(slug).catch((error) => {
+  console.error("Error fetching user data:", error);
+  return null;
+});
 
 const $meets = $user?.meetings?.map((meet: any) => ({
   ...meet,

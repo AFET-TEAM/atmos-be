@@ -1,9 +1,8 @@
 ---
-import SearchBar from "@/components/Users/SearchBar/SearchBar.astro";
-import "./Header.scss";
-import Icon from "public/icons/icon.astro";
-import SearchInput from "@/components/UI/SearchInput.astro";
 import IconButton from "@/components/UI/IconButton.astro";
+import SearchInput from "@/components/UI/SearchInput.astro";
+import Icon from "public/icons/icon.astro";
+import "./Header.scss";
 const { user } = Astro.props;
 ---
 
@@ -17,11 +16,11 @@ const { user } = Astro.props;
     <div class="icon"><Icon name="mail" /></div>
     <div class="icon"><Icon name="notification" /></div>
     <div class="avatar">
-      <span class="user-name">{user.fullname ?? "Kullanıcı"}</span>
+      <span class="user-name">{"Kullanıcı"}</span>
       <div class="image-wrapper">
         <img
           class="avatar-img"
-          src={user.profilePicture}
+          src={""}
           alt="avatar"
           width="32"
           height="32"

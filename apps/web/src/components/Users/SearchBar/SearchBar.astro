@@ -1,11 +1,11 @@
 ---
-import Dropdown from "../../UI/Dropdown.astro";
 import { getSortOptions, getUsersTeams } from "../../../api/UsersApi";
-import "./search-bar.scss";
+import Dropdown from "../../UI/Dropdown.astro";
 import SearchInput from "../../UI/SearchInput.astro";
+import "./search-bar.scss";
 
-const $teams = await getUsersTeams().then((resp) => resp.data);
-const $sortOptions = await getSortOptions().then((resp) => resp.data);
+const $teams = await getUsersTeams();
+const $sortOptions = await getSortOptions();
 ---
 
 <section class="searchbar-container">

@@ -3,7 +3,7 @@ import "./user-list.scss";
 import Icon from "../../../../public/icons/icon.astro";
 import { getUsers } from "@/api/UsersApi";
 import UserAvatar from "../UserAvatar/UserAvatar.astro";
-const $users = await getUsers().then((resp) => resp.data);
+const $users = await getUsers();
 
 let isDropdownVisible = false;
 ---
@@ -18,7 +18,7 @@ let isDropdownVisible = false;
           </div>
           <div class="content">
             <div class="badge">{user.profession}</div>
-            <h3>{user.fullname}</h3>
+            <h3>{user.full_name}</h3>
             <div class="info">
               <Icon
                 name={"adjustmentIcon"}
@@ -37,7 +37,7 @@ let isDropdownVisible = false;
             <div class="user-bubbles">
               {user.teamMembers.slice(0, 3).map((member: any) => (
                 <div class="user-bubble">
-                  <img src={member.profilePicture} alt={member.fullname} />
+                  <img src={member.profilePicture} alt={member.full_name} />
                 </div>
               ))}
               {user.teamMembers.length > 3 && (
@@ -53,9 +53,9 @@ let isDropdownVisible = false;
                         <div class="dropdown-item">
                           <img
                             src={member.profilePicture}
-                            alt={member.fullname}
+                            alt={member.full_name}
                           />
-                          <span>{member.fullname}</span>
+                          <span>{member.full_name}</span>
                         </div>
                       ))}
                     </div>

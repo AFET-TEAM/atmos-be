@@ -1,14 +1,14 @@
 ---
-import "./links-card.scss";
-import {getImportantLinks} from "../../../api/UsersApi";
 import Icon from "../../../../public/icons/icon.astro";
+import { getImportantLinks } from "../../../api/UsersApi";
+import "./links-card.scss";
 
 type ImportantLink = {
     key: string;
     value: string;
 };
 
-const $importantLinks: ImportantLink[]  = await getImportantLinks().then((resp) => resp.data);
+const $importantLinks: ImportantLink[]  = await getImportantLinks();
 ---
 
 <div class="links-card-container">

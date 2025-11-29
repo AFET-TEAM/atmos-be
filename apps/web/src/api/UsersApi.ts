@@ -1,32 +1,77 @@
 import instance from "@/axios/axiosInstance";
 
 export const getUsers = async () => {
-  return await instance.get("/users");
+  try {
+    const response = await instance.get("/users", {
+      params: {
+        limit: 100,
+        offset: 0,
+        include_deleted: false
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return [];
+  }
 };
 
 export const getUserById = async (id: string | undefined) => {
-  return await instance.get(`/users/${id}`);
+  try {
+    const response = await instance.get(`/users/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching user ${id}:`, error);
+    return null;
+  }
 };
 
 export const getUsersTeams = async () => {
-  return await instance.get("/teams");
+  try {
+    const response = await instance.get("/teams");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching teams:", error);
+    return [];
+  }
 };
 
 export const getSortOptions = async () => {
-  return await instance.get("/sortOptions");
+  try {
+    const response = await instance.get("/sortOptions");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching sort options:", error);
+    return [];
+  }
 };
 
 export const getImportantLinks = async () => {
-  return await instance.get("/importantLinks"); //burası userdan ayrılacak dashboard servisi içine koyulacak. servis gelene kadar böyle
+  try {
+    const response = await instance.get("/importantLinks");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching important links:", error);
+    return [];
+  }
 };
 
 export const getTabNameForUserDetails = async () => {
-  const response = await instance.get(`/tabs`);
-  console.log("Response from getTabNameForUserDetails:", response);
-  return response.data;
+  try {
+    const response = await instance.get(`/tabs`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching tabs:", error);
+    return [];
+  }
 };
 
 export const getUserTabDetails = async (tabName: string | undefined) => {
-  const response = await instance.get(`/${tabName}`);
-  return response.data;
+  try {
+    const response = await instance.get(`/${tabName}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching tab details for ${tabName}:`, error);
+    return null;
+  }
 };
