@@ -1,0 +1,11 @@
+---
+import TechtalkDetails from "./TechtalkDetails/TechtalkDetails.svelte";
+import type { TechTalk } from "./types/TechTalks";
+
+const { talk, others } = Astro.props as {
+  talk: TechTalk;
+  others?: TechTalk[];
+};
+---
+
+<TechtalkDetails talk={talk} others={others ?? []} />

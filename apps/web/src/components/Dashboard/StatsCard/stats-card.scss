@@ -1,0 +1,74 @@
+.stat-card {
+  display: flex;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  min-height: 50px;
+
+  &::before {
+    content: "";
+    width: 6px;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  .stat-content {
+    @include flexible(flex, null, flex-start, center, null);
+    width: 100%;
+    height: 100%;
+    position: relative;
+    padding-left: 1rem;
+
+    .icon {
+      font-size: 1.5rem;
+      margin-right: 1rem;
+    }
+
+    .value {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.4rem;
+      font-weight: bold;
+      margin-left: 0;
+    }
+  }
+
+  &.stat-purple::before {
+    background-color: $colorPurple;
+  }
+
+  &.stat-blue::before {
+    background-color: $primary;
+  }
+
+  &.stat-green::before {
+    background-color: $secondary;
+  }
+
+  &.stat-yellow::before {
+    background-color: $awayColor;
+  }
+
+  &.stat-purple .value {
+    color: $colorPurple;
+  }
+
+  &.stat-blue .value {
+    color: $primary;
+  }
+
+  &.stat-green .value {
+    color: $secondary;
+  }
+
+  &.stat-yellow .value {
+    color: $awayColor;
+  }
+}

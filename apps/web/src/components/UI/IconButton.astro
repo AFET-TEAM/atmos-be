@@ -1,0 +1,16 @@
+---
+import Icon from "public/icons/icon.astro";
+import "./ui.scss";
+type iconButton = {
+  iconName: string;
+  text?: string;
+  color?: string;
+  buttonType: string;
+};
+const { iconName, text, color, buttonType } = Astro.props as iconButton;
+---
+
+<button class={`icon-button-${buttonType}`}>
+  {text && <span>{text}</span>}
+  <Icon color={color} name={iconName} size={24} />
+</button>

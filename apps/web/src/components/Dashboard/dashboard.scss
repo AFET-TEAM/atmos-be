@@ -1,0 +1,42 @@
+.dashboard {
+  padding-top: 10px;
+  .card {
+    @include cards($padding: 1.5rem);
+  }
+  .top-section {
+    @include flexible(flex, null, null, stretch, 10px);
+    margin-bottom: 2rem;
+
+    .left-group {
+      flex: 2;
+      @include flexible(flex, column, null, null, null);
+
+      .stats-row {
+        @include flexible(flex, null, null, null, 1rem);
+        margin-top: 1.5rem;
+      }
+    }
+    .calendar {
+      @include cards($white, 10px, 10px, auto, null);
+      width: 100%;
+      max-width: 370px;
+    }
+  }
+
+  .middle-section {
+    @include grid(grid, repeat(3, 1fr), null, null, null, 10px);
+    margin-bottom: 2rem;
+
+    .card {
+      @include cards();
+    }
+  }
+  .bottom-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    .card {
+      @include cards();
+    }
+  }
+}

@@ -1,0 +1,106 @@
+.tt-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin: 1rem 0;
+}
+
+.tt-thumb {
+  width: 75px;
+  height: 75px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+
+  &[src=""],
+  &[src="about:blank"] {
+    display: none;
+  }
+}
+
+.tt-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.tt-title {
+  font-size: 24px;
+  display: inline-block;
+  font-weight: 700;
+  text-decoration: none;
+  color: #2486ff;
+  line-height: 1.15;
+  word-break: break-word;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.tt-name {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #808080;
+}
+
+.tt-owner {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #505050;
+}
+
+.tt-actions {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+
+  &:empty {
+    display: none;
+  }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    cursor: pointer;
+    font-weight: 400;
+    line-height: 1;
+    transition: transform 0.06s ease, opacity 0.2s ease, filter 0.2s ease;
+
+    &:active {
+      transform: translateY(1px);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      filter: grayscale(0.2);
+    }
+
+    &.btn-blue {
+      background: #18a0fb;
+      color: #fff;
+    }
+    &.btn-green {
+      background: #74d101;
+      color: #fff;
+    }
+    &.btn-red {
+      background: #d10101;
+      color: #fff;
+    }
+  }
+}

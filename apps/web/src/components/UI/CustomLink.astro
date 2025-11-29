@@ -1,0 +1,26 @@
+---
+import Icon from "../../../public/icons/icon.astro";
+import "./ui.scss";
+
+type CustomLinkProps = {
+  text: string;
+  href: string;
+  iconName: string;
+  color: string;
+  size: number;
+  border: boolean;
+};
+const {
+  iconName,
+  text,
+  href,
+  color,
+  size,
+  border = false,
+} = Astro.props as CustomLinkProps;
+---
+
+<div class={`customLink ${border ? "bordered" : ""}`}>
+  <Icon name={iconName} size={24} size={size} color={color} />
+  <a href={href} class="customLinks"> {text} </a>
+</div>

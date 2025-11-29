@@ -1,0 +1,32 @@
+---
+import SearchBar from "@/components/Users/SearchBar/SearchBar.astro";
+import "./Header.scss";
+import Icon from "public/icons/icon.astro";
+import SearchInput from "@/components/UI/SearchInput.astro";
+import IconButton from "@/components/UI/IconButton.astro";
+const { user } = Astro.props;
+---
+
+<header class="header">
+  <div class="header-left">
+    <IconButton buttonType="primary" color="#18a0fb" iconName="send" />
+    <SearchInput />
+  </div>
+
+  <div class="header-right">
+    <div class="icon"><Icon name="mail" /></div>
+    <div class="icon"><Icon name="notification" /></div>
+    <div class="avatar">
+      <span class="user-name">{user.fullname ?? "Kullanıcı"}</span>
+      <div class="image-wrapper">
+        <img
+          class="avatar-img"
+          src={user.profilePicture}
+          alt="avatar"
+          width="32"
+          height="32"
+        />
+      </div>
+    </div>
+  </div>
+</header>

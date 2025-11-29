@@ -1,0 +1,34 @@
+---
+import Icon from "public/icons/icon.astro";
+import "./ui.scss";
+type Dropdown = {
+    options?: Options[];
+    label?: string;
+};
+
+type Options = {
+    name: string;
+    id: number;
+}
+//todo: değer seçildiğinde fonksiyonellik eklenecek.
+//todo?: değer seçildiğinde rotate eklenebilir görsellik açısından.
+
+const {options, label} = Astro.props as Dropdown;
+---
+
+<label>
+    <div class="dropdown-wrapper">
+        <div class="dropdown-icon">
+            <Icon name={"arrowBottom"} width={7} height={7}/>
+        </div>
+        <select class="dropdown">
+            <option value="" disabled selected>{label}</option>
+            {
+                options?.map((option) => (
+                        <option value={option.id} key={option.id}>{option.name}</option>
+                ))
+            }
+        </select>
+    </div>
+</label>
+

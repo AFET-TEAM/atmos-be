@@ -1,8 +1,26 @@
-import node from "@astrojs/node";
+// @ts-check
 import { defineConfig } from "astro/config";
+import svelte from "@astrojs/svelte";
+import react from "@astrojs/react";
 
 export default defineConfig({
+  integrations: [svelte(), react()],
   output: "server",
-  adapter: node({ mode: "standalone" }),
-  server: { host: true, port: 4321 },
+  vite: {
+    resolve: {
+      alias: {
+        "@": "/src",
+      },
+    },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: `
+           @use "@/styles/global.scss" as *;
+           @use "@/styles/variables.scss" as *;
+          `,
+        },
+      },
+    },
+  },
 });

@@ -1,0 +1,63 @@
+---
+import Sidebar from "@/components/Global/Sidebar/Sidebar.astro";
+import Header from "@/components/Global/Header/Header.astro";
+import { ClientRouter } from "astro:transitions";
+import { getUsers } from "@/api/UsersApi";
+
+const $users = await getUsers().then((resp) => resp.data);
+const user = $users[0];
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>ATOS - {title}</title>
+    <ClientRouter />
+  </head>
+  <body>
+    <div class="layout">
+      <Sidebar />
+      <main>
+       <Header user={user} />
+        <slot />
+      </main>
+    </div>
+  </body>
+</html>
+
+<style>
+  html,
+  body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #fafafa;
+  }
+
+  .layout {
+    display: flex;
+    height: 100%;
+    padding: 10px;
+  }
+
+  Sidebar {
+    width: 250px;
+    height: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  }
+
+  main {
+    margin-left: 1.2rem;
+    padding: 2rem;
+    width: calc(100% - 250px);
+  }
+</style>

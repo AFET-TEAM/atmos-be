@@ -1,0 +1,27 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import DocumentDetailHeader from "@/components/Documents/DocumentDetailHeader.svelte";
+import { getDocumentBySlug } from "@/api/DocumentsApi";
+const { slug } = Astro.params;
+
+if (!slug) {
+  throw new Error("Slug param is required");
+}
+const document = await getDocumentBySlug(slug);
+---
+
+<Layout title="Document Detail">
+  <div>Document Detail for {slug}</div>
+
+  <section>
+    <DocumentDetailHeader client:load slug={slug} document={document} />
+  </section>
+
+  <section class="pdf-viewer">
+    <iframe
+      src={`/pdf/rapor.pdf`}
+      width="100%"
+      height="800px"
+      style="border: none;"></iframe>
+  </section>
+</Layout>

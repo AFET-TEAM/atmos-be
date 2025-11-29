@@ -1,0 +1,16 @@
+---
+import Dropdown from "../../UI/Dropdown.astro";
+import { getSortOptions, getUsersTeams } from "../../../api/UsersApi";
+import "./search-bar.scss";
+import SearchInput from "../../UI/SearchInput.astro";
+
+const $teams = await getUsersTeams().then((resp) => resp.data);
+const $sortOptions = await getSortOptions().then((resp) => resp.data);
+---
+
+<section class="searchbar-container">
+  <Dropdown options={$teams} label="Choose Teams" />
+  <Dropdown options={$sortOptions} label="Sort A/Z" />
+
+  <SearchInput/>
+</section>

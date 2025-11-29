@@ -1,0 +1,50 @@
+---
+import "./dashboard.scss";
+import Calendar from "./Calendar/Calendar.svelte";
+import WelcomeCard from "./WelcomeCard/WelcomeCard.astro";
+import StatsCard from "./StatsCard/StatsCard.astro";
+import TotalTaskCard from "./TotalTaskCard/TotalTaskCard.astro";
+import TechTalkCard from "./TechTalkCard/TechTalkCard.astro";
+import LinksCard from "./LinksCard/LinksCard.astro";
+import IdeaCard from "./IdeaCard/IdeaCard.astro";
+import MapCard from "./MapCard/MapCard.astro";
+---
+
+<div class="dashboard">
+  <div class="top-section">
+    <div class="left-group">
+      <div class="card">
+        <WelcomeCard/>
+      </div>
+      <div class="stats-row">
+        <StatsCard/>
+      </div>
+    </div>
+    <div class="calendar">
+      <Calendar client:load/>
+    </div>
+  </div>
+
+  <div class="middle-section">
+    <div class="card">
+      <TotalTaskCard/>
+    </div>
+    <div class="card">
+      <TechTalkCard/>
+    </div>
+    <div class="card">
+      <LinksCard/>
+    </div>
+  </div>
+
+  <div class="bottom-section">
+    <div class="card">
+      <IdeaCard/>
+    </div>
+    <div class="card">
+      <MapCard/>
+    </div>
+  </div>
+</div>
+
+

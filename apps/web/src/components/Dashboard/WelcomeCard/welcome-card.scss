@@ -1,0 +1,19 @@
+.profile-card {
+  min-height: 232px;
+  @include flexible(flex, column, center, null, null);
+
+  .info-row {
+    display: flex;
+
+    p {
+      font-size: 12px;
+      line-height: 1.2;
+      color: $greyTextColor;
+    }
+  }
+  h2 {
+    color: $primary;
+    margin-bottom: 10px;
+  }
+
+}

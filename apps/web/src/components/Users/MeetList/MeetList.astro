@@ -1,0 +1,23 @@
+---
+const { meets } = Astro.props;
+import "./meet-list.scss";
+---
+
+<section class="meetings-container">
+  <div class="header">
+    <span>Meeting Schedule</span>
+  </div>
+  <div class="meet-list">
+    {
+      meets?.map((meet: any) => (
+        <div class="meet-item">
+          <div class="timeline" />
+          <div class="meet-content">
+            <h3 class="meet-title">{meet.title}</h3>
+            <p class="meet-time">{meet.time}</p>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</section>

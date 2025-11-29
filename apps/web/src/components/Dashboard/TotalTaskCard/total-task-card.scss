@@ -1,0 +1,14 @@
+.total-task-badge {
+  @include badges(
+          $position: relative,
+          $background-color: $secondary,
+          $color: $white,
+          $padding: 5px 10px,
+          $font-weight: normal,
+  );
+  display: inline-block;
+  float: right;
+}
+
+.card-content {
+}

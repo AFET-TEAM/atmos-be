@@ -1,9 +1,0 @@
----
-import Layout from "@/components/Layout.astro";
-import Card from "@/components/Card.astro";
-import { get } from "@/lib/api";
-const health = await get<{ ok: boolean }>("/health");
----
-<Layout title="Health">
-  <Card><pre>{JSON.stringify(health, null, 2)}</pre></Card>
-</Layout>
