@@ -1,22 +1,79 @@
 ---
+import { loginUser } from "@/api/AuthApi";
 import AuthLayout from "../../../layouts/AuthLayout.astro";
+
+let errorMessage = "";
+
+if (Astro.request.method === "POST") {
+  try {
+    const data = await Astro.request.formData();
+    const email = data.get("email")?.toString();
+    const password = data.get("password")?.toString();
+
+    if (!email || !password) {
+      errorMessage = "Email ve şifre zorunludur";
+    } else {
+      await loginUser(email, password);
+      return Astro.redirect("/dashboard");
+    }
+  } catch (error: any) {
+    // Dairesel referans sorunu yaşamamak için sadece gerekli bilgileri logla
+    const errorInfo = {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data
+    };
+    console.error("Login error:", errorInfo);
+    errorMessage = error.response?.data?.message || "Giriş sırasında bir hata oluştu";
+  }
+}
 ---
 
-<AuthLayout title="Login">
+
+<AuthLayout title="Giriş Yap - ATOS">
   <section class="authWrapper">
-    <form class="form-container">
-      <h2>Login</h2>
+    <form method="POST" class="form-container">
+      <h2>Hoş Geldiniz</h2>
+      <p class="subtitle">Hesabınıza giriş yapın</p>
+
+      {errorMessage && <div class="error-message">{errorMessage}</div>}
+
       <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" />
+        <label for="email">E-posta Adresi</label>
+        <div class="input-wrapper">
+          <span class="input-icon">📧</span>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="E-posta adresinizi girin"
+            required
+          />
+        </div>
       </div>
 
       <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" />
+        <label for="password">Şifre</label>
+        <div class="input-wrapper">
+          <span class="input-icon">🔒</span>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Şifrenizi girin"
+            required
+          />
+        </div>
+        <div class="forgot-password">
+          <a href="/auth/forgot-password">Şifremi Unuttum</a>
+        </div>
       </div>
 
-      <button type="submit"> Login</button>
+      <button type="submit" class="submit-button">Giriş Yap</button>
+
+      <p class="auth-link">
+        Hesabınız yok mu? <a href="/auth/register">Kayıt Olun</a>
+      </p>
     </form>
   </section>
 </AuthLayout>
