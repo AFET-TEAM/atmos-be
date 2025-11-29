@@ -17,7 +17,7 @@ if (Astro.request.method === "POST") {
       return Astro.redirect("/dashboard");
     }
   } catch (error: any) {
-    // Dairesel referans sorunu yaşamamak için sadece gerekli bilgileri logla
+
     const errorInfo = {
       message: error.message,
       status: error.response?.status,
