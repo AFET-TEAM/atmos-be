@@ -4,6 +4,14 @@ import AuthLayout from "../../../layouts/AuthLayout.astro";
 
 let errorMessage = "";
 
+
+if (Astro.request.method === "GET") {
+  const authCookie = Astro.cookies.get("auth");
+  if (authCookie) {
+    return Astro.redirect("/dashboard");
+  }
+}
+
 if (Astro.request.method === "POST") {
   try {
     const data = await Astro.request.formData();
@@ -104,4 +112,17 @@ if (Astro.request.method === "POST") {
       </p>
     </form>
   </section>
+
+
+   <script>
+    import { redirectIfAuthenticated } from '@/utils/authGuard';
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+      redirectIfAuthenticated();
+    });
+  </script>
 </AuthLayout>
+
+
+

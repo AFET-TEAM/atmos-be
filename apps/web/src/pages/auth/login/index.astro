@@ -3,6 +3,15 @@ import { loginUser } from "@/api/AuthApi";
 import AuthLayout from "../../../layouts/AuthLayout.astro";
 
 let errorMessage = "";
+let loginResponse = null;
+let shouldRedirect = false;
+
+if (Astro.request.method === "GET") {
+  const authCookie = Astro.cookies.get("auth");
+  if (authCookie) {
+    return Astro.redirect("/dashboard");
+  }
+}
 
 if (Astro.request.method === "POST") {
   try {
@@ -11,13 +20,33 @@ if (Astro.request.method === "POST") {
     const password = data.get("password")?.toString();
 
     if (!email || !password) {
-      errorMessage = "Email ve şifre zorunludur";
+      errorMessage = "E-posta ve şifre gerekli";
     } else {
-      await loginUser(email, password);
-      return Astro.redirect("/dashboard");
+      const response = await loginUser(email, password);
+      console.log('AuthApi loginUser response:', response);
+
+      if (response.token) {
+        Astro.cookies.set("auth", response.token, {
+          path: "/",
+          maxAge: 60 * 60 * 24 * 7,
+          httpOnly: false,
+          secure: false,
+          sameSite: "lax"
+        });
+
+        Astro.cookies.set("user", JSON.stringify(response.user), {
+          path: "/",
+          maxAge: 60 * 60 * 24 * 7,
+          httpOnly: false,
+          secure: false,
+          sameSite: "lax"
+        });
+
+
+        return Astro.redirect("/dashboard");
+      }
     }
   } catch (error: any) {
-
     const errorInfo = {
       message: error.message,
       status: error.response?.status,
@@ -46,7 +75,7 @@ if (Astro.request.method === "POST") {
             type="email"
             id="email"
             name="email"
-            placeholder="E-posta adresinizi girin"
+            placeholder="ornek@email.com"
             required
           />
         </div>
@@ -64,16 +93,53 @@ if (Astro.request.method === "POST") {
             required
           />
         </div>
-        <div class="forgot-password">
-          <a href="/auth/forgot-password">Şifremi Unuttum</a>
-        </div>
       </div>
 
       <button type="submit" class="submit-button">Giriş Yap</button>
+
+      <div class="forgot-password">
+        <a href="/auth/forgot-password">Şifremi unuttum</a>
+      </div>
 
       <p class="auth-link">
         Hesabınız yok mu? <a href="/auth/register">Kayıt Olun</a>
       </p>
     </form>
   </section>
+
+  <script>
+    import { tokenManager } from '@/axios/axiosInstance';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Sadece cookie'den localStorage'a kopyalama yap
+      const cookieToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('auth='))
+        ?.split('=')[1];
+
+      const cookieUser = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('user='))
+        ?.split('=')[1];
+
+      if (cookieToken) {
+        console.log('📥 Copying token from cookie to localStorage:', cookieToken);
+        tokenManager.setToken(cookieToken);
+
+        if (cookieUser) {
+          try {
+            const userData = JSON.parse(decodeURIComponent(cookieUser));
+            console.log('📥 Copying user from cookie to localStorage:', userData);
+            tokenManager.setUser(userData);
+          } catch (e) {
+            console.error('User cookie parse error:', e);
+          }
+        }
+
+        // Token varsa dashboard'a yönlendir
+        console.log('🎯 Token found, redirecting to dashboard');
+        window.location.href = '/dashboard';
+      }
+    });
+  </script>
 </AuthLayout>

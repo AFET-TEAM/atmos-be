@@ -1,9 +1,14 @@
 ---
-import Layout from "../../layouts/Layout.astro";
 import Dashboard from "../../components/Dashboard/Dashboard.astro";
+import Layout from "../../layouts/Layout.astro";
+
+
+const authCookie = Astro.cookies.get("auth");
+if (!authCookie) {
+  return Astro.redirect("/auth/login");
+}
 ---
 
-<Layout title="Dashboard">
-  <div>Dashboard Page</div>
-  <Dashboard/>
+<Layout title="Dashboard - ATOS">
+  <Dashboard />
 </Layout>
