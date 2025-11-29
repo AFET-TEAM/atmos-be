@@ -111,7 +111,7 @@ if (Astro.request.method === "POST") {
     import { tokenManager } from '@/axios/axiosInstance';
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Sadece cookie'den localStorage'a kopyalama yap
+
       const cookieToken = document.cookie
         .split('; ')
         .find(row => row.startsWith('auth='))
@@ -136,7 +136,7 @@ if (Astro.request.method === "POST") {
           }
         }
 
-        // Token varsa dashboard'a yönlendir
+
         console.log('🎯 Token found, redirecting to dashboard');
         window.location.href = '/dashboard';
       }
