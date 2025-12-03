@@ -1,8 +1,8 @@
 ---
 import IconButton from "@/components/UI/IconButton.astro";
 import UserAvatar from "../UserAvatar/UserAvatar.astro";
-const { user } = Astro.props;
 import "./usermembers.scss";
+const { user } = Astro.props;
 
 type teamMembers = {
   id: number;
@@ -16,7 +16,7 @@ type teamMembers = {
   <p class="card-tag">Teams</p>
   <ul class="team-members">
     {
-      user.teamMembers.map((team: teamMembers) => (
+      user?.teamMembers?.map((team: teamMembers) => (
         <li class="team-member" data-key={team.id}>
           <UserAvatar imageSize="user-image-md" user={team} />
 
