@@ -9,9 +9,7 @@ let departments = [];
 try {
   departments = await getDepartments();
 } catch (error) {
-
   departments = [];
-  console.log("Departments could not be loaded"); // Basit string log
 }
 
 if (Astro.request.method === "GET") {
