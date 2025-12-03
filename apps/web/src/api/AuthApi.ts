@@ -1,4 +1,5 @@
 import instance from "@/axios/axiosInstance";
+import { login, logout as logoutStore } from "@/stores/userStore";
 
 export async function registerUser(
   email: string,
@@ -21,12 +22,20 @@ export async function registerUser(
 export async function loginUser(email: string, password: string) {
   const response = await instance.post("/auth/login", { email, password });
   console.log(response.data, "AuthApi loginUser response:");
+
+  // User ve token'ı store'a kaydet
+  if (response.data.user && response.data.token) {
+    login(response.data.user, response.data.token);
+  }
+
   return response.data;
 }
-
 export async function logoutUser() {
-  const response = await instance.post("/auth/logout");
-  return response.data;
+  try {
+    await instance.post("/auth/logout");
+  } finally {
+    logoutStore();
+  }
 }
 
 export async function getDepartments() {

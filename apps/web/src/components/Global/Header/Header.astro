@@ -1,9 +1,14 @@
 ---
 import IconButton from "@/components/UI/IconButton.astro";
 import SearchInput from "@/components/UI/SearchInput.astro";
+import { getUser } from '@/stores/userStore';
 import Icon from "public/icons/icon.astro";
+import LogoutButton from "../LogoutButton.astro";
 import "./Header.scss";
-const { user } = Astro.props;
+
+
+const user = getUser();
+console.log("Header user:", user);
 ---
 
 <header class="header">
@@ -16,16 +21,20 @@ const { user } = Astro.props;
     <div class="icon"><Icon name="mail" /></div>
     <div class="icon"><Icon name="notification" /></div>
     <div class="avatar">
-      <span class="user-name">{"Kullanıcı"}</span>
+      <span class="user-name" id="header-user-name">{user?.full_name || "Kullanıcı"}</span>
       <div class="image-wrapper">
         <img
           class="avatar-img"
-          src={""}
+          id="header-user-avatar"
+          src={user?.profile_picture || "/default-avatar.png"}
           alt="avatar"
           width="32"
           height="32"
         />
       </div>
     </div>
+    <LogoutButton />
   </div>
 </header>
+
+

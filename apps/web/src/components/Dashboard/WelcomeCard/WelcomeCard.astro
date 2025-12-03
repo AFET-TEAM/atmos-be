@@ -1,21 +1,25 @@
 ---
-import "./welcome-card.scss";
+import { getUser } from '@/stores/userStore';
 import Icon from "../../../../public/icons/icon.astro";
+import "./welcome-card.scss";
+const user = getUser();
+
+console.log("WelcomeCard user:", user);
 
 ---
 <div class="profile-card">
-    <h2>Welcome again Barış.</h2>
+    <h2>Welcome again {user?.full_name || "User"}.</h2>
     <div class="info-row">
         <Icon name={"adjustmentIcon"} width={10} height={10}/>
-        <p>Pasaj</p>
+        <p>{user?.user_department || "N/A"}</p>
     </div>
     <div class="info-row">
         <Icon name="users" width={10} height={10}/>
-        <p>Software Developer</p>
+        <p>{user?.team || "N/A"}</p>
     </div>
     <div class="info-row">
         <Icon name="mail" width={10} height={10} />
-        <p>baris.benli@turkcell.com.tr</p>
+        <p>{user?.email || "N/A"}</p>
     </div>
 </div>
 
