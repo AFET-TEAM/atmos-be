@@ -19,6 +19,7 @@ export const usersRoutes = () => {
         address: t.Optional(t.String()),
         connection: t.Optional(t.Boolean()),
         user_status_id: t.Optional(t.Numeric()),
+        user_department_id: t.Optional(t.String()),
       }),
       bodyKeys: [
         "email",
@@ -29,6 +30,7 @@ export const usersRoutes = () => {
         "address",
         "connection",
         "user_status_id",
+        "user_department_id",
       ] as const,
     },
     update: {
@@ -42,6 +44,7 @@ export const usersRoutes = () => {
           address: t.Optional(t.String()),
           connection: t.Optional(t.Boolean()),
           user_status_id: t.Optional(t.Numeric()),
+          user_department_id: t.Optional(t.String()),
         })
       ),
       bodyKeys: [
@@ -53,6 +56,7 @@ export const usersRoutes = () => {
         "address",
         "connection",
         "user_status_id",
+        "user_department_id",
       ] as const,
       touchUpdatedAt: true,
     },

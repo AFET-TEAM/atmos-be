@@ -1,9 +1,18 @@
 ---
-import { registerUser } from "@/api/AuthApi";
+import { getDepartments, registerUser } from "@/api/AuthApi";
 import AuthLayout from "../../../layouts/AuthLayout.astro";
 
-let errorMessage = "";
 
+let errorMessage = "";
+let departments = [];
+
+try {
+  departments = await getDepartments();
+} catch (error) {
+
+  departments = [];
+  console.log("Departments could not be loaded"); // Basit string log
+}
 
 if (Astro.request.method === "GET") {
   const authCookie = Astro.cookies.get("auth");
@@ -19,23 +28,18 @@ if (Astro.request.method === "POST") {
     const email = data.get("email")?.toString();
     const password = data.get("password")?.toString();
     const passwordAgain = data.get("passwordAgain")?.toString();
+    const department = data.get("department")?.toString();
 
-    if (!name || !email || !password || !passwordAgain) {
+    if (!name || !email || !password || !passwordAgain || !department) {
       errorMessage = "Tüm alanlar zorunludur";
     } else if (password !== passwordAgain) {
       errorMessage = "Şifreler eşleşmiyor";
     } else {
-      await registerUser(email, password, name);
+      await registerUser(email, password, name, department);
       return Astro.redirect("/auth/login");
     }
   } catch (error: any) {
 
-    const errorInfo = {
-      message: error.message,
-      status: error.response?.status,
-      data: error.response?.data
-    };
-    console.error("Registration error:", errorInfo);
     errorMessage = error.response?.data?.message || "Kayıt sırasında bir hata oluştu";
   }
 }
@@ -105,6 +109,19 @@ if (Astro.request.method === "POST") {
         </div>
       </div>
 
+      <div class="form-group">
+        <label for="department">Departman</label>
+        <div class="input-wrapper">
+          <span class="input-icon">🏢</span>
+          <select id="department" name="department" required>
+            <option value="" disabled selected>Departmanınızı seçin</option>
+            {departments.map((dept: { id: string; name: string }) => (
+              <option value={dept.id}>{dept.name}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       <button type="submit" class="submit-button">Hesap Oluştur</button>
 
       <p class="auth-link">
@@ -113,16 +130,19 @@ if (Astro.request.method === "POST") {
     </form>
   </section>
 
-
-   <script>
-    import { redirectIfAuthenticated } from '@/utils/authGuard';
-
+  <script>
+    import { tokenManager } from '@/axios/axiosInstance';
 
     document.addEventListener('DOMContentLoaded', () => {
-      redirectIfAuthenticated();
+      const cookieToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('auth='))
+        ?.split('=')[1];
+
+      if (cookieToken) {
+        tokenManager.setToken(cookieToken);
+        window.location.href = '/dashboard';
+      }
     });
   </script>
 </AuthLayout>
-
-
-
