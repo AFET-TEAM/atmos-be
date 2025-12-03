@@ -3,6 +3,7 @@ import { swaggerPlugin } from "./config/swagger";
 import { query } from "./db";
 import { authPlugin } from "./plugins/auth";
 import { authRoutes } from "./routes/auth";
+import { cityRoutes } from "./routes/city";
 import { commentsRoutes } from "./routes/comments";
 import { contentRoutes } from "./routes/content";
 import { departmentsRoutes } from "./routes/department";
@@ -43,8 +44,8 @@ const v1 = new Elysia({ prefix: "/v1", name: "api:v1" })
   .use(lookupsRoutes())
   .use(tasksRoutes())
   .use(contentRoutes())
-  .use(departmentsRoutes());
-
+  .use(departmentsRoutes())
+  .use(cityRoutes());
 app.use(v1);
 
 app.listen({ port: 3000 });

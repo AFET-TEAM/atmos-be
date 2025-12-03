@@ -4,13 +4,15 @@ export async function registerUser(
   email: string,
   password: string,
   full_name: string,
-  department_id: string
+  user_department: string,
+  address: string
 ) {
   const response = await instance.post("/auth/register", {
     email,
     password,
     full_name,
-    department_id,
+    user_department,
+    address,
   });
 
   return response.data;
@@ -29,5 +31,10 @@ export async function logoutUser() {
 
 export async function getDepartments() {
   const response = await instance.get("/departments");
+  return response.data;
+}
+
+export async function getCities() {
+  const response = await instance.get("/cities");
   return response.data;
 }

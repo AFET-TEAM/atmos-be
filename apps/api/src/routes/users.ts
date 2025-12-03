@@ -17,9 +17,9 @@ export const usersRoutes = () => {
         profession: t.Optional(t.String()),
         profile_picture: t.Optional(t.String()),
         address: t.Optional(t.String()),
+        user_department: t.Optional(t.String()),
         connection: t.Optional(t.Boolean()),
         user_status_id: t.Optional(t.Numeric()),
-        user_department_id: t.Optional(t.String()),
       }),
       bodyKeys: [
         "email",
@@ -30,7 +30,7 @@ export const usersRoutes = () => {
         "address",
         "connection",
         "user_status_id",
-        "user_department_id",
+        "user_department",
       ] as const,
     },
     update: {
@@ -42,9 +42,9 @@ export const usersRoutes = () => {
           profession: t.Optional(t.String()),
           profile_picture: t.Optional(t.String()),
           address: t.Optional(t.String()),
+          user_department: t.Optional(t.String()),
           connection: t.Optional(t.Boolean()),
           user_status_id: t.Optional(t.Numeric()),
-          user_department_id: t.Optional(t.String()),
         })
       ),
       bodyKeys: [
@@ -56,17 +56,12 @@ export const usersRoutes = () => {
         "address",
         "connection",
         "user_status_id",
-        "user_department_id",
+        "user_department",
       ] as const,
       touchUpdatedAt: true,
     },
-    // Kendi kaydını güncellesin/silsin
     ownerCheck: {
       ownerField: "id",
-      // Auth ekleyince ctx.user?.id kullanacağız.
-      // Şimdilik "herkes kendi :id’sini" kuralı için params’dan id alıyoruz,
-      // ama prod’da mutlaka user.id kullanın:
-      // getUserId: ({ user }) => user?.id ?? 0,
       getUserId: ({ params }) => Number((params as any)?.id ?? 0),
     },
     rbac: { can: async () => true },
