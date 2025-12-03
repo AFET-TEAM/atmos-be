@@ -5,6 +5,8 @@ import { getUsers } from "@/api/UsersApi";
 import UserAvatar from "../UserAvatar/UserAvatar.astro";
 const $users = await getUsers();
 
+console.log("UserList users:", $users);
+
 let isDropdownVisible = false;
 ---
 
@@ -26,21 +28,21 @@ let isDropdownVisible = false;
                 height={11}
                 color={"none"}
               />
-              <p>{user.team}</p>
+              <p>{user.userDepartment}</p>
             </div>
             <div class="info">
               <Icon name={"mail"} width={11} height={11} color={"none"} />
-              <p>{user.mailAddress}</p>
+              <p>{user.email}</p>
             </div>
           </div>
           <div class="buttons-container">
             <div class="user-bubbles">
-              {user.teamMembers.slice(0, 3).map((member: any) => (
+              {user?.teamMembers?.slice(0, 3).map((member: any) => (
                 <div class="user-bubble">
                   <img src={member.profilePicture} alt={member.full_name} />
                 </div>
               ))}
-              {user.teamMembers.length > 3 && (
+              {user?.teamMembers?.length > 3 && (
                 <div
                   class="user-bubble more-users"
                   onmouseover="isDropdownVisible = true"

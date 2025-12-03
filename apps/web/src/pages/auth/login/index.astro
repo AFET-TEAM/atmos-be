@@ -109,6 +109,7 @@ if (Astro.request.method === "POST") {
 
   <script>
     import { tokenManager } from '@/axios/axiosInstance';
+import { $user, isLoggedIn } from '@/stores/userStore';
 
     document.addEventListener('DOMContentLoaded', () => {
 
@@ -130,14 +131,22 @@ if (Astro.request.method === "POST") {
           try {
             const userData = JSON.parse(decodeURIComponent(cookieUser));
             console.log('📥 Copying user from cookie to localStorage:', userData);
+
+            // Nanostores'u güncelle
+            $user.set(userData);
+
             tokenManager.setUser(userData);
           } catch (e) {
             console.error('User cookie parse error:', e);
           }
         }
 
-
         console.log('🎯 Token found, redirecting to dashboard');
+        window.location.href = '/dashboard';
+      }
+
+      // Zaten login olmuş mu kontrol et
+      if (isLoggedIn()) {
         window.location.href = '/dashboard';
       }
     });

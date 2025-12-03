@@ -31,7 +31,7 @@ function getStatusClass(status: string) {
     <div class="image-wrapper">
       <img
         class={imageSize}
-        src={user.profilePicture}
+        src={user.profilePicture ? user.profilePicture : "/default-avatar.png"}
         alt="user-profile-picture"
       />
       {
