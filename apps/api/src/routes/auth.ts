@@ -16,7 +16,10 @@ async function hashPassword(password: string): Promise<string> {
     .join("");
 }
 
-async function verifyPassword(password: string, hash: string): Promise<boolean> {
+async function verifyPassword(
+  password: string,
+  hash: string
+): Promise<boolean> {
   const passwordHash = await hashPassword(password);
   return passwordHash === hash;
 }
@@ -28,10 +31,9 @@ export const authRoutes = () =>
     .post(
       "/auth/register",
       async ({ body, jwt, cookie }) => {
-        const { email, password, full_name } = body;
+        const { email, password, full_name, address, user_department } = body;
 
         try {
-
           const existingUser = await query(
             "SELECT id FROM users WHERE email = $1",
             [email]
@@ -47,8 +49,8 @@ export const authRoutes = () =>
           const hashedPassword = await hashPassword(password);
 
           const result = await query(
-            "INSERT INTO users (email, password, full_name, user_status_id) VALUES ($1, $2, $3, 1) RETURNING id, email, full_name",
-            [email, hashedPassword, full_name]
+            "INSERT INTO users (email, password, full_name, user_status_id, address, user_department) VALUES ($1, $2, $3, 1, $4, $5) RETURNING id, email, full_name, user_department, address",
+            [email, hashedPassword, full_name, address, user_department]
           );
 
           const newUser = result.rows[0];
@@ -92,6 +94,8 @@ export const authRoutes = () =>
           email: t.String({ format: "email" }),
           password: t.String({ minLength: 6 }),
           full_name: t.String({ minLength: 2 }),
+          address: t.Optional(t.String()),
+          user_department: t.Optional(t.String()),
         }),
         detail: { summary: "Register new user", tags: ["auth"] },
       }
@@ -109,33 +113,36 @@ export const authRoutes = () =>
           );
 
           if (result.rows.length === 0) {
-            return new Response(
-              JSON.stringify({ error: "User not found" }),
-              { status: 401, headers: { "Content-Type": "application/json" } }
-            );
+            return new Response(JSON.stringify({ error: "User not found" }), {
+              status: 401,
+              headers: { "Content-Type": "application/json" },
+            });
           }
 
           const dbUser = result.rows[0];
           if (!dbUser) {
-             return new Response(
-              JSON.stringify({ error: "User not found" }),
-              { status: 401, headers: { "Content-Type": "application/json" } }
-            );
+            return new Response(JSON.stringify({ error: "User not found" }), {
+              status: 401,
+              headers: { "Content-Type": "application/json" },
+            });
           }
 
-          const isPasswordValid = await verifyPassword(password, dbUser.password);
+          const isPasswordValid = await verifyPassword(
+            password,
+            dbUser.password
+          );
 
           if (!isPasswordValid) {
-            return new Response(
-              JSON.stringify({ error: "Invalid password" }),
-              { status: 401, headers: { "Content-Type": "application/json" } }
-            );
+            return new Response(JSON.stringify({ error: "Invalid password" }), {
+              status: 401,
+              headers: { "Content-Type": "application/json" },
+            });
           }
 
           const user: AuthUser = {
             id: dbUser.id,
             email: dbUser.email,
-            role: "user", // TODO: Veritabanından role bilgisini al
+            role: dbUser.role || "user",
           };
 
           // JWT token oluştur
@@ -161,10 +168,10 @@ export const authRoutes = () =>
           return { token, user };
         } catch (error) {
           console.error("Login error:", error);
-          return new Response(
-            JSON.stringify({ error: "Login failed" }),
-            { status: 500, headers: { "Content-Type": "application/json" } }
-          );
+          return new Response(JSON.stringify({ error: "Login failed" }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          });
         }
       },
       {

@@ -1,9 +1,12 @@
 ---
-import { registerUser } from "@/api/AuthApi";
+import { getDepartments, registerUser, getCities } from "@/api/AuthApi";
 import AuthLayout from "../../../layouts/AuthLayout.astro";
+import { get } from 'svelte/store';
+
 
 let errorMessage = "";
-
+const departments = await getDepartments();
+const cities = await getCities();
 
 if (Astro.request.method === "GET") {
   const authCookie = Astro.cookies.get("auth");
@@ -19,23 +22,27 @@ if (Astro.request.method === "POST") {
     const email = data.get("email")?.toString();
     const password = data.get("password")?.toString();
     const passwordAgain = data.get("passwordAgain")?.toString();
+    const user_department = data.get("department")?.toString();
+    const address = data.get("city")?.toString();
 
-    if (!name || !email || !password || !passwordAgain) {
+    console.log({
+      name,
+      email,
+      password,
+      passwordAgain,
+      user_department,
+      address
+    });
+    if (!name || !email || !password || !passwordAgain || !user_department || !address) {
       errorMessage = "Tüm alanlar zorunludur";
     } else if (password !== passwordAgain) {
       errorMessage = "Şifreler eşleşmiyor";
     } else {
-      await registerUser(email, password, name);
+      await registerUser(email, password, name, user_department, address);
       return Astro.redirect("/auth/login");
     }
   } catch (error: any) {
 
-    const errorInfo = {
-      message: error.message,
-      status: error.response?.status,
-      data: error.response?.data
-    };
-    console.error("Registration error:", errorInfo);
     errorMessage = error.response?.data?.message || "Kayıt sırasında bir hata oluştu";
   }
 }
@@ -105,6 +112,32 @@ if (Astro.request.method === "POST") {
         </div>
       </div>
 
+      <div class="form-group">
+        <label for="department">Departman</label>
+        <div class="input-wrapper">
+          <span class="input-icon">🏢</span>
+          <select id="department" name="department" required>
+            <option value="" disabled selected>Departmanınızı seçin</option>
+            {departments.map((dept: { id: string; name: string }) => (
+              <option value={dept.name}>{dept.name}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="city">Şehir</label>
+        <div class="input-wrapper">
+          <span class="input-icon">🏙️</span>
+          <select id="city" name="city" required>
+            <option value="" disabled selected>Şehir seçin</option>
+            {cities.map((city: { id: string; name: string }) => (
+              <option value={city.name}>{city.name}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       <button type="submit" class="submit-button">Hesap Oluştur</button>
 
       <p class="auth-link">
@@ -113,16 +146,19 @@ if (Astro.request.method === "POST") {
     </form>
   </section>
 
-
-   <script>
-    import { redirectIfAuthenticated } from '@/utils/authGuard';
-
+  <script>
+    import { tokenManager } from '@/axios/axiosInstance';
 
     document.addEventListener('DOMContentLoaded', () => {
-      redirectIfAuthenticated();
+      const cookieToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('auth='))
+        ?.split('=')[1];
+
+      if (cookieToken) {
+        tokenManager.setToken(cookieToken);
+        window.location.href = '/dashboard';
+      }
     });
   </script>
 </AuthLayout>
-
-
-

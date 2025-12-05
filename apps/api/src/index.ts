@@ -3,8 +3,10 @@ import { swaggerPlugin } from "./config/swagger";
 import { query } from "./db";
 import { authPlugin } from "./plugins/auth";
 import { authRoutes } from "./routes/auth";
+import { cityRoutes } from "./routes/city";
 import { commentsRoutes } from "./routes/comments";
 import { contentRoutes } from "./routes/content";
+import { departmentsRoutes } from "./routes/department";
 import { likesRoutes } from "./routes/likes";
 import { lookupsRoutes } from "./routes/lookups";
 import { meetingsRoutes } from "./routes/meetings";
@@ -25,7 +27,7 @@ const v1 = new Elysia({ prefix: "/v1", name: "api:v1" })
   .onAfterHandle(({ set }) => {
     set.headers["x-api-version"] = "1";
   })
-  .use(authRoutes()) // /v1/auth/*
+  .use(authRoutes())
   .get(
     "/health",
     async () => {
@@ -41,8 +43,9 @@ const v1 = new Elysia({ prefix: "/v1", name: "api:v1" })
   .use(likesRoutes())
   .use(lookupsRoutes())
   .use(tasksRoutes())
-  .use(contentRoutes());
-
+  .use(contentRoutes())
+  .use(departmentsRoutes())
+  .use(cityRoutes());
 app.use(v1);
 
 app.listen({ port: 3000 });
