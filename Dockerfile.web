@@ -15,7 +15,7 @@ RUN echo 'packages:' > pnpm-workspace.yaml && \
 # Web projesi package.json
 COPY apps/web/package.json ./apps/web/
 
-# Tüm bağımlılıkları yükle (Dev + Prod)
+# Tüm bağımlılıkları yükle
 RUN pnpm install
 
 # Kaynak kodları al
@@ -35,26 +35,25 @@ ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=4321
 
-# --- KRİTİK DEĞİŞİKLİK BURADA BAŞLIYOR ---
+# --- 1. KRİTİK HAMLE: Hoisting (Paketleri yukarı taşıma) ---
+# Bu ayar, PNPM'e "Paketleri gizleme, hepsini node_modules içine açıkça koy" der.
+# React'in bulunamama sorununu çözen anahtar budur.
+RUN echo 'shamefully-hoist=true' > .npmrc
 
-# 1. Runner için de Workspace dosyasını oluşturuyoruz
-RUN echo 'packages:' > pnpm-workspace.yaml && \
-    echo '  - "apps/*"' >> pnpm-workspace.yaml
+# --- 2. KRİTİK HAMLE: Düzleştirme (Flattening) ---
+# Artık apps/web klasörüyle uğraşmıyoruz.
+# Web projesinin package.json dosyasını direkt KÖK dizine kopyalıyoruz.
+# Böylece Docker bunu tek bir proje sanıyor.
+COPY apps/web/package.json ./package.json
 
-# 2. Sadece dependency dosyalarını kopyalıyoruz
-COPY package.json pnpm-lock.yaml ./
-COPY apps/web/package.json ./apps/web/
+# Dependencies'i kur (Lockfile olmadan, çünkü yapı değiştik)
+RUN pnpm install --prod
 
-# 3. BURASI ÇOK ÖNEMLİ:
-# Eski node_modules'u kopyalamak yerine, SADECE production paketlerini sıfırdan kuruyoruz.
-# Bu sayede 'react', 'dayjs' vb. her şeyin orada olduğundan emin oluyoruz.
-RUN pnpm install --prod --no-frozen-lockfile
-
-# 4. Sadece derlenmiş uygulamayı (dist) ve gerekli configleri alıyoruz
+# 3. Dosyaları Kopyala
+# Build çıktısını alıyoruz
 COPY --from=builder /app/apps/web/dist ./dist
+# Config dosyalarını alıyoruz
 COPY --from=builder /app/apps/web/astro.config.mjs ./astro.config.mjs
-# tsconfig runtime'da bazen path alias için gerekebilir
-COPY --from=builder /app/apps/web/tsconfig.json ./tsconfig.json
 COPY --from=builder /app/apps/web/public ./public
 
 EXPOSE 4321
