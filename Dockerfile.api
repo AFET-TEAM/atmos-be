@@ -1,27 +1,41 @@
 # --- AŞAMA 1: Base & Install ---
+
 FROM oven/bun:1-alpine AS base
+
 WORKDIR /app
 
-# Sadece API klasöründeki bağımlılıkları kopyalıyoruz
+# Package.json kopyala
+
 COPY apps/api/package.json ./package.json
 
 # Bağımlılıkları yükle
+
 RUN bun install
 
 # --- AŞAMA 2: Runner ---
+
 FROM oven/bun:1-alpine AS release
+
 WORKDIR /app
 
 # Prod ortamı ayarı
+
 ENV NODE_ENV=production
 
-# Bağımlılıkları ve kaynak kodları kopyala
+# 1. node_modules'u kopyala
+
 COPY --from=base /app/node_modules ./node_modules
+
+# 2. Config dosyalarını kopyala (BU SATIR EKSİKTİ)
+
+COPY apps/api/tsconfig.json ./tsconfig.json
+
+# 3. Kaynak kodları kopyala
+
 COPY apps/api/src ./src
+
 COPY apps/api/package.json ./package.json
 
-# ElysiaJS default portu genellikle 3000'dir ama biz env ile yönetelim
 EXPOSE 3000
 
-# Uygulamayı başlat
 CMD ["bun", "run", "start"]
