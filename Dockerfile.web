@@ -48,7 +48,7 @@ COPY apps/web/package.json ./apps/web/
 # 3. BURASI ÇOK ÖNEMLİ:
 # Eski node_modules'u kopyalamak yerine, SADECE production paketlerini sıfırdan kuruyoruz.
 # Bu sayede 'react', 'dayjs' vb. her şeyin orada olduğundan emin oluyoruz.
-RUN pnpm install --prod --frozen-lockfile
+RUN pnpm install --prod --no-frozen-lockfile
 
 # 4. Sadece derlenmiş uygulamayı (dist) ve gerekli configleri alıyoruz
 COPY --from=builder /app/apps/web/dist ./dist
