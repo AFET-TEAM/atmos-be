@@ -1,298 +1,103 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:20-alpine'
-            args '-u root:root'
-        }
-    }
-
+    agent any
     environment {
-        DOCKER_REGISTRY = credentials('docker-registry')
-        APP_NAME = 'atos-app'
-        BUILD_NUMBER = "${env.BUILD_NUMBER}"
-        GIT_COMMIT_SHORT = "${env.GIT_COMMIT[0..7]}"
-        IMAGE_TAG = "${BUILD_NUMBER}-${GIT_COMMIT_SHORT}"
-        PRODUCTION_SERVER = credentials('production-server')
-        DEPLOY_PATH = '/opt/atos-app'
+        // Proje İsimleri
+        APP_NAME_API = "atos-api"
+        APP_NAME_WEB = "atos-web"
+        // Network
+        NETWORK_NAME = "app-network"
     }
 
     stages {
-        stage('🔍 Checkout') {
+        stage('Ortam ve Port Analizi') {
             steps {
-                echo '📥 Checking out source code...'
-                checkout scm
-                sh '''
-                    echo "Current branch: ${env.GIT_BRANCH}"
-                    echo "Commit hash: ${env.GIT_COMMIT}"
-                    ls -la
-                '''
-            }
-        }
-
-        stage('📦 Install Dependencies') {
-            steps {
-                echo '📦 Installing dependencies...'
-                sh '''
-                    # Install pnpm
-                    corepack enable
-                    corepack prepare pnpm@latest --activate
-
-                    # Install dependencies
-                    pnpm install --frozen-lockfile
-
-                    # Verify installations
-                    echo "Node version: $(node --version)"
-                    echo "pnpm version: $(pnpm --version)"
-                '''
-            }
-        }
-
-        stage('🧪 Test & Lint') {
-            parallel {
-                stage('🔍 API Tests') {
-                    steps {
-                        echo '🧪 Running API tests...'
-                        dir('apps/api') {
-                            sh '''
-                                # API testleri burada çalışacak
-                                echo "API tests will run here"
-                                # bun test (eğer test setup'ı varsa)
-                            '''
-                        }
-                    }
-                }
-
-                stage('🔍 Web Tests') {
-                    steps {
-                        echo '🧪 Running Web tests...'
-                        dir('apps/web') {
-                            sh '''
-                                # Web testleri burada çalışacak
-                                echo "Web tests will run here"
-                                # pnpm test (eğer test setup'ı varsa)
-                            '''
-                        }
-                    }
-                }
-
-                stage('📝 Lint Check') {
-                    steps {
-                        echo '📝 Running lint checks...'
-                        sh '''
-                            # Lint kontrolü
-                            echo "Lint checks will run here"
-                            # pnpm lint (eğer lint setup'ı varsa)
-                        '''
-                    }
-                }
-            }
-        }
-
-        stage('🏗️ Build') {
-            parallel {
-                stage('🐳 Build API Docker Image') {
-                    steps {
-                        echo '🏗️ Building API Docker image...'
-                        script {
-                            def apiImage = docker.build("${APP_NAME}-api:${IMAGE_TAG}", "-f Dockerfile.api .")
-                            env.API_IMAGE_ID = apiImage.id
-                        }
-                    }
-                }
-
-                stage('🐳 Build Web Docker Image') {
-                    steps {
-                        echo '🏗️ Building Web Docker image...'
-                        script {
-                            def webImage = docker.build("${APP_NAME}-web:${IMAGE_TAG}", "-f Dockerfile.web .")
-                            env.WEB_IMAGE_ID = webImage.id
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('🔒 Security Scan') {
-            steps {
-                echo '🔒 Running security scans...'
-                sh '''
-                    # Docker image security scan
-                    echo "Security scans will run here"
-                    # docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ${APP_NAME}-api:${IMAGE_TAG}
-                    # docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ${APP_NAME}-web:${IMAGE_TAG}
-                '''
-            }
-        }
-
-        stage('📤 Push to Registry') {
-            when {
-                anyOf {
-                    branch 'main'
-                    branch 'master'
-                    branch 'develop'
-                }
-            }
-            steps {
-                echo '📤 Pushing images to registry...'
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker-registry') {
-                        def apiImage = docker.image("${APP_NAME}-api:${IMAGE_TAG}")
-                        def webImage = docker.image("${APP_NAME}-web:${IMAGE_TAG}")
-
-                        apiImage.push()
-                        apiImage.push("latest")
-
-                        webImage.push()
-                        webImage.push("latest")
+                    if (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'master') {
+                        // --- PROD ---
+                        env.API_CONTAINER = "${APP_NAME_API}-prod"
+                        env.WEB_CONTAINER = "${APP_NAME_WEB}-prod"
+                        env.API_PORT = "3003"
+                        env.WEB_PORT = "83"  // Web sitesi varsayılan port
+                        echo ">>> CANLI ORTAM (PROD) Hazırlanıyor..."
+                    }
+                    else if (env.BRANCH_NAME == 'develop') {
+                        // --- DEV ---
+                        env.API_CONTAINER = "${APP_NAME_API}-dev"
+                        env.WEB_CONTAINER = "${APP_NAME_WEB}-dev"
+                        env.API_PORT = "3004"
+                        env.WEB_PORT = "8084"
+                        echo ">>> GELİŞTİRME ORTAMI (DEV) Hazırlanıyor..."
+                    }
+                    else {
+                        // --- TEST ---
+                        env.API_CONTAINER = "${APP_NAME_API}-test-${env.BRANCH_NAME}"
+                        env.WEB_CONTAINER = "${APP_NAME_WEB}-test-${env.BRANCH_NAME}"
+                        env.API_PORT = "3005"
+                        env.WEB_PORT = "8085"
                     }
                 }
             }
         }
 
-        stage('🚀 Deploy to Staging') {
-            when {
-                branch 'develop'
-            }
+        stage('Build Images') {
             steps {
-                echo '🚀 Deploying to staging environment...'
-                sh '''
-                    echo "Staging deployment will run here"
-                    # SSH to staging server and deploy
-                '''
-            }
-        }
-
-        stage('🎯 Deploy to Production') {
-            when {
-                anyOf {
-                    branch 'main'
-                    branch 'master'
-                }
-            }
-            steps {
-                echo '🎯 Deploying to production environment...'
                 script {
-                    try {
-                        // Backup current deployment
-                        sh '''
-                            echo "Creating backup of current deployment..."
-                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} "
-                                cd ${DEPLOY_PATH}
-                                docker-compose -f docker-compose.prod.yml down
-                                tar -czf backup-$(date +%Y%m%d-%H%M%S).tar.gz .
-                                mv backup-*.tar.gz /opt/backups/
-                            "
-                        '''
+                    echo "--- API Image Derleniyor (Bun) ---"
+                    // -f Dockerfile.api parametresiyle özel dosya ismini belirtiyoruz
+                    sh "docker build -f Dockerfile.api -t ${APP_NAME_API}:${env.BRANCH_NAME} ."
 
-                        // Deploy new version
-                        sh '''
-                            echo "Deploying new version to production..."
-
-                            # Copy docker-compose file
-                            scp -o StrictHostKeyChecking=no docker-compose.prod.yml ${PRODUCTION_SERVER}:${DEPLOY_PATH}/
-                            scp -o StrictHostKeyChecking=no .env.production ${PRODUCTION_SERVER}:${DEPLOY_PATH}/.env
-
-                            # Deploy on remote server
-                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} "
-                                cd ${DEPLOY_PATH}
-
-                                # Pull latest images
-                                docker pull ${APP_NAME}-api:${IMAGE_TAG}
-                                docker pull ${APP_NAME}-web:${IMAGE_TAG}
-
-                                # Update environment variables
-                                export IMAGE_TAG=${IMAGE_TAG}
-
-                                # Deploy with zero-downtime
-                                docker-compose -f docker-compose.prod.yml up -d --force-recreate
-
-                                # Wait for services to be healthy
-                                sleep 30
-                                docker-compose -f docker-compose.prod.yml ps
-
-                                # Cleanup old images
-                                docker image prune -f
-                            "
-                        '''
-
-                        // Health check
-                        sh '''
-                            echo "Running post-deployment health checks..."
-                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} "
-                                # Wait a bit more for services to fully start
-                                sleep 30
-
-                                # Check if services are running
-                                docker-compose -f ${DEPLOY_PATH}/docker-compose.prod.yml ps
-
-                                # Health check endpoints
-                                curl -f http://localhost:8080/health || exit 1
-                                curl -f http://localhost:8081/ || exit 1
-
-                                echo 'Deployment successful! 🎉'
-                            "
-                        '''
-
-                    } catch (Exception e) {
-                        echo "Deployment failed! Rolling back..."
-                        sh '''
-                            ssh -o StrictHostKeyChecking=no ${PRODUCTION_SERVER} "
-                                cd ${DEPLOY_PATH}
-                                docker-compose -f docker-compose.prod.yml down
-
-                                # Restore from backup
-                                LATEST_BACKUP=$(ls -t /opt/backups/backup-*.tar.gz | head -n1)
-                                tar -xzf $LATEST_BACKUP
-
-                                # Start previous version
-                                docker-compose -f docker-compose.prod.yml up -d
-
-                                echo 'Rollback completed!'
-                            "
-                        '''
-                        throw e
-                    }
+                    echo "--- Web Image Derleniyor (Node/Astro) ---"
+                    // -f Dockerfile.web parametresiyle özel dosya ismini belirtiyoruz
+                    sh "docker build -f Dockerfile.web -t ${APP_NAME_WEB}:${env.BRANCH_NAME} ."
                 }
             }
         }
-    }
 
-    post {
-        always {
-            echo '🧹 Cleaning up workspace...'
-            sh '''
-                # Cleanup Docker images
-                docker system prune -f || true
+        stage('Deploy API') {
+            steps {
+                script {
+                    // Eski API container'ı temizle
+                    sh "docker stop ${env.API_CONTAINER} || true"
+                    sh "docker rm ${env.API_CONTAINER} || true"
+                    // Network yoksa oluştur (Opsiyonel, hata almamak için)
+                    sh "docker network create ${NETWORK_NAME} || true"
 
-                # Clean workspace
-                rm -rf node_modules || true
-                rm -rf apps/*/node_modules || true
-                rm -rf apps/web/dist || true
-            '''
+                    // API Başlat
+                    sh """
+                        docker run -d \
+                        --name ${env.API_CONTAINER} \
+                        --network ${NETWORK_NAME} \
+                        --restart always \
+                        --env-file /var/jenkins_home/prod.env \
+                        -p ${env.API_PORT}:3000 \
+                        ${APP_NAME_API}:${env.BRANCH_NAME}
+                    """
+                }
+            }
         }
 
-        success {
-            echo '✅ Pipeline completed successfully!'
-            slackSend(
-                channel: '#deployments',
-                color: 'good',
-                message: "✅ *${APP_NAME}* deployment successful!\n" +
-                        "Branch: `${env.GIT_BRANCH}`\n" +
-                        "Version: `${IMAGE_TAG}`\n" +
-                        "Build: #${BUILD_NUMBER}"
-            )
-        }
+        stage('Deploy Web') {
+            steps {
+                script {
+                    // Eski WEB container'ı temizle
+                    sh "docker stop ${env.WEB_CONTAINER} || true"
+                    sh "docker rm ${env.WEB_CONTAINER} || true"
 
-        failure {
-            echo '❌ Pipeline failed!'
-            slackSend(
-                channel: '#deployments',
-                color: 'danger',
-                message: "❌ *${APP_NAME}* deployment failed!\n" +
-                        "Branch: `${env.GIT_BRANCH}`\n" +
-                        "Build: #${BUILD_NUMBER}\n" +
-                        "Check: ${BUILD_URL}"
-            )
+                    // Web Başlat (API URL'ini environment olarak geçmek isteyebilirsiniz)
+                    sh """
+                        docker run -d \
+                        --name ${env.WEB_CONTAINER} \
+                        --network ${NETWORK_NAME} \
+                        --restart always \
+                        -p ${env.WEB_PORT}:4321 \
+                        -e PUBLIC_API_URL=http://${env.API_CONTAINER}:3000 \
+                        ${APP_NAME_WEB}:${env.BRANCH_NAME}
+                    """
+                    echo ">>> Deployment Tamamlandı!"
+                    echo "API: Port ${env.API_PORT}"
+                    echo "WEB: Port ${env.WEB_PORT}"
+                }
+            }
         }
     }
 }

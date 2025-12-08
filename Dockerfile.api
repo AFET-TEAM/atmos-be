@@ -1,42 +1,27 @@
-# Backend API için Dockerfile
-FROM oven/bun:1.1-alpine AS builder
-
+# --- AŞAMA 1: Base & Install ---
+FROM oven/bun:1-alpine AS base
 WORKDIR /app
 
-# Package.json dosyalarını kopyala
-COPY package.json pnpm-workspace.yaml ./
-COPY apps/api/package.json ./apps/api/
+# Sadece API klasöründeki bağımlılıkları kopyalıyoruz
+COPY apps/api/package.json ./package.json
 
-# Dependencies'leri yükle
-RUN bun install --frozen-lockfile
+# Bağımlılıkları yükle
+RUN bun install
 
-# Kaynak kodu kopyala
-COPY apps/api ./apps/api
-
-# Production image
-FROM oven/bun:1.1-alpine AS production
-
+# --- AŞAMA 2: Runner ---
+FROM oven/bun:1-alpine AS release
 WORKDIR /app
 
-# Production dependencies'leri yükle
-COPY --from=builder /app/package.json /app/pnpm-workspace.yaml ./
-COPY --from=builder /app/apps/api/package.json ./apps/api/
-RUN bun install --frozen-lockfile --production
+# Prod ortamı ayarı
+ENV NODE_ENV=production
 
-# Uygulamayı kopyala
-COPY --from=builder /app/apps/api ./apps/api
+# Bağımlılıkları ve kaynak kodları kopyala
+COPY --from=base /app/node_modules ./node_modules
+COPY apps/api/src ./src
+COPY apps/api/package.json ./package.json
 
-# Non-root user oluştur
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S api -u 1001
-USER api
-
-# Port'u expose et
+# ElysiaJS default portu genellikle 3000'dir ama biz env ile yönetelim
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
-
 # Uygulamayı başlat
-CMD ["bun", "run", "apps/api/src/index.ts"]
+CMD ["bun", "run", "start"]
