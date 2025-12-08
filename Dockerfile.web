@@ -5,8 +5,50 @@ WORKDIR /app
 # PNPM kurulumu
 RUN npm install -g pnpm
 
-# Root package.json ve workspace ayarlarını kopyalamak gerekebilir
-# Ancak basitlik adına direkt app içine odaklanıyoruz:
-COPY apps/web/package.json ./
-# Eğer root lock dosyanız varsa onu da kopyalamak iyidir:
-# COPY pnpm-lock.yaml ./
+# 1. Root package.json (Monorepo olduğu için lock dosyası önemli olabilir)
+COPY package.json pnpm-lock.yaml* ./
+
+# 2. Web projesinin bağımlılıkları
+COPY apps/web/package.json ./apps/web/
+
+# Bağımlılıkları yükle
+RUN pnpm install
+
+# 3. Kaynak kodları kopyala
+COPY apps/web/ ./apps/web/
+
+# Çalışma dizinini web içine taşı
+WORKDIR /app/apps/web
+
+# Astro Build işlemi
+RUN pnpm run build
+
+# --- AŞAMA 2: Runner ---
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+RUN npm install -g pnpm
+
+# Production ortamı
+ENV NODE_ENV=production
+ENV HOST=0.0.0.0
+ENV PORT=4321
+
+# 1. Gerekli dosyaları Builder'dan al
+# Dist (Build edilmiş site)
+COPY --from=builder /app/apps/web/dist ./dist
+# Node Modules (Prod dependencies)
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/apps/web/node_modules ./apps/web/node_modules
+# Package.json
+COPY --from=builder /app/apps/web/package.json ./package.json
+# Config Dosyaları (KRİTİK KISIM - Bunlar olmadan patlayabilir)
+COPY --from=builder /app/apps/web/astro.config.mjs ./astro.config.mjs
+COPY --from=builder /app/apps/web/tsconfig.json ./tsconfig.json
+# Public klasörü (Favicon, images vs için gerekebilir)
+COPY --from=builder /app/apps/web/public ./public
+
+EXPOSE 4321
+
+# Preview komutu
+CMD ["pnpm", "run", "preview", "--host"]
