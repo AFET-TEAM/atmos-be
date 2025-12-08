@@ -47,4 +47,4 @@ COPY --from=builder /app/apps/web/public ./public
 
 EXPOSE 4321
 
-CMD ["pnpm", "run", "preview", "--host"]
+CMD ["node", "./dist/server/entry.mjs"]
