@@ -22,7 +22,8 @@
     "react-dom": "^19.0.0",
     "sass": "^1.83.4",
     "svelte": "^5.14.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "dayjs": "^1.11.10"
   },
   "devDependencies": {
     "sass-embedded": "^1.93.3"
