@@ -8,19 +8,22 @@ RUN npm install -g pnpm
 # 1. Root dosyaları kopyala
 COPY package.json pnpm-lock.yaml* ./
 
+# --- KRİTİK DÜZELTME: Workspace Dosyası Oluşturma ---
+# pnpm'in apps klasörünü tanıması için bu dosyayı manuel oluşturuyoruz.
+RUN echo 'packages:' > pnpm-workspace.yaml && \
+    echo '  - "apps/*"' >> pnpm-workspace.yaml
+
 # 2. Web projesinin package.json'ını kopyala
 COPY apps/web/package.json ./apps/web/
 
-# 3. Bağımlılıkları yükle (Kök dizindeki node_modules'a yükler)
+# 3. Bağımlılıkları yükle
+# Artık workspace dosyası olduğu için pnpm her şeyi doğru bağlayacak.
 RUN pnpm install
 
 # 4. Kaynak kodları kopyala
 COPY apps/web/ ./apps/web/
 
-# --- KRİTİK DÜZELTME BURADA ---
-# Dizin değiştirmek yerine (WORKDIR /app/apps/web yapmadan)
-# Kök dizinden "atos" isimli projeyi build et diyoruz.
-# Böylece üst klasördeki node_modules'a erişebilir.
+# 5. Build
 RUN pnpm --filter atos build
 
 # --- AŞAMA 2: Runner ---
@@ -33,23 +36,15 @@ ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=4321
 
-# 1. Build edilen dosyaları al (Builder'da dist apps/web altında oluştu)
+# Dosyaları kopyala
 COPY --from=builder /app/apps/web/dist ./dist
-
-# 2. node_modules'u al
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/web/node_modules ./apps/web/node_modules
-
-# 3. Gerekli config dosyalarını al
 COPY --from=builder /app/apps/web/package.json ./package.json
 COPY --from=builder /app/apps/web/astro.config.mjs ./astro.config.mjs
-# Eğer varsa tsconfig'i de alalım
 COPY --from=builder /app/apps/web/tsconfig.json ./tsconfig.json
-
-# Public klasörü (resimler vs için)
 COPY --from=builder /app/apps/web/public ./public
 
 EXPOSE 4321
 
-# Preview komutu
 CMD ["pnpm", "run", "preview", "--host"]
