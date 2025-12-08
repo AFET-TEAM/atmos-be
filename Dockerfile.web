@@ -1,50 +1,63 @@
-# --- AŞAMA 1: Builder ---
+# --- AŞAMA 1: Builder (Derleme) ---
 FROM node:20-alpine AS builder
 WORKDIR /app
 
 # PNPM kurulumu
 RUN npm install -g pnpm
 
-# 1. Root dosyaları kopyala
+# Dosyaları kopyala
 COPY package.json pnpm-lock.yaml* ./
 
-# --- KRİTİK DÜZELTME: Workspace Dosyası Oluşturma ---
-# pnpm'in apps klasörünü tanıması için bu dosyayı manuel oluşturuyoruz.
+# Workspace dosyasını oluştur
 RUN echo 'packages:' > pnpm-workspace.yaml && \
     echo '  - "apps/*"' >> pnpm-workspace.yaml
 
-# 2. Web projesinin package.json'ını kopyala
+# Web projesi package.json
 COPY apps/web/package.json ./apps/web/
 
-# 3. Bağımlılıkları yükle
-# Artık workspace dosyası olduğu için pnpm her şeyi doğru bağlayacak.
+# Tüm bağımlılıkları yükle (Dev + Prod)
 RUN pnpm install
 
-# 4. Kaynak kodları kopyala
+# Kaynak kodları al
 COPY apps/web/ ./apps/web/
 
-# 5. Build
+# Build al
 RUN pnpm --filter atos build
 
-# --- AŞAMA 2: Runner ---
+# --- AŞAMA 2: Runner (Canlı Ortam) ---
 FROM node:20-alpine AS runner
 WORKDIR /app
 
+# PNPM kurulumu
 RUN npm install -g pnpm
 
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=4321
 
-# Dosyaları kopyala
+# --- KRİTİK DEĞİŞİKLİK BURADA BAŞLIYOR ---
+
+# 1. Runner için de Workspace dosyasını oluşturuyoruz
+RUN echo 'packages:' > pnpm-workspace.yaml && \
+    echo '  - "apps/*"' >> pnpm-workspace.yaml
+
+# 2. Sadece dependency dosyalarını kopyalıyoruz
+COPY package.json pnpm-lock.yaml ./
+COPY apps/web/package.json ./apps/web/
+
+# 3. BURASI ÇOK ÖNEMLİ:
+# Eski node_modules'u kopyalamak yerine, SADECE production paketlerini sıfırdan kuruyoruz.
+# Bu sayede 'react', 'dayjs' vb. her şeyin orada olduğundan emin oluyoruz.
+RUN pnpm install --prod --frozen-lockfile
+
+# 4. Sadece derlenmiş uygulamayı (dist) ve gerekli configleri alıyoruz
 COPY --from=builder /app/apps/web/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/apps/web/node_modules ./apps/web/node_modules
-COPY --from=builder /app/apps/web/package.json ./package.json
 COPY --from=builder /app/apps/web/astro.config.mjs ./astro.config.mjs
+# tsconfig runtime'da bazen path alias için gerekebilir
 COPY --from=builder /app/apps/web/tsconfig.json ./tsconfig.json
 COPY --from=builder /app/apps/web/public ./public
 
 EXPOSE 4321
 
+# Uygulamayı başlat
 CMD ["node", "./dist/server/entry.mjs"]
