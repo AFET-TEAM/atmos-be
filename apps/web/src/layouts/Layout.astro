@@ -1,11 +1,10 @@
 ---
-import { getUsers } from "@/api/UsersApi";
 import Header from "@/components/Global/Header/Header.astro";
 import Sidebar from "@/components/Global/Sidebar/Sidebar.astro";
+import { currentUser } from "@/utils/user";
 import { ClientRouter } from "astro:transitions";
 
-const $users = await getUsers();
-const user = $users?.[0];
+const user = currentUser();
 const { title } = Astro.props;
 ---
 

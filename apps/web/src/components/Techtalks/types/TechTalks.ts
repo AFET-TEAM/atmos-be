@@ -8,11 +8,20 @@ export type CurrentUser = {
 
 export type TechTalk = {
   id: number;
-  name: string;
-  owner: string;
+  user_id: number;
   title: string;
-  thumbnailUrl: string;
-  videoUrl: string;
-  date?: string;
   description?: string;
+  location?: string;
+  duration_min?: number;
+  video_url?: string;
+  thumbnail_url?: string;
+  date?: string;
+  created_at?: string;
+  updated_at?: string;
+
+  // Frontend için backward compatibility
+  name?: string;
+  owner?: string;
+  videoUrl?: string;
+  thumbnailUrl?: string;
 };

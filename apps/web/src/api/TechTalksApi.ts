@@ -1,8 +1,10 @@
-import instance from "../axios/axiosInstance";
 import type { TechTalk } from "@/components/Techtalks/types/TechTalks";
+import instance from "../axios/axiosInstance";
 
 export async function fetchTechTalks(): Promise<TechTalk[]> {
   const { data } = await instance.get<TechTalk[]>("/techtalks");
+
+  console.log("Fetched TechTalks:", data);
   return data;
 }
 

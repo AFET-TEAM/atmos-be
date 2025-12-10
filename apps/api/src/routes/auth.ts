@@ -49,7 +49,7 @@ export const authRoutes = () =>
           const hashedPassword = await hashPassword(password);
 
           const result = await query(
-            "INSERT INTO users (email, password, full_name, user_status_id, address, user_department) VALUES ($1, $2, $3, 1, $4, $5) RETURNING id, email, full_name, user_department, address",
+            "INSERT INTO users (email, password, full_name, user_status_id, address, user_department) VALUES ($1, $2, $3, 1, $4, $5) RETURNING id, email, full_name, user_department, address, user_status_id",
             [email, hashedPassword, full_name, address, user_department]
           );
 
@@ -61,12 +61,28 @@ export const authRoutes = () =>
             id: newUser.id,
             email: newUser.email,
             role: "user",
+            full_name: newUser.full_name || "",
+            team: undefined,
+            profession: undefined,
+            profile_picture: undefined,
+            address: newUser.address,
+            connection: undefined,
+            user_department: newUser.user_department,
+            user_status_id: newUser.user_status_id,
           };
 
           const token = await jwt.sign({
             id: user.id,
             email: user.email,
             role: user.role,
+            full_name: user.full_name,
+            team: user.team,
+            profession: user.profession,
+            profile_picture: user.profile_picture,
+            address: user.address,
+            connection: user.connection,
+            user_department: user.user_department,
+            user_status_id: user.user_status_id,
           });
 
           if (cookie[JWT_COOKIE]) {
@@ -108,7 +124,7 @@ export const authRoutes = () =>
 
         try {
           const result = await query(
-            "SELECT id, email, password, full_name FROM users WHERE email = $1 AND deleted_at IS NULL",
+            "SELECT id, email, password, full_name, team, profession, profile_picture, address, connection, user_department, user_status_id FROM users WHERE email = $1 AND deleted_at IS NULL",
             [email]
           );
 
@@ -143,6 +159,14 @@ export const authRoutes = () =>
             id: dbUser.id,
             email: dbUser.email,
             role: dbUser.role || "user",
+            full_name: dbUser.full_name || "",
+            team: dbUser.team,
+            profession: dbUser.profession,
+            profile_picture: dbUser.profile_picture,
+            address: dbUser.address,
+            connection: dbUser.connection,
+            user_department: dbUser.user_department,
+            user_status_id: dbUser.user_status_id,
           };
 
           // JWT token oluştur
@@ -150,6 +174,14 @@ export const authRoutes = () =>
             id: user.id,
             email: user.email,
             role: user.role,
+            full_name: user.full_name,
+            team: user.team,
+            profession: user.profession,
+            profile_picture: user.profile_picture,
+            address: user.address,
+            connection: user.connection,
+            user_department: user.user_department,
+            user_status_id: user.user_status_id,
           });
 
           // Cookie'ye kaydet

@@ -2,9 +2,30 @@
 import Dashboard from "../../components/Dashboard/Dashboard.astro";
 import Layout from "../../layouts/Layout.astro";
 
-
 const authCookie = Astro.cookies.get("auth");
-if (!authCookie) {
+const token = authCookie?.value;
+
+// Token yoksa veya boşsa login'e yönlendir
+if (!token || token.trim() === "") {
+  return Astro.redirect("/auth/login");
+}
+
+// Token'ın geçerliliğini kontrol et (basit JWT kontrolü)
+try {
+  const payload = JSON.parse(atob(token.split(".")[1]));
+  const currentTime = Math.floor(Date.now() / 1000);
+
+  // Token süresi dolmuşsa login'e yönlendir
+  if (payload.exp < currentTime) {
+    // Cookie'leri temizle
+    Astro.cookies.delete("auth");
+    Astro.cookies.delete("user");
+    return Astro.redirect("/auth/login");
+  }
+} catch (error) {
+  // Token decode edilemiyorsa geçersiz, login'e yönlendir
+  Astro.cookies.delete("auth");
+  Astro.cookies.delete("user");
   return Astro.redirect("/auth/login");
 }
 ---

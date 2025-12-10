@@ -21,9 +21,7 @@ export async function registerUser(
 
 export async function loginUser(email: string, password: string) {
   const response = await instance.post("/auth/login", { email, password });
-  console.log(response.data, "AuthApi loginUser response:");
 
-  // User ve token'ı store'a kaydet
   if (response.data.user && response.data.token) {
     login(response.data.user, response.data.token);
   }
@@ -45,5 +43,10 @@ export async function getDepartments() {
 
 export async function getCities() {
   const response = await instance.get("/cities");
+  return response.data;
+}
+
+export async function getUserInfoCount(userId: number | undefined) {
+  const response = await instance.get(`/users/${userId}/counts`);
   return response.data;
 }

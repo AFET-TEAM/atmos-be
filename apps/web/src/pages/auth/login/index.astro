@@ -3,13 +3,27 @@ import { loginUser } from "@/api/AuthApi";
 import AuthLayout from "../../../layouts/AuthLayout.astro";
 
 let errorMessage = "";
-let loginResponse = null;
-let shouldRedirect = false;
+
 
 if (Astro.request.method === "GET") {
   const authCookie = Astro.cookies.get("auth");
-  if (authCookie) {
-    return Astro.redirect("/dashboard");
+  const token = authCookie?.value;
+
+  // Token varsa ve geçerliyse dashboard'a yönlendir
+  if (token && token.trim() !== "") {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const currentTime = Math.floor(Date.now() / 1000);
+
+      // Token hala geçerliyse dashboard'a git
+      if (payload.exp >= currentTime) {
+        return Astro.redirect("/dashboard");
+      }
+    } catch (error) {
+      // Token geçersizse cookie'leri temizle
+      Astro.cookies.delete("auth");
+      Astro.cookies.delete("user");
+    }
   }
 }
 
@@ -23,7 +37,6 @@ if (Astro.request.method === "POST") {
       errorMessage = "E-posta ve şifre gerekli";
     } else {
       const response = await loginUser(email, password);
-      console.log('AuthApi loginUser response:', response);
 
       if (response.token) {
         Astro.cookies.set("auth", response.token, {
@@ -109,7 +122,7 @@ if (Astro.request.method === "POST") {
 
   <script>
     import { tokenManager } from '@/axios/axiosInstance';
-import { $user, isLoggedIn } from '@/stores/userStore';
+import { $user } from '@/stores/userStore';
 
     document.addEventListener('DOMContentLoaded', () => {
 
@@ -131,23 +144,12 @@ import { $user, isLoggedIn } from '@/stores/userStore';
           try {
             const userData = JSON.parse(decodeURIComponent(cookieUser));
             console.log('📥 Copying user from cookie to localStorage:', userData);
-
-            // Nanostores'u güncelle
             $user.set(userData);
-
             tokenManager.setUser(userData);
           } catch (e) {
             console.error('User cookie parse error:', e);
           }
         }
-
-        console.log('🎯 Token found, redirecting to dashboard');
-        window.location.href = '/dashboard';
-      }
-
-      // Zaten login olmuş mu kontrol et
-      if (isLoggedIn()) {
-        window.location.href = '/dashboard';
       }
     });
   </script>

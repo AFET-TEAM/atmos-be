@@ -34,6 +34,14 @@ export const authPlugin = new Elysia({ name: "plugin:auth" })
             id: Number((payload as any).id),
             email: String((payload as any).email),
             role: ((payload as any).role ?? "user") as AuthUser["role"],
+            full_name: String((payload as any).full_name || ""),
+            team: (payload as any).team || undefined,
+            profession: (payload as any).profession || undefined,
+            profile_picture: (payload as any).profile_picture || undefined,
+            address: (payload as any).address || undefined,
+            connection: (payload as any).connection || undefined,
+            user_department: (payload as any).user_department || undefined,
+            user_status_id: (payload as any).user_status_id || undefined,
           };
         }
       } catch {

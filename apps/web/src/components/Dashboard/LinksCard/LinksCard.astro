@@ -1,14 +1,67 @@
 ---
 import Icon from "../../../../public/icons/icon.astro";
-import { getImportantLinks } from "../../../api/UsersApi";
 import "./links-card.scss";
 
 type ImportantLink = {
     key: string;
     value: string;
+    id: string;
 };
 
-const $importantLinks: ImportantLink[]  = await getImportantLinks();
+
+ const importantLinks: ImportantLink[] = [
+    {
+      "key": "hrLife",
+      "value": "HR Life",
+      "id": "c22f"
+    },
+    {
+      "key": "kronos",
+      "value": "Kronos",
+      "id": "a21d"
+    },
+    {
+      "key": "keyFlow",
+      "value": "KeyFlow",
+      "id": "3ff8"
+    },
+    {
+      "key": "oneFlow",
+      "value": "One Flow",
+      "id": "6607"
+    },
+    {
+      "key": "hrLife",
+      "value": "HR Life",
+      "id": "2e15"
+    },
+    {
+      "key": "kronos",
+      "value": "Kronos",
+      "id": "b0b0"
+    },
+    {
+      "key": "keyFlow",
+      "value": "KeyFlow",
+      "id": "23ab"
+    },
+    {
+      "key": "oneFlow",
+      "value": "One Flow",
+      "id": "4e5b"
+    },
+    {
+      "key": "hrLife",
+      "value": "HR Life",
+      "id": "5a59"
+    }
+
+  ]
+
+
+
+
+
 ---
 
 <div class="links-card-container">
@@ -19,7 +72,7 @@ const $importantLinks: ImportantLink[]  = await getImportantLinks();
     <div class="content-area">
         <div class="links-grid">
             {
-                $importantLinks.map((link) => (
+                importantLinks.map((link) => (
                         <a href={link.key} class="link-item">
                             <Icon name={"links"} />
                             <span>{link.value}</span>

@@ -1,31 +1,42 @@
 ---
-import "./stats-card.scss";
+import { getUserInfoCount } from "@/api/AuthApi";
+import { currentUser } from "@/utils/user";
 import Icon from "../../../../public/icons/icon.astro";
+import "./stats-card.scss";
+
+const userData = currentUser()
+
+try {
+  var userInfoCount = await getUserInfoCount(userData?.id ?? 0);
+} catch (error) {
+  console.error("Error fetching user info count:", error);
+
+}
 
 ---
 <>
     <div class="stat-card stat-purple">
         <div class="stat-content">
             <Icon name={"users"} width={14} height={14} stroke="#8d6ade"/>
-            <span class="value">30</span>
+            <span class="value">{userInfoCount?.totalUsers}</span>
         </div>
     </div>
     <div class="stat-card stat-blue">
         <div class="stat-content">
             <Icon name={"document"} width={14} height={14} stroke="#18a0fb"/>
-            <span class="value">45</span>
+            <span class="value">{userInfoCount?.documents}</span>
         </div>
     </div>
     <div class="stat-card stat-green">
         <div class="stat-content">
             <Icon name={"mic"} width={14} height={14} stroke="#74d101"/>
-            <span class="value">26</span>
+            <span class="value">{userInfoCount?.techtalks}</span>
         </div>
     </div>
     <div class="stat-card stat-yellow">
         <div class="stat-content">
             <Icon name={"lamp"} width={14} height={14} stroke="#ffd43b"/>
-            <span class="value">4</span>
+            <span class="value">{userInfoCount?.ideas}</span>
         </div>
     </div>
 </>

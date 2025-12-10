@@ -1,8 +1,8 @@
 ---
 const { user } = Astro.props;
 import Icon from "../../../../public/icons/icon.astro";
-import "../../../pages/users/_users.scss";
 import UserAvatar from "../UserAvatar/UserAvatar.astro";
+import "../users.scss";
 ---
 
 <article class="user-profile-card-wrapper">
@@ -14,7 +14,7 @@ import UserAvatar from "../UserAvatar/UserAvatar.astro";
     />
 
     <div class="user-profile-info">
-      <h2>{user.full_name}</h2>
+      <h2>{user.fullName}</h2>
       <div class="job">
         <Icon name={"locationIcon"} />
         <p>{user.profession}</p>
