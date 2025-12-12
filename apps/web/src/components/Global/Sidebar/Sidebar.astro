@@ -21,8 +21,8 @@ import "./sidebar.scss";
     <CustomLink text="TechTalks" href="/techtalks" iconName="mic" />
     <CustomLink text="Ideas" href="/ideas" iconName="lamp" />
 
-    <RoleGate roles={["supervisor", "admin"]}>
-      <CustomLink text="Kullanıcılar" href="/userlist" iconName="check" />
+    <RoleGate roles={["admin"]}>
+      <CustomLink iconName="users" text="Kullanıcı Ayarları" href="/userlist" />
     </RoleGate>
 
 
