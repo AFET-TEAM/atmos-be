@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS users (
   address TEXT,
   connection BOOLEAN DEFAULT FALSE,
   user_status_id INTEGER REFERENCES user_statuses(id),
+  role VARCHAR(50) DEFAULT 'user',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   deleted_at TIMESTAMPTZ

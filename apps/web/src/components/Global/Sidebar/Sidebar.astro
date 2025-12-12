@@ -1,5 +1,6 @@
 ---
 import CustomLink from "@/components/UI/CustomLink.astro";
+import RoleGate from "@/components/UI/RoleGate.astro";
 import "./sidebar.scss";
 ---
 
@@ -19,5 +20,11 @@ import "./sidebar.scss";
     <CustomLink text="Documents" href="/documents" iconName="document" />
     <CustomLink text="TechTalks" href="/techtalks" iconName="mic" />
     <CustomLink text="Ideas" href="/ideas" iconName="lamp" />
+
+    <RoleGate roles={["supervisor", "admin"]}>
+      <CustomLink text="Kullanıcılar" href="/userlist" iconName="check" />
+    </RoleGate>
+
+
   </div>
 </article>

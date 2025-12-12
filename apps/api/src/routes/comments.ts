@@ -55,12 +55,13 @@ export const commentsRoutes = () =>
       getUserId: ({ user }) => user?.id ?? 0,
     },
 
-    // Basit RBAC: admin her şeyi, editor create/update/delete, user create+own update/delete
+    // Basit RBAC: admin her şeyi, supervisor create/update/delete, user create+own update/delete
     rbac: {
       can: async ({ user }, action) => {
         if (!user) return action === "list" || action === "get";
         if (user.role === "admin") return true;
-        if (user.role === "editor") return action !== "delete" ? true : true;
+        if (user.role === "supervisor")
+          return action !== "delete" ? true : true;
         if (user.role === "user")
           return (
             action === "list" ||

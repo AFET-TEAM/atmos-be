@@ -101,6 +101,171 @@ interface User {
 - `$user.role` - Reactive kullanıcı rolü
 - `$user.department` - Reactive kullanıcı departmanı
 
+## 🔐 Role-Based Access Control (RBAC)
+
+Bu projede merkezi bir permission/role yönetimi sistemi vardır. Her sayfada if koşulları yazmanız yerine modüler permission'lar kullanabilirsiniz.
+
+### Mevcut Roller:
+
+- **Admin**: Tüm işlemleri yapabilir
+- **Supervisor**: İçerik yönetimi ve user kontrol işlemleri yapabilir
+- **User**: Temel işlemleri yapabilir (content oluşturma vs)
+
+### Permission'lar (src/utils/rbac.ts'de merkezi tanımlanır):
+
+```typescript
+PERMISSIONS = {
+  VIEW_USERS, // Kullanıcıları görebilir
+  CREATE_USER, // Yeni kullanıcı oluşturabilir
+  EDIT_USER, // Kullanıcı düzenleyebilir
+  DELETE_USER, // Kullanıcı silebilir
+  CREATE_TECHTALK, // TechTalk oluşturabilir
+  // ... ve daha fazlası
+};
+```
+
+### Svelte Component'lerde RBAC:
+
+#### 1. usePermissions Composable:
+
+```svelte
+<script>
+  import { usePermissions } from "@/composables/usePermissions";
+  const { can, canAny, isAdmin } = usePermissions();
+</script>
+
+{#if can("DELETE_USER")}
+  <DeleteButton />
+{/if}
+```
+
+#### 2. Protect Wrapper (Tavsiye Edilen - Modüler):
+
+```svelte
+<script>
+  import Protect from "@/components/UI/Protect.svelte";
+</script>
+
+<!-- Yetkisiz kullanıcılara gizle (Default) -->
+<Protect permission="DELETE_USER">
+  <DeleteButton />  <!-- Yetkiniz yoksa görünmez -->
+</Protect>
+
+<!-- Fallback ile bilgi göster -->
+<Protect permission="VIEW_ANALYTICS" fallback>
+  <AnalyticsDashboard />
+  <p slot="denied">Analitics görmek için supervisor olmalısınız</p>
+</Protect>
+
+<!-- Birden Fazla Permission (Herhangi Biri) -->
+<Protect permissions={["EDIT_USER", "DELETE_USER"]}>
+  <UserTools />
+</Protect>
+
+<!-- Birden Fazla Permission (Hepsi Gerekli) -->
+<Protect permissions={["CREATE_USER", "EDIT_USER"]} requireAll>
+  <AdvancedUserForm />
+</Protect>
+
+<!-- Rol Bazında -->
+<Protect roles={["supervisor", "admin"]}>
+  <SupervisorPanel />
+</Protect>
+```
+
+### Astro Component'lerde RBAC:
+
+#### 1. RoleGate Component (Permission bazında):
+
+```astro
+---
+import RoleGate from "@/components/UI/RoleGate.astro";
+---
+
+<RoleGate permission="DELETE_USER" showFallback>
+  <DeleteUserButton />
+
+  <p slot="fallback">
+    Bu işlemi yapmak için admin olmanız gerekir.
+  </p>
+</RoleGate>
+```
+
+#### 2. RoleGate Component (Role bazında):
+
+```astro
+---
+import RoleGate from "@/components/UI/RoleGate.astro";
+---
+
+<RoleGate roles={["admin", "supervisor"]}>
+  <AdminPanel />
+</RoleGate>
+```
+
+#### 3. Direktly Kontrol Etme:
+
+```astro
+---
+import { hasPermission } from "@/utils/rbac";
+import { currentUser } from "@/utils/user";
+
+const user = currentUser();
+const canDelete = hasPermission(user?.role, "DELETE_USER");
+---
+
+{canDelete && <DeleteButton />}
+```
+
+#### 4. Sidebar Örneği:
+
+```astro
+---
+import CustomLink from "@/components/UI/CustomLink.astro";
+import RoleGate from "@/components/UI/RoleGate.astro";
+---
+
+<nav>
+  <CustomLink href="/dashboard" text="Dashboard" />
+
+  <!-- Sadece supervisor ve admin'e göster -->
+  <RoleGate roles={["supervisor", "admin"]}>
+    <CustomLink href="/approvals" text="Approvals" />
+  </RoleGate>
+
+  <!-- Sadece admin'e göster -->
+  <RoleGate permission="MANAGE_ROLES">
+    <CustomLink href="/settings" text="Settings" />
+  </RoleGate>
+</nav>
+```
+
+#### RoleGate Component:
+
+```astro
+---
+import RoleGate from "@/components/UI/RoleGate.astro";
+---
+
+<RoleGate permission="DELETE_USER" showFallback>
+  <DeleteButton />
+</RoleGate>
+```
+
+#### Direktly Kontrol:
+
+```astro
+---
+import { hasPermission } from "@/utils/rbac";
+import { currentUser } from "@/utils/user";
+
+const user = currentUser();
+const canDelete = hasPermission(user?.role, "DELETE_USER");
+---
+
+{canDelete && <DeleteButton />}
+```
+
 ## 🧞 Commands
 
 All commands are run from the root of the project, from a terminal:

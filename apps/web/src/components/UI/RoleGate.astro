@@ -1,0 +1,51 @@
+---
+import { hasPermission, hasRole, type PermissionKey, type UserRole } from "@/utils/rbac";
+import { currentUser } from "@/utils/user";
+
+interface Props {
+
+  permission?: PermissionKey;
+
+
+  roles?: UserRole[];
+
+
+  showFallback?: boolean;
+}
+
+const { permission, roles, showFallback = false } = Astro.props;
+
+
+const user = currentUser();
+const userRole = user?.role as UserRole | undefined;
+
+
+let hasAccess = true;
+
+if (permission) {
+  hasAccess = hasPermission(userRole, permission);
+} else if (roles && roles.length > 0) {
+  hasAccess = hasRole(userRole, roles);
+}
+---
+
+{hasAccess ? (
+  <slot />
+) : showFallback ? (
+  <slot name="fallback">
+    <div class="access-denied">
+      <p>Bu bölüme erişim yetkiniz yok.</p>
+    </div>
+  </slot>
+) : null}
+
+<style>
+  .access-denied {
+    padding: 1rem;
+    background-color: #fee;
+    border: 1px solid #fcc;
+    border-radius: 4px;
+    color: #c00;
+    text-align: center;
+  }
+</style>

@@ -124,7 +124,7 @@ export const authRoutes = () =>
 
         try {
           const result = await query(
-            "SELECT id, email, password, full_name, team, profession, profile_picture, address, connection, user_department, user_status_id FROM users WHERE email = $1 AND deleted_at IS NULL",
+            "SELECT id, email, password, full_name, team, profession, profile_picture, address, connection, user_department, user_status_id, role FROM users WHERE email = $1 AND deleted_at IS NULL",
             [email]
           );
 
