@@ -51,31 +51,74 @@ export const teamsRoutes = () => {
   });
 
   // /teams/:id/members (JOIN)
-  const members = new Elysia({ name: "routes:teams:members" }).get(
-    "/teams/:id/members",
-    async ({ params, query: q }) => {
-      const limit = Number((q as any).limit ?? 50);
-      const offset = Number((q as any).offset ?? 0);
-      const res = await query(
-        `SELECT tm.*, u.full_name, u.email
-         FROM team_memberships tm
-         JOIN users u ON u.id = tm.user_id
-         WHERE tm.team_id = $1
-         ORDER BY tm.id DESC
-         LIMIT $2 OFFSET $3`,
-        [Number((params as any).id), limit, offset]
-      );
-      return mapRows(res.rows);
-    },
-    {
-      params: t.Object({ id: t.Numeric() }),
-      query: t.Object({
-        limit: t.Optional(t.Numeric()),
-        offset: t.Optional(t.Numeric()),
-      }),
-      detail: { summary: "List team members", tags: ["teams"] },
-    }
-  );
+  const members = new Elysia({ name: "routes:teams:members" })
+    .get(
+      "/teams/:id/members",
+      async ({ params, query: q }) => {
+        const limit = Number((q as any).limit ?? 50);
+        const offset = Number((q as any).offset ?? 0);
+        const res = await query(
+          `SELECT tm.*, u.full_name, u.email
+           FROM team_memberships tm
+           JOIN users u ON u.id = tm.user_id
+           WHERE tm.team_id = $1
+           ORDER BY tm.id DESC
+           LIMIT $2 OFFSET $3`,
+          [Number((params as any).id), limit, offset]
+        );
+        return mapRows(res.rows);
+      },
+      {
+        params: t.Object({ id: t.Numeric() }),
+        query: t.Object({
+          limit: t.Optional(t.Numeric()),
+          offset: t.Optional(t.Numeric()),
+        }),
+        detail: { summary: "List team members", tags: ["teams"] },
+      }
+    )
+    .get(
+      "/teams/:id/colleagues",
+      async ({ params, query: q }) => {
+        const limit = Number((q as any).limit ?? 50);
+        const offset = Number((q as any).offset ?? 0);
+        const userId = Number((params as any).id);
+
+        const userResult = await query(
+          `SELECT team FROM users WHERE id = $1 AND deleted_at IS NULL`,
+          [userId]
+        );
+
+        if (userResult.rows.length === 0) {
+          return [];
+        }
+
+        const userTeam = userResult.rows[0]?.team;
+        if (!userTeam) {
+          return [];
+        }
+
+        const res = await query(
+          `SELECT u.*
+           FROM users u
+           WHERE u.team = $1
+           AND u.deleted_at IS NULL
+           ORDER BY u.id DESC
+           LIMIT $2 OFFSET $3`,
+          [userTeam, limit, offset]
+        );
+
+        return mapRows(res.rows);
+      },
+      {
+        params: t.Object({ id: t.Numeric() }),
+        query: t.Object({
+          limit: t.Optional(t.Numeric()),
+          offset: t.Optional(t.Numeric()),
+        }),
+        detail: { summary: "Get colleagues in same team", tags: ["teams"] },
+      }
+    );
 
   return new Elysia({ name: "routes:teams:all" })
     .use(teams)

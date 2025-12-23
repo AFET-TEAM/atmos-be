@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS users (
   profession VARCHAR(100),
   profile_picture TEXT,
   address TEXT,
+  user_department VARCHAR(100),
   connection BOOLEAN DEFAULT FALSE,
   user_status_id INTEGER REFERENCES user_statuses(id),
   role VARCHAR(50) DEFAULT 'user',
@@ -179,6 +180,15 @@ CREATE TABLE IF NOT EXISTS ideas (
   deleted_at TIMESTAMPTZ
 );
 
+-- Departments
+CREATE TABLE IF NOT EXISTS departments (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL UNIQUE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  deleted_at TIMESTAMPTZ
+);
+
 -- ============================================================================
 -- 4. INTERACTION TABLES (Etkileşim Tabloları)
 -- ============================================================================
@@ -257,6 +267,8 @@ CREATE INDEX IF NOT EXISTS idx_reports_deleted_at ON reports(deleted_at);
 CREATE INDEX IF NOT EXISTS idx_ideas_user_id ON ideas(user_id);
 CREATE INDEX IF NOT EXISTS idx_ideas_date ON ideas(date);
 CREATE INDEX IF NOT EXISTS idx_ideas_deleted_at ON ideas(deleted_at);
+
+CREATE INDEX IF NOT EXISTS idx_departments_deleted_at ON departments(deleted_at);
 
 -- Comments indexes
 CREATE INDEX IF NOT EXISTS idx_comments_user_id ON comments(user_id);

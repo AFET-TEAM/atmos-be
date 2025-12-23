@@ -3,7 +3,7 @@ import IconButton from "@/components/UI/IconButton.astro";
 import SearchInput from "@/components/UI/SearchInput.astro";
 import { getUser } from '@/stores/userStore';
 import Icon from "public/icons/icon.astro";
-import LogoutButton from "../LogoutButton.astro";
+import LogoutButton from "../LogoutButton.svelte";
 import "./Header.scss";
 
 
@@ -33,7 +33,7 @@ console.log("Header user:", user);
         />
       </div>
     </div>
-    <LogoutButton />
+    <LogoutButton client:load />
   </div>
 </header>
 

@@ -1,11 +1,12 @@
 ---
-import { getDepartments, registerUser, getCities } from "@/api/AuthApi";
+import { getDepartments, registerUser, getCities , getTeams} from "@/api/AuthApi";
 import AuthLayout from "../../../layouts/AuthLayout.astro";
 import { get } from 'svelte/store';
 
 
 let errorMessage = "";
 const departments = await getDepartments();
+const teams = await getTeams();
 const cities = await getCities();
 
 if (Astro.request.method === "GET") {
@@ -109,6 +110,19 @@ if (Astro.request.method === "POST") {
             placeholder="Şifrenizi tekrar girin"
             required
           />
+        </div>
+      </div>
+
+         <div class="form-group">
+        <label for="teams">Departman</label>
+        <div class="input-wrapper">
+          <span class="input-icon">🏢</span>
+          <select id="teams" name="teams" required>
+            <option value="" disabled selected>Takımınızı seçin</option>
+            {teams.map((team: { id: string; name: string }) => (
+              <option value={team.id}>{team.name}</option>
+            ))}
+          </select>
         </div>
       </div>
 

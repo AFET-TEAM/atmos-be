@@ -19,11 +19,11 @@
     }
     .tech-talk-badge {
       @include badges(
-              $position: absolute,
-              $background-color: $primary,
-              $color: $white,
-              $padding: 5px 10px,
-              $font-weight: normal
+        $position: absolute,
+        $background-color: $primary,
+        $color: $white,
+        $padding: 5px 10px,
+        $font-weight: normal
       );
       font-size: 12px;
     }

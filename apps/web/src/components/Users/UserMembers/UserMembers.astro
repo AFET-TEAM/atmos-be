@@ -1,4 +1,5 @@
 ---
+import { getUserTeamMembers } from '@/api/UsersApi';
 import IconButton from "@/components/UI/IconButton.astro";
 import UserAvatar from "../UserAvatar/UserAvatar.astro";
 import "./usermembers.scss";
@@ -10,15 +11,19 @@ type teamMembers = {
   status: boolean;
   profilePicture: string;
 };
+
+
+const getUserTeamMember = await getUserTeamMembers(user?.id);
+
 ---
 
 <div class="team-members-card">
   <p class="card-tag">Teams</p>
   <ul class="team-members">
     {
-      user?.teamMembers?.map((team: teamMembers) => (
-        <li class="team-member" data-key={team.id}>
-          <UserAvatar imageSize="user-image-md" user={team} />
+      getUserTeamMember?.map((users: teamMembers) => (
+        <li class="team-member" data-key={users.id}>
+          <UserAvatar imageSize="user-image-md" user={users} />
 
           <div class="buttons">
             <IconButton

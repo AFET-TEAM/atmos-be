@@ -31,7 +31,8 @@ export const authRoutes = () =>
     .post(
       "/auth/register",
       async ({ body, jwt, cookie }) => {
-        const { email, password, full_name, address, user_department } = body;
+        const { email, password, full_name, address, user_department, teams } =
+          body;
 
         try {
           const existingUser = await query(
@@ -61,8 +62,8 @@ export const authRoutes = () =>
             id: newUser.id,
             email: newUser.email,
             role: "user",
-            full_name: newUser.full_name || "",
-            team: undefined,
+            full_name: newUser.full_name,
+            team: newUser.teams,
             profession: undefined,
             profile_picture: undefined,
             address: newUser.address,
@@ -96,6 +97,13 @@ export const authRoutes = () =>
             });
           }
 
+          if (teams) {
+            await query(
+              "INSERT INTO team_memberships (team_id, user_id) VALUES ($1, $2)",
+              [Number(teams), newUser.id]
+            );
+          }
+
           return { token, user };
         } catch (error) {
           console.error("Register error:", error);
@@ -112,6 +120,7 @@ export const authRoutes = () =>
           full_name: t.String({ minLength: 2 }),
           address: t.Optional(t.String()),
           user_department: t.Optional(t.String()),
+          teams: t.Optional(t.String()),
         }),
         detail: { summary: "Register new user", tags: ["auth"] },
       }

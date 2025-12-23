@@ -39,3 +39,8 @@ export async function putTechTalk(
   const { data } = await instance.put<TechTalk>(`/techtalks/${id}`, payload);
   return data;
 }
+
+export async function fetchLastTechTalk() {
+  const { data } = await instance.get<TechTalk>("/lastTechTalks");
+  return data;
+}

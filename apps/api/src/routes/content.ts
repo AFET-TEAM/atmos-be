@@ -1,3 +1,4 @@
+import { query } from "@/db";
 import { Elysia, t } from "elysia";
 import { createCrudRoutes } from "./_crudFactory";
 
@@ -60,6 +61,16 @@ export const contentRoutes = () => {
       getUserId: ({ body }) => (body as any)?.user_id ?? 0,
     },
     rbac: { can: async () => true },
+  }).get("/lastTechTalks", async () => {
+    const res = await query(`
+     SELECT id, title, description, date, video_url, thumbnail_url
+     FROM techtalks
+      WHERE deleted_at IS NULL
+      ORDER BY date DESC
+      LIMIT 1
+   `);
+
+    return res.rows[0];
   });
 
   const documents = createCrudRoutes({

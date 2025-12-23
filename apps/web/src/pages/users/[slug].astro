@@ -6,8 +6,9 @@ import UserMembers from "@/components/Users/UserMembers/UserMembers.astro";
 import UserProfileCard from "@/components/Users/UserProfileCard/UserProfileCard.astro";
 import Layout from "../../layouts/Layout.astro";
 import "./_users.scss";
-
 const { slug } = Astro.params;
+
+
 
 const $user = await getUserById(slug).catch((error) => {
   console.error("Error fetching user data:", error);

@@ -41,6 +41,11 @@ export async function getDepartments() {
   return response.data;
 }
 
+export async function getTeams() {
+  const response = await instance.get("/teams");
+  return response.data;
+}
+
 export async function getCities() {
   const response = await instance.get("/cities");
   return response.data;

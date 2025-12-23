@@ -6,8 +6,8 @@ export const getUsers = async () => {
       params: {
         limit: 100,
         offset: 0,
-        include_deleted: false
-      }
+        include_deleted: false,
+      },
     });
     return response.data;
   } catch (error) {
@@ -73,5 +73,15 @@ export const getUserTabDetails = async (tabName: string | undefined) => {
   } catch (error) {
     console.error(`Error fetching tab details for ${tabName}:`, error);
     return null;
+  }
+};
+
+export const getUserTeamMembers = async (userId: string | undefined) => {
+  try {
+    const response = await instance.get(`/teams/${userId}/colleagues`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching team members for team ${userId}:`, error);
+    return [];
   }
 };
