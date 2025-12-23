@@ -20,7 +20,14 @@ const {
 } = Astro.props as CustomLinkProps;
 ---
 
-<div class={`customLink ${border ? "bordered" : ""}`}>
+{text ? (
+  <div class={`customLink ${border ? "bordered" : ""}`}>
   <Icon name={iconName} size={24} size={size} color={color} />
   <a href={href} class="customLinks"> {text} </a>
 </div>
+) : (
+   <a href={href} class={`customLink ${border ? "bordered" : ""}`}>
+  <Icon  name={iconName} size={24} size={size} color={color} />
+</a>
+)}
+

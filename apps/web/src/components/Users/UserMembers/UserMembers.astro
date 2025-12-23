@@ -1,5 +1,6 @@
 ---
 import { getUserTeamMembers } from '@/api/UsersApi';
+import CustomLink from '@/components/UI/CustomLink.astro';
 import IconButton from "@/components/UI/IconButton.astro";
 import UserAvatar from "../UserAvatar/UserAvatar.astro";
 import "./usermembers.scss";
@@ -26,12 +27,13 @@ const getUserTeamMember = await getUserTeamMembers(user?.id);
           <UserAvatar imageSize="user-image-md" user={users} />
 
           <div class="buttons">
-            <IconButton
+            <CustomLink
               buttonType="secondary"
-              color="#18a0fb"
               iconName="addFriends"
+              href={`/users/${users.id}`}
+              color="#000"
             />
-            <IconButton buttonType="primary" color="#18a0fb" iconName="send" />
+            <IconButton buttonType="primary" iconName="send" />
           </div>
         </li>
       ))
