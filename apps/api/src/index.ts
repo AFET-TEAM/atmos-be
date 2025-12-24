@@ -1,4 +1,3 @@
-import { cors } from "@elysiajs/cors";
 import { Elysia } from "elysia";
 import { swaggerPlugin } from "./config/swagger";
 import { query } from "./db";
@@ -12,19 +11,37 @@ import { departmentsRoutes } from "./routes/department";
 import { likesRoutes } from "./routes/likes";
 import { lookupsRoutes } from "./routes/lookups";
 import { meetingsRoutes } from "./routes/meetings";
+import { TabHeaders } from "./routes/tabsheader";
 import { tasksRoutes } from "./routes/tasks";
 import { teamsRoutes } from "./routes/teams";
 import { usersRoutes } from "./routes/users";
 
+const CORS_ORIGINS = [
+  "http://localhost:4321",
+  "http://localhost:4322",
+  "http://127.0.0.1:4321",
+  "http://127.0.0.1:4322",
+];
+
 const app = new Elysia()
   .state("version", "1.0.0")
-  .use(
-    cors({
-      origin: ["http://localhost:4321", "http://127.0.0.1:4321"],
-      credentials: true,
-      methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    })
-  )
+  .onBeforeHandle(({ request, set }) => {
+    const origin = request.headers.get("origin");
+
+    if (origin && CORS_ORIGINS.includes(origin)) {
+      set.headers["Access-Control-Allow-Origin"] = origin;
+      set.headers["Access-Control-Allow-Credentials"] = "true";
+      set.headers["Access-Control-Allow-Methods"] =
+        "GET, POST, PUT, DELETE, PATCH, OPTIONS";
+      set.headers["Access-Control-Allow-Headers"] =
+        "Content-Type, Authorization";
+      set.headers["Access-Control-Max-Age"] = "3600";
+    }
+
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204 });
+    }
+  })
   .use(swaggerPlugin)
   .use(authPlugin)
 
@@ -55,7 +72,8 @@ const v1 = new Elysia({ prefix: "/v1", name: "api:v1" })
   .use(contentRoutes())
   .use(departmentsRoutes())
   .use(cityRoutes())
-  .use(countUserInfo);
+  .use(countUserInfo)
+  .use(TabHeaders());
 app.use(v1);
 
 app.listen({ port: 3000, hostname: "0.0.0.0" });

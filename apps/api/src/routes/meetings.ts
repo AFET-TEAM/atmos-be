@@ -88,7 +88,29 @@ export const meetingsRoutes = () => {
       }
     );
 
+  // Kullanıcının meetings'ini çekme
+  const userMeetings = new Elysia({ name: "routes:meetings:user" }).get(
+    "/users/:id/meetings",
+    async ({ params }) => {
+      const userId = Number((params as any).id);
+      const res = await query(
+        `SELECT DISTINCT m.*
+           FROM meetings m
+           LEFT JOIN meeting_attendees ma ON ma.meeting_id = m.id
+           WHERE m.created_by = $1 OR ma.user_id = $1
+           ORDER BY m.starts_at DESC`,
+        [userId]
+      );
+      return mapRows(res.rows);
+    },
+    {
+      params: t.Object({ id: t.Numeric() }),
+      detail: { summary: "Get user's meetings", tags: ["meetings"] },
+    }
+  );
+
   return new Elysia({ name: "routes:meetings:all" })
     .use(meetings)
-    .use(attendees);
+    .use(attendees)
+    .use(userMeetings);
 };

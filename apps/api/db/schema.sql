@@ -189,6 +189,17 @@ CREATE TABLE IF NOT EXISTS departments (
   deleted_at TIMESTAMPTZ
 );
 
+-- Tab Headers
+ CREATE TABLE IF NOT EXISTS tab_headers (
+  id SERIAL PRIMARY KEY,
+  label VARCHAR(50) NOT NULL,
+  name VARCHAR(50) NOT NULL,
+  icon VARCHAR(255),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  deleted_at TIMESTAMPTZ
+);
+
 -- ============================================================================
 -- 4. INTERACTION TABLES (Etkileşim Tabloları)
 -- ============================================================================

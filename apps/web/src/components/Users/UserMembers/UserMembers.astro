@@ -8,7 +8,7 @@ const { user } = Astro.props;
 
 type teamMembers = {
   id: number;
-  name: string;
+  fullName: string;
   status: boolean;
   profilePicture: string;
 };
@@ -24,14 +24,22 @@ const getUserTeamMember = await getUserTeamMembers(user?.id);
     {
       getUserTeamMember?.map((users: teamMembers) => (
         <li class="team-member" data-key={users.id}>
-          <UserAvatar imageSize="user-image-md" user={users} />
+         <div class="user-avatar-wrapper">
+           <UserAvatar imageSize="user-image-md" user={users} />
+
+          <div class="user-info">
+            <h4>{users.fullName}</h4>
+
+          </div>
+         </div>
 
           <div class="buttons">
             <CustomLink
               buttonType="secondary"
               iconName="addFriends"
               href={`/users/${users.id}`}
-              color="#000"
+              color="#666666"
+             className="icon-button-secondary"
             />
             <IconButton buttonType="primary" iconName="send" />
           </div>

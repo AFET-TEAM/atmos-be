@@ -3,7 +3,10 @@ const { user } = Astro.props;
 import Icon from "../../../../public/icons/icon.astro";
 import UserAvatar from "../UserAvatar/UserAvatar.astro";
 import "../users.scss";
+
+
 ---
+
 
 <article class="user-profile-card-wrapper">
   <div class="user-profile-card">
@@ -19,7 +22,7 @@ import "../users.scss";
         <Icon name={"locationIcon"} />
         <p>{user.profession}</p>
       </div>
-      <p class="address-info">{user.address}</p>
+      <p class="address-info">{user?.address}</p>
     </div>
   </div>
 </article>

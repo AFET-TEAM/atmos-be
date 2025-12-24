@@ -16,7 +16,7 @@ export const getUsers = async () => {
   }
 };
 
-export const getUserById = async (id: string | undefined) => {
+export const getUserById = async (id: number | string | undefined) => {
   try {
     const response = await instance.get(`/users/${id}`);
     return response.data;
@@ -58,10 +58,10 @@ export const getImportantLinks = async () => {
 
 export const getTabNameForUserDetails = async () => {
   try {
-    const response = await instance.get(`/tabs`);
+    const response = await instance.get("/tab_headers");
     return response.data;
   } catch (error) {
-    console.error("Error fetching tabs:", error);
+    console.error("Error fetching tab names for user details:", error);
     return [];
   }
 };
@@ -83,5 +83,30 @@ export const getUserTeamMembers = async (userId: string | undefined) => {
   } catch (error) {
     console.error(`Error fetching team members for team ${userId}:`, error);
     return [];
+  }
+};
+
+export const getUserMeetings = async (userId: number | string | undefined) => {
+  try {
+    const response = await instance.get(`/users/${userId}/meetings`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching user ${userId} meetings:`, error);
+    return [];
+  }
+};
+
+export const createMeeting = async (meetingData: {
+  title: string;
+  starts_at: string;
+  ends_at: string;
+  created_by?: number;
+}) => {
+  try {
+    const response = await instance.post(`/meetings`, meetingData);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating meeting:", error);
+    return null;
   }
 };

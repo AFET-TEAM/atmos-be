@@ -1,5 +1,5 @@
 ---
-import { getUserById } from "@/api/UsersApi";
+import { getUserById, getUserMeetings } from "@/api/UsersApi";
 import MeetList from "@/components/Users/MeetList/MeetList.astro";
 import TabsWrapper from "@/components/Users/TabMenu/TabsWrapper.svelte";
 import UserMembers from "@/components/Users/UserMembers/UserMembers.astro";
@@ -10,18 +10,16 @@ const { slug } = Astro.params;
 
 
 
-const $user = await getUserById(slug).catch((error) => {
-  console.error("Error fetching user data:", error);
-  return null;
-});
+const $user = await getUserById(slug)
+const userMeetings = await getUserMeetings(slug);
 
-const $meets = $user?.meetings?.map((meet: any) => ({
+const $meets = userMeetings?.map((meet: any) => ({
   ...meet,
   title: meet.title,
   time: meet.time,
 }));
 
-console.log($meets);
+
 ---
 
 <Layout title="User Detail">

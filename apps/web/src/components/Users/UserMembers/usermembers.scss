@@ -2,18 +2,16 @@
   background-color: $white;
   overflow-x: hidden;
   overflow-y: scroll;
-  
 
-  -ms-overflow-style: none;  
-  scrollbar-width: none;    
-  
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
   min-width: 30%;
   max-width: 40%;
   height: 18rem;
   padding: 1rem;
   border-radius: 10px;
   position: relative;
-  
 
   &::-webkit-scrollbar {
     display: none;
@@ -21,7 +19,7 @@
 
   ul {
     li {
-      @include flexible(flex, row, space-between, center);
+      @include flexible(flex, row, space-between);
 
       font-size: 0.75rem;
     }
@@ -31,7 +29,7 @@
     margin-top: 10px;
   }
 
-  .team-member{
+  .team-member {
     margin-bottom: 10px;
   }
   .card-tag {
@@ -44,4 +42,17 @@
     padding: 0.2rem;
     color: $white;
   }
+}
+
+.buttons {
+  @include flexible(flex, center, center);
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.user-avatar-wrapper {
+  @include flexible(flex, row, center, center);
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: $greyTextColor;
 }
