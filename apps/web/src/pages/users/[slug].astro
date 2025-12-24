@@ -31,6 +31,6 @@ const $meets = userMeetings?.map((meet: any) => ({
 
   <main class="page-content">
     <MeetList meets={$meets} />
-    <TabsWrapper client:load />
+    <TabsWrapper userId={slug} client:load />
   </main>
 </Layout>

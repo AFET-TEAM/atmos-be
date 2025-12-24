@@ -1,22 +1,12 @@
 <script lang="ts">
-  import { getTabNameForUserDetails } from "@/api/UsersApi";
-  import { onMount } from "svelte";
   import TabContent from "./TabContent.svelte";
   import TabMenu from "./TabMenu.svelte";
+  let { userId } = $props();
 
   type TabContentType = any;
-  let tabsHeader: Array<{ value: string; name: string }> = [];
-
-  const TabsHeader = async () => {
-    tabsHeader = await getTabNameForUserDetails();
-  };
-
-  onMount(() => {
-    TabsHeader();
-  });
 </script>
 
-<TabMenu tabHeader={tabsHeader}>
+<TabMenu {userId}>
   {#snippet children({
     tabContent,
     activeTab,

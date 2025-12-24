@@ -61,17 +61,37 @@ export const contentRoutes = () => {
       getUserId: ({ body }) => (body as any)?.user_id ?? 0,
     },
     rbac: { can: async () => true },
-  }).get("/lastTechTalks", async () => {
-    const res = await query(`
-     SELECT id, title, description, date, video_url, thumbnail_url
-     FROM techtalks
-      WHERE deleted_at IS NULL
-      ORDER BY date DESC
-      LIMIT 1
-   `);
+  })
+    .get("/lastTechTalks", async () => {
+      const res = await query(`
+        SELECT id, title, description, date, video_url, thumbnail_url
+        FROM techtalks
+        WHERE deleted_at IS NULL
+        ORDER BY date DESC
+        LIMIT 1
+      `);
+      return res.rows[0];
+    })
+    .get(
+      "/techtalks/:id",
+      async ({ params }) => {
+        const userId = parseInt(params.id);
+        if (!userId) return { error: "Invalid user ID", data: [] };
 
-    return res.rows[0];
-  });
+        const res = await query(
+          `SELECT id, title, description, date, video_url, thumbnail_url, location, duration_min
+           FROM techtalks WHERE user_id = $1 AND deleted_at IS NULL ORDER BY date DESC`,
+          [userId]
+        );
+        return { data: res.rows };
+      },
+      {
+        detail: {
+          summary: "get user's tech talks",
+          tags: ["content"],
+        },
+      }
+    );
 
   const documents = createCrudRoutes({
     table: "documents",
@@ -117,7 +137,26 @@ export const contentRoutes = () => {
       getUserId: ({ body }) => (body as any)?.user_id ?? 0,
     },
     rbac: { can: async () => true },
-  });
+  }).get(
+    "/documents/:id",
+    async ({ params }) => {
+      const userId = parseInt(params.id);
+      if (!userId) return { error: "Invalid user ID", data: [] };
+
+      const res = await query(
+        `SELECT id, title, description, file_url, date
+         FROM documents WHERE user_id = $1 AND deleted_at IS NULL ORDER BY date DESC`,
+        [userId]
+      );
+      return { data: res.rows };
+    },
+    {
+      detail: {
+        summary: "get user's documents",
+        tags: ["content"],
+      },
+    }
+  );
 
   const reports = createCrudRoutes({
     table: "reports",
@@ -149,7 +188,26 @@ export const contentRoutes = () => {
       getUserId: ({ body }) => (body as any)?.user_id ?? 0,
     },
     rbac: { can: async () => true },
-  });
+  }).get(
+    "/reports/:id",
+    async ({ params }) => {
+      const userId = parseInt(params.id);
+      if (!userId) return { error: "Invalid user ID", data: [] };
+
+      const res = await query(
+        `SELECT id, title, file_url, date
+         FROM reports WHERE user_id = $1 AND deleted_at IS NULL ORDER BY date DESC`,
+        [userId]
+      );
+      return { data: res.rows };
+    },
+    {
+      detail: {
+        summary: "get user's reports",
+        tags: ["content"],
+      },
+    }
+  );
 
   const ideas = createCrudRoutes({
     table: "ideas",
@@ -207,7 +265,26 @@ export const contentRoutes = () => {
       getUserId: ({ body }) => (body as any)?.user_id ?? 0,
     },
     rbac: { can: async () => true },
-  });
+  }).get(
+    "/ideas/:id",
+    async ({ params }) => {
+      const userId = parseInt(params.id);
+      if (!userId) return { error: "Invalid user ID", data: [] };
+
+      const res = await query(
+        `SELECT id, title, description, file_url, frontend_count, backend_count, idea_assignee_id, date
+         FROM ideas WHERE user_id = $1 AND deleted_at IS NULL ORDER BY date DESC`,
+        [userId]
+      );
+      return { data: res.rows };
+    },
+    {
+      detail: {
+        summary: "get user's ideas",
+        tags: ["content"],
+      },
+    }
+  );
 
   return app.use(techtalks).use(documents).use(reports).use(ideas);
 };

@@ -1,11 +1,11 @@
 <script lang="ts">
+  import SearchInput from "@/components/UI/SearchInput.svelte";
+  import SvelteIcon from "@/components/UI/SvelteIcon.svelte";
   import {
     formatDate,
     getStatusClass,
     getStatusText,
   } from "@/helpers/helperFunction";
-  import SvelteIcon from "@/components/UI/SvelteIcon.svelte";
-  import SearchInput from "@/components/UI/SearchInput.svelte";
   import pdfPng from "public/img/pdf.png";
 
   export let tabContent: any = null;
@@ -24,13 +24,16 @@
     createdDate?: string;
     author?: string;
     presenter?: string;
-    duration?: string;
+    duration_min?: number;
     location?: string;
     likes?: string;
     comments?: Array<any>;
     analyst?: string;
     Developer?: string;
     documentsUrl?: string;
+    video_url?: string;
+    thumbnail_url?: string;
+    file_url?: string;
   }
 
   function getIconNameForTab(tabType: string): string {
@@ -43,8 +46,8 @@
         return "pdf";
       case "reports":
         return "pdf";
-      case "aboutme":
-        return "playIcon";
+      case "ideas":
+        return "lightbulb";
       default:
         return "playIcon";
     }
@@ -58,15 +61,17 @@
   function getSearchFields(tabType: string): string[] {
     switch (tabType.toLowerCase()) {
       case "tasks":
-        return ['title', 'description', 'status', 'analyst', 'Developer'];
+        return ["title", "description", "status", "analyst", "Developer"];
       case "techtalks":
-        return ['title', 'description', 'presenter', 'location'];
+        return ["title", "description", "presenter", "location"];
       case "documents":
-        return ['title', 'description', 'author'];
+        return ["title", "description", "author"];
       case "reports":
-        return ['title', 'description', 'author'];
+        return ["title", "description", "author"];
+      case "ideas":
+        return ["title", "description"];
       default:
-        return ['title', 'description'];
+        return ["title", "description"];
     }
   }
 
@@ -77,16 +82,15 @@
 
 {#if tabContent}
   <div class="content-section">
-
     {#if Array.isArray(tabContent)}
-      <SearchInput 
-        bind:value={searchValue} 
-        placeholder="İçeriklerde ara..." 
+      <SearchInput
+        bind:value={searchValue}
+        placeholder="İçeriklerde ara..."
         width="100%"
         data={tabContent}
         searchFields={getSearchFields(activeTab)}
         on:search={handleSearch}
-        on:clear={() => filteredContent = tabContent}
+        on:clear={() => (filteredContent = tabContent)}
       />
     {/if}
 
@@ -110,10 +114,15 @@
             <li class="content-item">
               <div class="item-icon">
                 <div class={getIconNameForTab(activeTab)}>
-                  {#if getIconNameForTab(activeTab) === "pdf"}
+                  {#if item.thumbnail_url}
+                    <img
+                      class="thumbnail"
+                      src={item.thumbnail_url}
+                      alt={item.title}
+                    />
+                  {:else if getIconNameForTab(activeTab) === "pdf"}
                     <img class="pdfPng" src={pdfPng.src} alt="PDF Icon" />
-                  {/if}
-                  {#if getIconNameForTab(activeTab) !== "pdf"}
+                  {:else}
                     <SvelteIcon
                       name={getIconNameForTab(activeTab)}
                       width={16}
@@ -163,24 +172,13 @@
                     <span class="item-separator">•</span>
                   {/if}
 
-                  {#if item.updateDate}
-                    <span class="item-date">
-                      <SvelteIcon name="clock" width={12} height={12} />
-                      Update Date: {formatDate(item.updateDate)}
-                    </span>
+                  {#if item.location}
+                    <span class="item-info">📍 {item.location}</span>
                     <span class="item-separator">•</span>
                   {/if}
 
-                  {#if item.createdDate}
-                    <span class="item-date">
-                      <SvelteIcon name="clock" width={12} height={12} />
-                      Created Date: {formatDate(item.createdDate)}
-                    </span>
-                    <span class="item-separator">•</span>
-                  {/if}
-
-                  {#if item.author}
-                    <span class="item-info">👤 {item.author}</span>
+                  {#if item.duration_min}
+                    <span class="item-info">⏱️ {item.duration_min} dk</span>
                     <span class="item-separator">•</span>
                   {/if}
 
@@ -192,13 +190,8 @@
                     <span class="item-separator">•</span>
                   {/if}
 
-                  {#if item.duration}
-                    <span class="item-info">⏱️ {item.duration}</span>
-                    <span class="item-separator">•</span>
-                  {/if}
-
-                  {#if item.location}
-                    <span class="item-info">📍 {item.location}</span>
+                  {#if item.author}
+                    <span class="item-info">👤 {item.author}</span>
                     <span class="item-separator">•</span>
                   {/if}
 
@@ -219,14 +212,16 @@
                 </div>
               </div>
 
-              {#if item.documentsUrl}
+              {#if item.video_url || item.file_url || item.documentsUrl}
                 <div class="item-action">
                   <button
-                    on:click={() => window.open(item.documentsUrl, "_blank")}
+                    on:click={() =>
+                      window.open(
+                        item.video_url || item.file_url || item.documentsUrl,
+                        "_blank",
+                      )}
                   >
-
-                  <SvelteIcon name="download" width={20} height={20} />
-
+                    <SvelteIcon name="download" width={20} height={20} />
                   </button>
                 </div>
               {/if}
@@ -243,10 +238,6 @@
           <p>Bu bölümde henüz içerik bulunmuyor.</p>
         </div>
       {/if}
-    {:else}
-      <div class="no-content">
-        <p>İçerik yükleniyor...</p>
-      </div>
     {/if}
   </div>
 {:else}
@@ -261,10 +252,17 @@
     padding: 2rem;
     color: #64748b;
   }
-  
+
   .search-suggestion {
     font-size: 0.875rem;
     margin-top: 0.5rem;
     opacity: 0.8;
+  }
+
+  .thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
   }
 </style>

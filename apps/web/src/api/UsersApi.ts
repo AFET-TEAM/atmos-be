@@ -66,9 +66,13 @@ export const getTabNameForUserDetails = async () => {
   }
 };
 
-export const getUserTabDetails = async (tabName: string | undefined) => {
+export const getUserTabDetails = async (
+  tabName: string | undefined,
+  userId: string | undefined
+) => {
+  console.log("Fetching tab details for:", tabName, "and userId:", userId);
   try {
-    const response = await instance.get(`/${tabName}`);
+    const response = await instance.get(`/${tabName}/${userId}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching tab details for ${tabName}:`, error);
