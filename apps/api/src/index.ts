@@ -21,6 +21,7 @@ const CORS_ORIGINS = [
   "http://localhost:4322",
   "http://127.0.0.1:4321",
   "http://127.0.0.1:4322",
+  "*",
 ];
 
 const app = new Elysia()
