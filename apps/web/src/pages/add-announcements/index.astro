@@ -1,0 +1,11 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import AddAnnouncements from "../../components/AdminPanel/Announcements/AddAnnouncements/AddAnnouncements.svelte";
+---
+
+<Layout title="AddAnnouncements">
+    <section>
+        <div class="title">Duyurular</div>
+        <AddAnnouncements client:load/>
+    </section>
+</Layout>
