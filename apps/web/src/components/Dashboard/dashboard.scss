@@ -1,8 +1,10 @@
 .dashboard {
   padding-top: 10px;
+
   .card {
     @include cards($padding: 1.5rem);
   }
+
   .top-section {
     @include flexible(flex, null, null, stretch, 10px);
     margin-bottom: 2rem;
@@ -16,6 +18,7 @@
         margin-top: 1.5rem;
       }
     }
+
     .calendar {
       @include cards($white, 10px, 10px, auto, null);
       width: 100%;
@@ -24,19 +27,54 @@
   }
 
   .middle-section {
-    @include grid(grid, repeat(3, 1fr), null, null, null, 10px);
+    @include grid(grid, repeat(auto-fit, minmax(200px, 1fr)), null, null, null, 10px);
     margin-bottom: 2rem;
 
     .card {
       @include cards();
     }
   }
+
   .bottom-section {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
+
     .card {
       @include cards();
     }
   }
+
+  @media (max-width: 768px) {
+    .top-section {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1.5rem;
+
+      .left-group {
+        width: 100%;
+      }
+
+      .stats-row {
+        flex-direction: column;
+      }
+
+      .calendar {
+        max-width: 100%;
+        width: 100%;
+      }
+    }
+
+    .middle-section {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .bottom-section {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
 }
+
+

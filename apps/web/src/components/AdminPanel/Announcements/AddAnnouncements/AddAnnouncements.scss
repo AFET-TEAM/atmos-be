@@ -1,0 +1,26 @@
+.header-row {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  margin-bottom: 1rem;
+  .btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    border: none;
+    padding: 8px 24px;
+    border-radius: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: 400;
+    line-height: 1;
+    background: #18a0fb;
+    transition: transform 0.06s ease, opacity 0.2s ease;
+    color: #ffffff;
+    &:hover {
+      background: #0e5f95;
+      transition: background-color 0.2s ease;
+    }
+  }
+}

@@ -43,8 +43,7 @@ if (Astro.request.method === "POST") {
       return Astro.redirect("/auth/login");
     }
   } catch (error: any) {
-
-    errorMessage = error.response?.data?.message || "Kayıt sırasında bir hata oluştu";
+    errorMessage = "Kayıt sırasında bir hata oluştu";
   }
 }
 ---

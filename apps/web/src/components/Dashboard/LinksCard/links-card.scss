@@ -1,10 +1,7 @@
 .links-card-container {
+  @include flexible(flex, column, center, center, null);
   position: relative;
   padding-top: 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
   min-height: 100%;
 }
 
@@ -26,20 +23,16 @@
 }
 
 .links-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  @include grid(grid, repeat(3, 1fr));
+  column-gap: clamp(40px, 8vw, 20px);
   row-gap: 10px;
-  padding: 0;
   font-size: 12px;
-  column-gap: 30px;
   color: $greyTextColor;
 }
 
 .link-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #555;
+  @include flexible(flex, null, null, center, 8px);
+  color: $greyTextColor;
   text-decoration: none;
 
   &:hover {

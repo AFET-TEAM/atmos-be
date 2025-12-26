@@ -46,16 +46,16 @@
 
     .badge {
       @include badges(
-                      absolute,
-                      0,
-                      0,
-                      $secondary,
-                      $white,
-                      12px,
-                      5px 10px,
-                      bold,
-                      12px,
-                      12px
+          absolute,
+          0,
+          0,
+          $secondary,
+          $white,
+          12px,
+          5px 10px,
+          bold,
+          12px,
+          12px
       );
     }
   }
@@ -71,16 +71,16 @@
 
   button {
     @include buttons(
-                    120px,
-                    0.5rem,
-                    $primary,
-                    0.75rem,
-                    $primary,
-                    $white,
-                    null,
-                    null,
-                    null,
-                    null
+        120px,
+        0.5rem,
+        $primary,
+        0.75rem,
+        $primary,
+        $white,
+        null,
+        null,
+        null,
+        null
     );
     @include flexible(flex, row-reverse, center, center, null);
     &.connected {
@@ -136,5 +136,42 @@
     position: relative;
     left: -5px;
     z-index: 2;
+  }
+}
+@media (max-width: 768px) {
+  .cards-container {
+    .card {
+      flex-direction: column;
+      align-items: flex-start;
+      max-height: none;
+      padding-right: 16px;
+    }
+
+    .content {
+      margin-left: 0;
+      margin-top: 12px;
+    }
+  }
+
+  .buttons-container {
+    position: static;
+    top: auto;
+    right: auto;
+    transform: none;
+    margin-top: 16px;
+    width: 100%;
+    justify-content: space-between;
+    gap: 16px;
+    height: auto;
+
+    .user-bubbles {
+      justify-content: flex-start;
+    }
+
+    button {
+      width: auto;
+      min-width: 120px;
+      justify-content: center;
+    }
   }
 }
