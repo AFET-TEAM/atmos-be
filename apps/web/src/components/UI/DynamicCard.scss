@@ -1,6 +1,4 @@
 .tt-card {
-  position: relative;
-
   @include flexible(flex, row, flex-start, center, 14px);
   @include cards(#fff, 12px, 20px, auto, 0 2px 8px rgba(0, 0, 0, 0.06));
   margin: 1rem 0;
@@ -45,18 +43,6 @@
   @include flexible(flex, row, flex-start, center, 4px);
   margin-top: 6px;
   @include Typgraphy(12px, 400, #505050);
-}
-
-.tt-slot {
-  @include flexible(flex, null, center, null, 10px);
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-
-  &:empty {
-    display: none;
-  }
 }
 
 .tt-actions {
@@ -130,24 +116,29 @@
     line-height: 1.3;
   }
 
-  .tt-slot {
-    position: static;
-    transform: none;
-    margin-top: 8px;
-    justify-content: center;
-  }
-
   .tt-actions {
     margin-left: 0;
     margin-top: 10px;
     width: 100%;
     flex-wrap: wrap;
     justify-content: center;
+    gap: 10px;
+  }
+  .tt-actions .btn {
+    font-size: 14px;
+    padding: 12px 14px;
+    min-height: 44px;
+    border-radius: 12px;
+    flex: 1 1 calc(50% - 10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     gap: 8px;
   }
 
-  .tt-actions .btn {
-    font-size: 11px;
-    padding: 6px 10px;
+  .tt-actions .btn svg,
+  .tt-actions .btn img {
+    width: 18px;
+    height: 18px;
   }
 }

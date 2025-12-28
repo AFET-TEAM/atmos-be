@@ -8,23 +8,61 @@ import TechTalkCard from "./TechTalkCard/TechTalkCard.astro";
 import LinksCard from "./LinksCard/LinksCard.astro";
 import IdeaCard from "./IdeaCard/IdeaCard.astro";
 import MapCard from "./MapCard/MapCard.astro";
+import AnnouncementsCard from "./AnnouncementsCard/AnnouncementsCard.astro";
+
+const announcements = [
+  {
+    id: "a1",
+    title: "Atos Planı",
+    date: "18.12.2025",
+    content:
+      "Atos v1.0 sürümü çok yakında yayınlanacaktır. Yeni özellikler ve iyileştirmeler için hazırlanın.",
+    authorName: "Barış Benli",
+    authorRole: "Yönetici",
+  },
+  {
+    id: "a2",
+    title: "TechTalk Saati Güncellendi",
+    date: "17.12.2025",
+    content:
+      "TechTalk etkinliği 16:00 yerine 16:30'a alınmıştır. Takvimlerinizi güncelleyebilirsiniz.",
+    authorName: "Barış Benli",
+    authorRole: "Yönetici",
+  },
+  {
+    id: "a3",
+    title: "Lorem Ipsum",
+    date: "16.12.2025",
+    content:
+      "lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    authorName: "Barış Benli",
+    authorRole: "Yönetici",
+  },
+];
 ---
 
 <div class="dashboard">
-  <div class="top-section">
+ <div class="top-section">
     <div class="left-group">
-      <div class="card">
-        <WelcomeCard/>
+      <div class="top-cards-row">
+        <div class="card">
+          <WelcomeCard/>
+        </div>
+
+        <div class="announcements">
+          <AnnouncementsCard announcements={announcements}/>
+        </div>
       </div>
+
       <div class="stats-row">
         <StatsCard/>
       </div>
     </div>
+
     <div class="calendar">
       <Calendar client:load/>
     </div>
   </div>
-
   <div class="middle-section">
     <!--<div class="card">
       <TotalTaskCard/>

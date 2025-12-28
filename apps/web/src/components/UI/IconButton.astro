@@ -6,12 +6,11 @@ type iconButton = {
   text?: string;
   color?: string;
   buttonType: string;
-  onClick?: string;
 };
-const { iconName, text, color, buttonType, onClick } = Astro.props as iconButton;
+const { iconName, text, color, buttonType } = Astro.props as iconButton;
 ---
 
-<button class={`icon-button-${buttonType}`} onclick={onClick}>
+<button class={`icon-button-${buttonType}`}>
   {text && <span>{text}</span>}
   <Icon color={color} name={iconName} size={24} />
 </button>

@@ -4,6 +4,7 @@ export interface Idea {
   id: number;
   title: string;
   owner: string;
+  ownerId?: string;
   date: string;
   description: string;
   presentationFileName?: string;

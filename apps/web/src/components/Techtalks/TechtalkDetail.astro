@@ -8,4 +8,4 @@ const { talk, others } = Astro.props as {
 };
 ---
 
-<TechtalkDetails talk={talk} others={others ?? []} />
+<TechtalkDetails client:load talk={talk} others={others ?? []} />

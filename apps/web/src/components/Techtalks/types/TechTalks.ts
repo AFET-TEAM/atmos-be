@@ -8,20 +8,24 @@ export type CurrentUser = {
 
 export type TechTalk = {
   id: number;
-  user_id: number;
   title: string;
   description?: string;
-  location?: string;
-  duration_min?: number;
-  video_url?: string;
-  thumbnail_url?: string;
   date?: string;
-  created_at?: string;
-  updated_at?: string;
-
-  // Frontend için backward compatibility
-  name?: string;
-  owner?: string;
+  duration?: string;
+  location?: string;
+  likes?: string | number;
   videoUrl?: string;
   thumbnailUrl?: string;
+  owner?: string;
+  presenter?: string;
+  comments?: TechTalkComment[];
+  likedUserIds?: number[];
+};
+
+export type TechTalkComment = {
+  id: number;
+  userId: number;
+  userName: string;
+  comment: string;
+  date: string;
 };

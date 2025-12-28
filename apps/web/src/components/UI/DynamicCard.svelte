@@ -16,7 +16,7 @@
     onClick: () => void;
     variant?: "blue" | "green" | "red";
     adminOnly?: boolean;
-  icon?: IconName;
+  icon?: IconName; 
     disabled?: boolean;
   };
   export let actions: CardAction[] = [];
@@ -36,10 +36,6 @@
      <Icon name={ownerIcon} width={14} height={14} />
       <span>{owner}</span>
     </div>
-  </div>
-
-  <div class="tt-slot">
-    <slot />
   </div>
 
   <div class="tt-actions">

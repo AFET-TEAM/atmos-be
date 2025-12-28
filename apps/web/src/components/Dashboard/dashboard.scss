@@ -13,6 +13,18 @@
       flex: 2;
       @include flexible(flex, column, null, null, null);
 
+      .top-cards-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        align-items: stretch;
+
+        .card {
+          height: 100%;
+          min-width: 0;
+        }
+      }
+
       .stats-row {
         @include flexible(flex, null, null, null, 1rem);
         margin-top: 1.5rem;
@@ -27,7 +39,14 @@
   }
 
   .middle-section {
-    @include grid(grid, repeat(auto-fit, minmax(200px, 1fr)), null, null, null, 10px);
+    @include grid(
+      grid,
+      repeat(auto-fit, minmax(200px, 1fr)),
+      null,
+      null,
+      null,
+      10px
+    );
     margin-bottom: 2rem;
 
     .card {
@@ -37,11 +56,12 @@
 
   .bottom-section {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.5rem;
 
     .card {
       @include cards();
+      min-width: 0;
     }
   }
 
@@ -53,10 +73,15 @@
 
       .left-group {
         width: 100%;
-      }
 
-      .stats-row {
-        flex-direction: column;
+        .top-cards-row {
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+        }
+
+        .stats-row {
+          flex-direction: column;
+        }
       }
 
       .calendar {
@@ -76,5 +101,3 @@
     }
   }
 }
-
-

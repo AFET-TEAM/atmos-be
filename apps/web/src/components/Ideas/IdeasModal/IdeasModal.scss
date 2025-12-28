@@ -2,36 +2,35 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @include flexible(flex, row, center, center);
   z-index: 1000;
+  padding: 16px;
 
   .modal-content {
-    background: #fff;
-    border-radius: 10px;
-    padding: 24px;
-    overflow-y: auto;
+    position: relative;
+    @include cards(#fff, 16px, 24px, auto);
+    box-shadow: none;
+
     box-sizing: border-box;
+    max-width: 520px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
 
     * {
       min-width: 0;
     }
 
     .input-title {
-      font-size: 12px;
-      color: #555;
-      font-weight: 600;
+      @include Typgraphy(12px, 600, #555, normal, left);
       line-height: 1.2;
       margin-bottom: 6px;
-      text-align: left;
     }
 
     .modal-owner,
     .modal-title,
     .modal-description {
-      display: flex;
-      flex-direction: column;
+      @include flexible(flex, column);
       margin-bottom: 16px;
       text-align: left;
     }
@@ -52,8 +51,7 @@
 
     .input-wrapper {
       all: unset;
-      display: flex;
-      flex-direction: column;
+      @include flexible(flex, column);
       text-align: left;
       min-width: 0;
     }
@@ -62,11 +60,8 @@
     .deadline,
     .file-label {
       display: block;
-      width: 100%;
+      @include inputs(100%, 9px 10px, #ccc, 6px, 0);
       box-sizing: border-box;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      padding: 9px 10px;
       font-size: 14px;
       line-height: 1.2;
       background: #fff;
@@ -83,6 +78,7 @@
       gap: 8px;
       cursor: pointer;
       user-select: none;
+
       .file-label.is-disabled {
         pointer-events: none;
         opacity: 0.6;
@@ -127,10 +123,8 @@
     }
 
     .modal-actions {
-      display: flex;
+      @include flexible(flex, row, flex-end, center, 12px);
       flex-wrap: wrap;
-      justify-content: flex-end;
-      gap: 12px;
       margin-top: 24px;
 
       .send-button {
@@ -146,8 +140,7 @@
         padding: 8px 20px;
         background: #fff;
         color: #18a0fb;
-        border: 1px solid #18a0fb;
-        border-radius: 8px;
+        @include border(1px, solid, #18a0fb, 8px);
         cursor: pointer;
       }
     }
@@ -156,6 +149,30 @@
       .input-group {
         grid-template-columns: 1fr;
       }
+    }
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    color: #888;
+    font-size: 20px;
+    line-height: 1;
+
+    @include flexible(flex, row, center, center);
+
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: #555;
     }
   }
 }

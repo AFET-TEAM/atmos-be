@@ -1,0 +1,76 @@
+---
+import "./announcements-card.scss";
+import Icon from "../../../../public/icons/icon.astro";
+
+type AnnouncumnetItem = {
+  id: string;
+  title: string;
+  date: string;
+  content: string;
+  authorName?: string;
+  authorRole?: string;
+};
+
+const { announcements = [] } = Astro.props as {
+  announcements?: AnnouncumnetItem[];
+};
+
+const visible: AnnouncumnetItem[] = announcements.slice(0, 5);
+---
+
+<div class="announcument-card" data-notif-card>
+  <div class="badge-area">
+    <div class="announcument-badge">Announcements</div>
+  </div>
+
+  <ul class="announcument-card__list">
+    {
+      visible.map((a: AnnouncumnetItem) => (
+        <li class="announcument-card__item">
+          <button
+            type="button"
+            class="announcument-card__btn"
+            data-notif-open
+            data-id={a.id}
+            data-title={a.title}
+            data-date={a.date}
+            data-content={a.content}
+            data-author-name={a.authorName ?? ""}
+            data-author-role={a.authorRole ?? ""}
+            aria-label={`Open announcement: ${a.title}`}
+          >
+            <div class="announcument-card__top">
+              <span class="announcument-card__item-title">{a.title}</span>
+              <span class="announcument-card__item-date">{a.date}</span>
+            </div>
+
+            <div class="announcument-card__preview">{a.content}</div>
+          </button>
+        </li>
+      ))
+    }
+  </ul>
+
+  <script is:inline>
+    (() => {
+      const root = document.querySelector('[data-notif-card]');
+      if (!root) return;
+
+      root.querySelectorAll('[data-notif-open]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const detail = {
+            id: btn.getAttribute('data-id'),
+            title: btn.getAttribute('data-title'),
+            date: btn.getAttribute('data-date'),
+            content: btn.getAttribute('data-content'),
+            authorName: btn.getAttribute('data-author-name'),
+            authorRole: btn.getAttribute('data-author-role'),
+          };
+
+          window.dispatchEvent(new CustomEvent('notification:open', { detail }));
+        });
+      });
+    })();
+  </script>
+
+</div>

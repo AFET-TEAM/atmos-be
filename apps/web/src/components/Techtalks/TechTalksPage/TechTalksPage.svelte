@@ -1,22 +1,16 @@
 <script lang="ts">
-  import { isLoggedIn, user } from "@/utils/user";
   import { onMount } from "svelte";
-  import {
-    createTechTalk,
-    deleteTechTalk,
-    fetchTechTalks,
-    updateTechTalk,
-  } from "../../../api/TechTalksApi";
-  import ConfirmModal from "../../UI/ConfirmModal.svelte";
   import CreateTechTalkModal from "../CreateTechtalkModal/CreateTechtalksModal.svelte";
-  import TechTalksCards from "../TechTalksCards/TechTalksCards.svelte";
-  import type { TechTalk } from "../types/TechTalks";
+  import ConfirmModal from "../../UI/ConfirmModal.svelte"; 
+  import { fetchCurrentUser } from "../../../api/IdeasApi"
+  import { fetchTechTalks, deleteTechTalk, updateTechTalk, createTechTalk } from "../../../api/TechTalksApi";
+  import type { TechTalk, CurrentUser } from "../types/TechTalks";
   import "./TechtalksPage.scss";
+  import TechTalksCards from "../TechTalksCards/TechTalksCards.svelte";
 
   let talks: TechTalk[] = [];
-  $: currentUserData = user.get();
-  $: isAdmin =
-    currentUserData?.role === "admin" || currentUserData?.role === "editor";
+  let user: CurrentUser | null = null;
+  let isAdmin = false;
 
   let showModal = false;
   let saving = false;
@@ -26,33 +20,15 @@
   let pendingDeleteId: number | null = null;
 
   async function load() {
-    try {
-      talks = await fetchTechTalks();
-      console.log("Fetched TechTalks in load():", talks);
-      console.log("TechTalks loaded:", talks);
-    } catch (error) {
-      console.error("Error loading techtalks:", error);
-    }
+    const [u, t] = await Promise.all([fetchCurrentUser(), fetchTechTalks()]);
+    user = u;
+    isAdmin = u.role === "admin";
+    talks = t;
   }
   onMount(load);
 
-  function handleDownload(talk: TechTalk) {
-    const videoUrl = talk.video_url || talk.videoUrl;
-    if (!videoUrl) {
-      console.warn("No video URL available for download");
-      return;
-    }
-
-    const a = document.createElement("a");
-    a.href = videoUrl;
-    a.setAttribute("download", `${talk.title}.mp4`);
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  }
-
   function handleUpdate(talk: TechTalk) {
-    talkToEdit = talk;
+    talkToEdit = talk;   
     showModal = true;
   }
 
@@ -64,7 +40,7 @@
   async function doConfirmDelete() {
     if (pendingDeleteId == null) return;
     await deleteTechTalk(pendingDeleteId);
-    talks = talks.filter((t) => t.id !== pendingDeleteId);
+    talks = talks.filter(t => t.id !== pendingDeleteId);
     pendingDeleteId = null;
     showConfirm = false;
   }
@@ -74,29 +50,54 @@
     pendingDeleteId = null;
   }
 
-  type SubmitDetail = { id?: number; payload: Partial<TechTalk> };
-  async function handleSubmit(e: CustomEvent<SubmitDetail>) {
-    const { id, payload } = e.detail;
-    saving = true;
-    try {
-      if (!payload.user_id && currentUserData) {
-        payload.user_id = currentUserData.id;
-      }
+  type SubmitPayload = {
+  title: string;
+  description: string;
+  owner: string;
+  thumbnailUrl: string;
+  videoUrl: string;
+  location: string;
+};
 
-      if (id) {
-        await updateTechTalk(id, payload);
-      } else {
-        await createTechTalk(payload as Omit<TechTalk, "id">);
-      }
-      await load();
-      showModal = false;
-      talkToEdit = null;
-    } catch (error) {
-      console.error("Error saving techtalk:", error);
-    } finally {
-      saving = false;
+type SubmitDetail = { id?: number; payload: SubmitPayload };
+
+ async function handleSubmit(e: CustomEvent<SubmitDetail>) {
+  const { id, payload } = e.detail;
+  saving = true;
+
+  try {
+    const base = {
+      title: payload.title,
+      description: payload.description,     
+      owner: payload.owner,
+      thumbnailUrl: payload.thumbnailUrl,
+      videoUrl: payload.videoUrl,
+      location: payload.location
+    };
+
+    if (id) {
+      await updateTechTalk(id, base);
+    } else {
+      const today = new Date().toISOString().slice(0, 10);
+
+      const fullPayload: Omit<TechTalk, "id"> = {
+        ...base,
+        date: today,
+        duration: "",                       
+        likes: "0",
+        comments: []
+      };
+
+      await createTechTalk(fullPayload);
     }
+
+    await load();
+    showModal = false;
+    talkToEdit = null;
+  } finally {
+    saving = false;
   }
+}
 
   function openCreate() {
     talkToEdit = null;
@@ -106,44 +107,29 @@
 
 <section>
   <div class="header-row">
-    {#if isLoggedIn() && (isAdmin || currentUserData?.role === "user")}
+    {#if isAdmin}
       <button class="btn btn-blue" on:click={openCreate}>
         + New TechTalk
       </button>
     {/if}
   </div>
-
-  {#if talks.length === 0}
-    <div class="empty-state">
-      <p>Henüz hiç TechTalk eklenmemiş.</p>
-      {#if isLoggedIn()}
-        <button class="btn btn-blue" on:click={openCreate}>
-          İlk TechTalk'ı Ekle
-        </button>
-      {/if}
-    </div>
-  {:else}
-    <div class="tt-list">
-      {#each talks as talk (talk.id)}
-        <TechTalksCards
-          {talk}
-          {isAdmin}
-          onDownload={handleDownload}
-          onUpdate={handleUpdate}
-          onDelete={handleDeleteRequest}
-        />
-      {/each}
-    </div>
-  {/if}
+<div class="tt-list">
+  {#each talks as talk (talk.id)}
+    <TechTalksCards
+      {talk}
+      {isAdmin}
+      onDownload={() => {}}
+      onUpdate={handleUpdate}
+      onDelete={handleDeleteRequest}
+    />
+  {/each}
+</div>
 
   <CreateTechTalkModal
     open={showModal}
-    {saving}
+    saving={saving}
     {talkToEdit}
-    on:close={() => {
-      showModal = false;
-      talkToEdit = null;
-    }}
+    on:close={() => { showModal = false; talkToEdit = null; }}
     on:submit={handleSubmit}
   />
 
@@ -156,5 +142,6 @@
     on:confirm={doConfirmDelete}
     on:cancel={cancelConfirm}
     on:close={cancelConfirm}
-  ></ConfirmModal>
+>   
+  </ConfirmModal>
 </section>

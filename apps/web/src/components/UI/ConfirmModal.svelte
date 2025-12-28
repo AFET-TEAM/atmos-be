@@ -3,11 +3,12 @@
   import "./ConfirmModal.scss"; 
 
   export let open = false;
-  export let title = "Onayla";
+  export let title = "";
   export let message = "Bu işlemi yapmak istediğine emin misin?";
   export let confirmText = "Evet";
   export let cancelText = "İptal";
   export let disabled = false;
+  export let showIcon: boolean = false;
 
   const dispatch = createEventDispatcher<{
     close: void;
@@ -44,6 +45,7 @@
  <div class="modal confirm-modal-wide" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
     <div class="confirm-modal">
      <div class="confirm-header">
+      {#if showIcon}
   <div  class="confirm-badge">
     <svg width="72" height="72" viewBox="0 0 64 64" aria-hidden="true">
       <circle cx="32" cy="32" r="28" fill="#D9412B" stroke="#9F2A1D" stroke-width="4"/>
@@ -51,7 +53,7 @@
       <circle cx="32" cy="46" r="4" fill="#FFFFFF"/>
     </svg>
   </div>
-
+ {/if}
   <h3 id="confirm-title" class="confirm-title">{title}</h3>
 </div>
 

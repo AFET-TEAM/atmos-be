@@ -56,3 +56,25 @@
   font-size: 0.9rem;
   color: $greyTextColor;
 }
+
+@media (max-width: 768px) {
+  .team-members-card {
+    min-width: 100%;
+    max-width: 100%;
+    width: 100%;
+
+    height: auto;
+    max-height: 260px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .team-members-card ul li {
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .team-members-card .buttons {
+    margin-left: auto;
+  }
+}

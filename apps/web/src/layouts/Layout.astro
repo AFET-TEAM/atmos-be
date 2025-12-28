@@ -1,6 +1,7 @@
 ---
 import Header from "@/components/Global/Header/Header.astro";
 import Sidebar from "@/components/Global/Sidebar/Sidebar.astro";
+import NotificationModal from "@/components/UI/NotificationModal.svelte";
 import { currentUser } from "@/utils/user";
 import { ClientRouter } from "astro:transitions";
 
@@ -20,12 +21,42 @@ const { title } = Astro.props;
   </head>
   <body>
     <div class="layout">
-      <Sidebar />
+        <aside class="sidebar-container" id="app-sidebar">
+        <Sidebar />
+      </aside>
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
       <main>
        <Header user={user} />
         <slot />
       </main>
     </div>
+     <NotificationModal client:load />
+
+      <script is:inline>
+      const initSidebarToggle = () => {
+        const sidebar = document.getElementById("app-sidebar");
+        const backdrop = document.getElementById("sidebar-backdrop");
+        const buttons = document.querySelectorAll("[data-toggle-sidebar]");
+
+        if (!sidebar || !backdrop || !buttons.length) return;
+        if (sidebar.dataset.init === "true") return;
+        sidebar.dataset.init = "true";
+
+        const toggleMenu = () => {
+          const isOpen = sidebar.classList.toggle("sidebar-open");
+          backdrop.classList.toggle("visible", isOpen);
+          document.body.classList.toggle("menu-open", isOpen);
+        };
+
+        buttons.forEach((btn) => {
+          btn.addEventListener("click", toggleMenu);
+        });
+
+        backdrop.addEventListener("click", toggleMenu);
+      };
+
+      document.addEventListener("astro:page-load", initSidebarToggle);
+    </script>
   </body>
 </html>
 
@@ -39,24 +70,74 @@ const { title } = Astro.props;
   }
 
   .layout {
-    display: flex;
-    height: 100%;
-    padding: 10px;
+  display: flex;
+  height: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.sidebar-container {
+  width: 250px;
+  height: 100%;
+  margin-right: 1.2rem;
+}
+
+main {
+  padding: 2rem;
+  width: calc(100% - 250px - 1.2rem);
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .layout {
+    padding: 0;
   }
 
-  Sidebar {
-    width: 250px;
-    height: 100%;
+  .sidebar-container {
     position: fixed;
-    left: 0;
-    top: 0;
+    top: 0.75rem;
+    bottom: 0.75rem;
+    left: 0.75rem;
+    right: 0.75rem;
+    width: auto;
+    margin: 0;
+    background: #ffffff;
+    z-index: 1001;
+    transform: translateX(calc(100% + 1.5rem));
+    transition: transform 0.28s ease-out;
+    border-radius: 32px;
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.12);
+    overflow-y: auto;
+  }
 
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  .sidebar-container.sidebar-open {
+    transform: translateX(0);
   }
 
   main {
-    margin-left: 1.2rem;
-    padding: 2rem;
-    width: calc(100% - 250px);
+    width: 100%;
+    margin: 0;
+    padding: 1.5rem 0.75rem;
   }
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 1000;
+}
+
+.sidebar-backdrop.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+body.menu-open {
+  overflow: hidden;
+}
+
 </style>
