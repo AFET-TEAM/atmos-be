@@ -1,7 +1,5 @@
 .cards-container {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  @include grid(grid, repeat(4, 1fr), 1fr, flex-start, flex-start, 16px);
   padding-top: 20px;
   width: 100%;
   box-sizing: border-box;
@@ -13,15 +11,14 @@
     min-width: 275px;
     padding: 16px;
     border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    @include flexible(flex, column, center, center);
+
     cursor: pointer;
-    font-size: 16px;
+    @include Typgraphy(16px, 400, #000);
     text-align: center;
     transition: transform 0.2s;
     box-sizing: border-box;
+    position: relative;
   }
 
   .idea-card {
@@ -34,6 +31,7 @@
     background-color: #ffffff;
     color: #505050;
     border-radius: 12px;
+    box-shadow: 0 2px 4px 0 #cccccc80;
   }
 
   .idea-card:hover,
@@ -46,6 +44,25 @@
     color: #505050;
     border: none;
   }
+
+  .top-right {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    @include flexible(flex, row, flex-start, center, 8px);
+    z-index: 2;
+
+    .card-tag {
+      position: static;
+      background-color: orange;
+      color: #fff;
+      border-top-right-radius: 12px;
+      border-bottom-left-radius: 12px;
+      padding: 0.2rem 0.5rem;
+      @include Typgraphy(12px, 600, #fff);
+      line-height: 1;
+    }
+  }
 }
 
 .idea-section {
@@ -53,19 +70,19 @@
   border-radius: 12px;
   padding: 20px 0px;
   margin: 20px 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  @include flexible(flex, column, flex-start, flex-end);
+
   .toggle-button {
-    display: flex;
+    @include flexible(flex, row, center, center);
     background: #18a0fb;
     color: #fff;
     border: 0;
     border-radius: 6px;
     padding: 6px 14px;
-    font-size: 14px;
+    @include Typgraphy(14px, 400, #fff);
     cursor: pointer;
   }
+
   .toggle-button:hover {
     background: #0e5f95;
   }
@@ -73,8 +90,7 @@
   h3 {
     align-self: flex-start;
     margin-bottom: 12px;
-    font-size: 18px;
-    color: #333;
+    @include Typgraphy(18px, 400, #333);
     border-left: 4px solid #18a0fb;
     padding-left: 12px;
   }
@@ -89,17 +105,13 @@
 }
 
 .idea-meta {
-  display: flex;
-  gap: 6px;
+  @include flexible(flex, row, flex-start, stretch, 6px);
   margin-top: 8px;
   font-size: 12px;
 
   .need {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    @include flexible(flex, column, space-between, center, 4px);
     background: #f4f6f8;
-    gap: 4px;
     border-radius: 8px;
     padding: 4px 8px;
     flex-wrap: nowrap;
@@ -154,16 +166,32 @@
     grid-template-columns: 1fr;
     gap: 12px;
     padding: 10px;
-  }
 
-  .idea-meta {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    .idea-item {
+      align-items: stretch;
+      padding: 0;
+    }
 
-    .need {
+    .idea-meta {
+      justify-content: center;
+      gap: 10px;
+      padding: 0 8px;
+      height: 60%;
+      font-size: 14px;
+    }
+
+    .idea-meta .need {
+      flex: 0 1 45%;
+      max-width: 180px;
+      min-width: 140px;
+      padding: 8px 10px;
+    }
+
+    .idea-meta .need button {
+      font-size: 14px;
+
       width: 100%;
-      justify-content: space-between;
+      height: 70%;
     }
   }
 }

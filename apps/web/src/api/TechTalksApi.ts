@@ -1,5 +1,9 @@
-import type { TechTalk } from "@/components/Techtalks/types/TechTalks";
+import type {
+  TechTalk,
+  TechTalkComment,
+} from "@/components/Techtalks/types/TechTalks";
 import instance from "../axios/axiosInstance";
+import { fetchCurrentUser } from "./IdeasApi";
 
 export async function fetchTechTalks(): Promise<TechTalk[]> {
   const { data } = await instance.get<TechTalk[]>("/techtalks");
@@ -43,4 +47,121 @@ export async function putTechTalk(
 export async function fetchLastTechTalk() {
   const { data } = await instance.get<TechTalk>("/lastTechTalks");
   return data;
+}
+
+export async function addTechTalkComment(
+  techtalkId: string,
+  payload: Omit<TechTalkComment, "id">
+): Promise<TechTalk> {
+  const { data: talk } = await instance.get<TechTalk>(
+    `/techtalks/${techtalkId}`
+  );
+
+  const comments = talk.comments ?? [];
+  const nextId =
+    comments.length > 0 ? Math.max(...comments.map((c) => c.id)) + 1 : 1;
+
+  const newComment: TechTalkComment = { id: nextId, ...payload };
+
+  const updatedTalk: TechTalk = {
+    ...talk,
+    comments: [...comments, newComment],
+  };
+
+  const { data: updated } = await instance.put<TechTalk>(
+    `/techtalks/${techtalkId}`,
+    updatedTalk
+  );
+
+  return updated;
+}
+
+export async function addCommentWithMe(
+  techtalkId: string,
+  comment: string
+): Promise<TechTalk> {
+  const user = await fetchCurrentUser();
+
+  return addTechTalkComment(techtalkId, {
+    userId: Number(user.id) || 0,
+    userName: user.name,
+    comment: comment.trim(),
+    date: new Date().toISOString().slice(0, 10),
+  });
+}
+
+export async function updateTechTalkComment(
+  techtalkId: string,
+  commentId: number,
+  payload: Partial<Pick<TechTalkComment, "comment" | "date">>
+): Promise<TechTalk> {
+  const { data: talk } = await instance.get<TechTalk>(
+    `/techtalks/${techtalkId}`
+  );
+
+  const comments = talk.comments ?? [];
+  const updatedComments = comments.map((c) =>
+    c.id === commentId ? { ...c, ...payload } : c
+  );
+
+  const { data: updated } = await instance.put<TechTalk>(
+    `/techtalks/${techtalkId}`,
+    { ...talk, comments: updatedComments }
+  );
+
+  return updated;
+}
+
+export async function deleteTechTalkComment(
+  techtalkId: string,
+  commentId: number
+): Promise<TechTalk> {
+  const { data: talk } = await instance.get<TechTalk>(
+    `/techtalks/${techtalkId}`
+  );
+
+  const comments = talk.comments ?? [];
+  const filteredComments = comments.filter((c) => c.id !== commentId);
+
+  const { data: updated } = await instance.put<TechTalk>(
+    `/techtalks/${techtalkId}`,
+    { ...talk, comments: filteredComments }
+  );
+
+  return updated;
+}
+
+export async function addTechTalkLike(techtalkId: string): Promise<TechTalk> {
+  const user = await fetchCurrentUser();
+  const userId = Number(user.id) || 0;
+
+  const { data: talk } = await instance.get<TechTalk>(
+    `/techtalks/${techtalkId}`
+  );
+
+  const likedUserIds: number[] = talk.likedUserIds ?? [];
+  let likes = Number(talk.likes ?? 0);
+
+  let updatedLikedUserIds: number[];
+
+  if (likedUserIds.includes(userId)) {
+    likes = Math.max(0, likes - 1);
+    updatedLikedUserIds = likedUserIds.filter((id) => id !== userId);
+  } else {
+    likes = likes + 1;
+    updatedLikedUserIds = [...likedUserIds, userId];
+  }
+
+  const updatedTalk: TechTalk = {
+    ...talk,
+    likes: String(likes),
+    likedUserIds: updatedLikedUserIds,
+  };
+
+  const { data: updated } = await instance.put<TechTalk>(
+    `/techtalks/${techtalkId}`,
+    updatedTalk
+  );
+
+  return updated;
 }

@@ -11,10 +11,11 @@
     close: void;
     submit: { id?: number; payload: {
       title: string;
-      name: string;
+      description: string; 
       owner: string;
       thumbnailUrl: string;
       videoUrl: string;
+      location: string
     }};
   }>();
 
@@ -34,19 +35,21 @@
   $: submitLabel = talkToEdit ? "Güncelle" : "Kaydet";
 
   $: fields = [
-    { key: "title",        label: "Başlık",        required: true,  value: talkToEdit?.title ?? "", autoFocus: true },
-    { key: "name",         label: "Açıklama",      required: true,  value: talkToEdit?.name ?? "", type: "textarea", placeholder: "Kısa açıklama..." },
-    { key: "owner",        label: "Konuşmacı",     required: true,  value: talkToEdit?.owner ?? "" },
+    { key: "title", label: "Başlık", required: true,  value: talkToEdit?.title ?? "", autoFocus: true },
+    { key: "description", label: "Açıklama", required: true,  value: talkToEdit?.description ?? "", type: "textarea", placeholder: "Kısa açıklama..." },
+    { key: "owner", label: "Konuşmacı", required: true,  value: talkToEdit?.owner ?? "" },
+    { key: "location", label: "Lokasyon", required: true, value: talkToEdit?.location ?? "", placeholder: "Örn: Online"},
     { key: "thumbnailUrl", label: "Thumbnail URL", required: false,  value: talkToEdit?.thumbnailUrl ?? "", type: "url", placeholder: "https://..." },
-    { key: "videoUrl",     label: "Video URL",     required: true,  value: talkToEdit?.videoUrl ?? "",     type: "url", placeholder: "https://youtu.be/..." }
+    { key: "videoUrl", label: "Video URL", required: true,  value: talkToEdit?.videoUrl ?? "", type: "url", placeholder: "https://youtu.be/..." }
   ] satisfies Field[];
 
   function handleInnerSubmit(e: CustomEvent<SubmitValues>) {
     const v = e.detail;
     const payload = {
       title: String(v.title ?? ""),
-      name: String(v.name ?? ""),
+      description: String(v.description ?? ""),
       owner: String(v.owner ?? ""),
+      location: String(v.location ?? ""),
       thumbnailUrl: String(v.thumbnailUrl ?? ""),
       videoUrl: String(v.videoUrl ?? "")
     };
@@ -55,7 +58,7 @@
 </script>
 
 <FormModal
-  {open}
+  {open} 
   {saving}
   title={modalTitle}
   {fields}

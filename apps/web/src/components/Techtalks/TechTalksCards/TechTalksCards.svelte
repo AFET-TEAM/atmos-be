@@ -14,12 +14,12 @@
   imgSrc={talk.thumbnailUrl}
   title={talk.title}
   titleHref={`/techtalks/${talk.id}`}
-  description={talk.name}
+  description={talk.description}
   owner={talk.owner}
   ownerIcon="owner"
   isAdmin={isAdmin}
   actions={[
-    { label: "Download", onClick: () => onDownload(talk), variant: "blue",  icon: "download" },
+  //  { label: "Download", onClick: () => onDownload(talk), variant: "blue",  icon: "download" },
     { label: "Update",   onClick: () => onUpdate(talk),   variant: "green", icon: "update", adminOnly: true },
     { label: "Delete",   onClick: () => onDelete(talk.id),variant: "red",   icon: "delete", adminOnly: true }
   ]}

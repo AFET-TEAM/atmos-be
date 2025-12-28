@@ -6,4 +6,9 @@ export type IconName =
   | "play"
   | "date"
   | "completed"
-  | "ongoing";
+  | "ongoing"
+  | "users"
+  | "clock"
+  | "pencil"
+  | "like"
+  | "comment";

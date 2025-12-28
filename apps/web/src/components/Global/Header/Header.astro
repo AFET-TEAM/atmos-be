@@ -1,9 +1,8 @@
 ---
-import IconButton from "@/components/UI/IconButton.astro";
-import SearchInput from "@/components/UI/SearchInput.astro";
 import { getUser } from '@/stores/userStore';
 import Icon from "public/icons/icon.astro";
 import LogoutButton from "../LogoutButton.svelte";
+import NotificationHeader from "../NotificationHeader/NotificationHeader.astro";
 import "./Header.scss";
 
 
@@ -12,14 +11,21 @@ console.log("Header user:", user);
 ---
 
 <header class="header">
-  <div class="header-left">
-    <IconButton buttonType="primary" color="#18a0fb" iconName="send" />
-    <SearchInput />
+ <div class="header-left">
+    <a href="/dashboard" class="header-logo-link" aria-label="Dashboard">
+      <img
+        src="/img/logo.png"
+        alt="ATOS Logo"
+        class="header-logo"
+        width="40"
+        height="40"
+      />
+    </a>
   </div>
 
   <div class="header-right">
     <div class="icon"><Icon name="mail" /></div>
-    <div class="icon"><Icon name="notification" /></div>
+    <NotificationHeader />
     <div class="avatar">
       <span class="user-name" id="header-user-name">{user?.full_name || "Kullanıcı"}</span>
       <div class="image-wrapper">
@@ -34,6 +40,25 @@ console.log("Header user:", user);
       </div>
     </div>
     <LogoutButton client:load />
+    <button
+      class="hamburger-btn"
+      type="button"
+      aria-label="Toggle sidebar"
+      data-toggle-sidebar
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#333"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <line x1="3" y1="12" x2="21" y2="12" />
+        <line x1="3" y1="18" x2="21" y2="18" />
+      </svg>
+    </button>
   </div>
 </header>
 

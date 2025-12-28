@@ -1,0 +1,135 @@
+---
+import Icon from "../../../../public/icons/icon.astro";
+import "./notification-header.scss";
+
+// NotificationModal is rendered globally in the app layout
+
+const announcements = [
+  {
+    id: "a1",
+    title: "Atos Planı",
+    date: "18.12.2025",
+    content:
+      "Atos v1.0 sürümü çok yakında yayınlanacaktır. Yeni özellikler ve iyileştirmeler için hazırlanın.",
+    authorName: "Barış Benli",
+    authorRole: "Yönetici",
+  },
+  {
+    id: "a2",
+    title: "TechTalk Saati Güncellendi",
+    date: "17.12.2025",
+    content:
+      "TechTalk etkinliği 16:00 yerine 16:30'a alınmıştır. Takvimlerinizi güncelleyebilirsiniz.",
+    authorName: "Barış Benli",
+    authorRole: "Yönetici",
+  },
+  {
+    id: "a3",
+    title: "Lorem Ipsum",
+    date: "16.12.2025",
+    content:
+      "lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    authorName: "Barış Benli",
+    authorRole: "Yönetici",
+  },
+];
+---
+
+<div class="announcements" data-ann-root>
+  <button class="icon" type="button" aria-label="Open announcements" data-ann-trigger>
+    <Icon name="notification" />
+  </button>
+
+  <div class="ann-dropdown" data-ann-dropdown aria-hidden="true">
+    <div class="ann-dropdown__header">
+      <span>Duyurular</span>
+    </div>
+
+ <ul class="ann-dropdown__list">
+  {
+    announcements.map((a) => (
+      <li class="ann-dropdown__item">
+        <button
+          type="button"
+          class="ann-dropdown__btn"
+          data-ann-open
+          data-id={a.id}
+          data-title={a.title}
+          data-date={a.date}
+          data-content={a.content}
+          data-author-name={a.authorName}
+          data-author-role={a.authorRole}
+        >
+          <div class="ann-dropdown__top">
+            <span class="ann-dropdown__title">{a.title}</span>
+            <span class="ann-dropdown__date">{a.date}</span>
+          </div>
+          <div class="ann-dropdown__preview">{a.content}</div>
+        </button>
+      </li>
+    ))
+  }
+</ul>
+  </div>
+
+  <script is:inline>
+    const initAnnDropdown = () => {
+      const root = document.querySelector('[data-ann-root]');
+      if (!root) return;
+      if (root.dataset.init === 'true') return;
+      root.dataset.init = 'true';
+
+      const trigger = root.querySelector('[data-ann-trigger]');
+      const dropdown = root.querySelector('[data-ann-dropdown]');
+
+      const openDropdown = () => {
+        dropdown.setAttribute('aria-hidden', 'false');
+        dropdown.classList.add('is-open');
+      };
+
+      const closeDropdown = () => {
+        dropdown.setAttribute('aria-hidden', 'true');
+        dropdown.classList.remove('is-open');
+      };
+
+      const toggleDropdown = () => {
+        const isOpen = dropdown.classList.contains('is-open');
+        isOpen ? closeDropdown() : openDropdown();
+      };
+
+      trigger?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleDropdown();
+      });
+
+      root.querySelectorAll('[data-ann-open]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const detail = {
+            id: btn.getAttribute('data-id'),
+            title: btn.getAttribute('data-title'),
+            date: btn.getAttribute('data-date'),
+            content: btn.getAttribute('data-content'),
+            authorName: btn.getAttribute('data-author-name'),
+            authorRole: btn.getAttribute('data-author-role'),
+          };
+
+          window.dispatchEvent(new CustomEvent('notification:open', { detail }));
+          closeDropdown();
+        });
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!root.contains(e.target)) closeDropdown();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeDropdown();
+      });
+    };
+
+    document.addEventListener('astro:page-load', initAnnDropdown);
+    initAnnDropdown();
+  </script>
+
+  <!-- Notification modal is rendered in the global layout -->
+</div>
