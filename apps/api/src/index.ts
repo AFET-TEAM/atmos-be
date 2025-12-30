@@ -22,6 +22,7 @@ const CORS_ORIGINS = [
   "http://127.0.0.1:4321",
   "http://127.0.0.1:4322",
   "*",
+  "https://atos-api.afet.space",
 ];
 
 const app = new Elysia()
@@ -77,5 +78,5 @@ const v1 = new Elysia({ prefix: "/v1", name: "api:v1" })
   .use(TabHeaders());
 app.use(v1);
 
-app.listen({ port: 3000, hostname: "0.0.0.0" });
-console.log("Elysia on http://localhost:3000 | API: /v1 | Swagger: /swagger");
+app.listen({ port: 3005, hostname: "0.0.0.0" });
+console.log("Elysia on http://localhost:3005 | API: /v1 | Swagger: /swagger");
