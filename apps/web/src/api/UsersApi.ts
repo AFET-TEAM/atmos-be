@@ -36,6 +36,16 @@ export const getUsersTeams = async () => {
   }
 };
 
+export const getUserByProfession = async () => {
+  try {
+    const response = await instance.get("/lookups/professions");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching professions:", error);
+    return [];
+  }
+};
+
 export const getSortOptions = async () => {
   try {
     const response = await instance.get("/sortOptions");
