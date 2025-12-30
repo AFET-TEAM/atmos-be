@@ -37,7 +37,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key}
       PORT: 3000
     ports:
-      - "8080:3000"
+      - "8083:3000"
     depends_on:
       postgres:
         condition: service_healthy
