@@ -41,10 +41,9 @@ import "./sidebar.scss";
     <CustomLink text="TechTalks" href="/techtalks" iconName="mic" />
     <CustomLink text="Ideas" href="/ideas" iconName="lamp" />
 
-    <RoleGate>
-      <CustomLink iconName="users" text="Kullanıcı Ayarları" href="/userlist" />
-      <CustomLink text="Edit Users" href="/edit-users" iconName="" />
-      <CustomLink text="Announcements" href="/add-announcements" iconName="" />
+    <RoleGate roles={["admin"]}>
+      <CustomLink text="Edit Users" href="/edit-users" iconName="users" />
+      <CustomLink text="Announcements" href="/add-announcements" iconName="notification" />
     </RoleGate>
 
 

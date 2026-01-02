@@ -64,6 +64,56 @@ export const announcementsRoutes = () =>
         },
       }
     )
+    .put(
+      "/announcements/:id",
+      async ({ params, body }) => {
+        const announcementId = Number((params as any).id);
+        const { title, content } = body as any;
+
+        if (isNaN(announcementId)) {
+          throw new Error("Invalid announcement ID");
+        }
+
+        const result = await query(
+          "UPDATE announcements SET title = $1, content = $2, updated_at = NOW() WHERE id = $3 RETURNING id, title, content, created_at, updated_at",
+          [title, content, announcementId]
+        );
+
+        if (result.rowCount === 0) {
+          throw new Error("Announcement not found");
+        }
+
+        const row = result.rows[0];
+        if (!row) {
+          throw new Error("Failed to update announcement");
+        }
+        return {
+          id: Number(row.id),
+          title: String(row.title),
+          content: String(row.content),
+          created_at: String(row.created_at),
+          updated_at: String(row.updated_at),
+        };
+      },
+      {
+        params: t.Object({ id: t.Numeric() }),
+        body: t.Object({
+          title: t.String(),
+          content: t.String(),
+        }),
+        response: t.Object({
+          id: t.Number(),
+          title: t.String(),
+          content: t.String(),
+          created_at: t.String(),
+          updated_at: t.String(),
+        }),
+        detail: {
+          summary: "Update an announcement by ID",
+          tags: ["announcements"],
+        },
+      }
+    )
     .delete(
       "/announcements/:id",
       async ({ params }) => {

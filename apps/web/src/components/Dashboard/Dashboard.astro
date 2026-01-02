@@ -10,35 +10,7 @@ import IdeaCard from "./IdeaCard/IdeaCard.astro";
 import MapCard from "./MapCard/MapCard.astro";
 import AnnouncementsCard from "./AnnouncementsCard/AnnouncementsCard.astro";
 
-const announcements = [
-  {
-    id: "a1",
-    title: "Atos Planı",
-    date: "18.12.2025",
-    content:
-      "Atos v1.0 sürümü çok yakında yayınlanacaktır. Yeni özellikler ve iyileştirmeler için hazırlanın.",
-    authorName: "Barış Benli",
-    authorRole: "Yönetici",
-  },
-  {
-    id: "a2",
-    title: "TechTalk Saati Güncellendi",
-    date: "17.12.2025",
-    content:
-      "TechTalk etkinliği 16:00 yerine 16:30'a alınmıştır. Takvimlerinizi güncelleyebilirsiniz.",
-    authorName: "Barış Benli",
-    authorRole: "Yönetici",
-  },
-  {
-    id: "a3",
-    title: "Lorem Ipsum",
-    date: "16.12.2025",
-    content:
-      "lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    authorName: "Barış Benli",
-    authorRole: "Yönetici",
-  },
-];
+
 ---
 
 <div class="dashboard">
@@ -50,7 +22,7 @@ const announcements = [
         </div>
 
         <div class="announcements">
-          <AnnouncementsCard announcements={announcements}/>
+          <AnnouncementsCard/>
         </div>
       </div>
 

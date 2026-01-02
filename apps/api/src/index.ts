@@ -24,24 +24,28 @@ const CORS_ORIGINS = [
   "http://localhost:4322",
   "http://127.0.0.1:4321",
   "http://127.0.0.1:4322",
-  "*",
   "https://atos-api.afet.space",
 ];
 
 const app = new Elysia()
   .state("version", "1.0.0")
+  .options("*", ({ set }) => {
+    set.headers["Access-Control-Allow-Origin"] = "http://localhost:4321";
+    set.headers["Access-Control-Allow-Credentials"] = "true";
+    set.headers["Access-Control-Allow-Methods"] =
+      "GET, POST, PUT, DELETE, PATCH, OPTIONS";
+    set.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization";
+    set.headers["Access-Control-Max-Age"] = "3600";
+    return null;
+  })
   .onBeforeHandle(({ request, set }) => {
-    const origin = request.headers.get("origin");
+    const origin = request.headers.get("origin") || "http://localhost:4321";
 
-    if (origin && CORS_ORIGINS.includes(origin)) {
-      set.headers["Access-Control-Allow-Origin"] = origin;
-      set.headers["Access-Control-Allow-Credentials"] = "true";
-      set.headers["Access-Control-Allow-Methods"] =
-        "GET, POST, PUT, DELETE, PATCH, OPTIONS";
-      set.headers["Access-Control-Allow-Headers"] =
-        "Content-Type, Authorization";
-      set.headers["Access-Control-Max-Age"] = "3600";
-    }
+    set.headers["Access-Control-Allow-Origin"] = origin;
+    set.headers["Access-Control-Allow-Credentials"] = "true";
+    set.headers["Access-Control-Allow-Methods"] =
+      "GET, POST, PUT, DELETE, PATCH, OPTIONS";
+    set.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization";
 
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204 });

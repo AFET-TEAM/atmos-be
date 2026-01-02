@@ -1,38 +1,11 @@
 ---
+import { getAnnouncements } from '@/api/AnnouncementsApi';
 import Icon from "../../../../public/icons/icon.astro";
 import "./notification-header.scss";
+const announcements = await getAnnouncements();
 
-// NotificationModal is rendered globally in the app layout
 
-const announcements = [
-  {
-    id: "a1",
-    title: "Atos Planı",
-    date: "18.12.2025",
-    content:
-      "Atos v1.0 sürümü çok yakında yayınlanacaktır. Yeni özellikler ve iyileştirmeler için hazırlanın.",
-    authorName: "Barış Benli",
-    authorRole: "Yönetici",
-  },
-  {
-    id: "a2",
-    title: "TechTalk Saati Güncellendi",
-    date: "17.12.2025",
-    content:
-      "TechTalk etkinliği 16:00 yerine 16:30'a alınmıştır. Takvimlerinizi güncelleyebilirsiniz.",
-    authorName: "Barış Benli",
-    authorRole: "Yönetici",
-  },
-  {
-    id: "a3",
-    title: "Lorem Ipsum",
-    date: "16.12.2025",
-    content:
-      "lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    authorName: "Barış Benli",
-    authorRole: "Yönetici",
-  },
-];
+
 ---
 
 <div class="announcements" data-ann-root>
@@ -47,7 +20,7 @@ const announcements = [
 
  <ul class="ann-dropdown__list">
   {
-    announcements.map((a) => (
+    announcements.map((a : any) => (
       <li class="ann-dropdown__item">
         <button
           type="button"
@@ -131,5 +104,5 @@ const announcements = [
     initAnnDropdown();
   </script>
 
-  <!-- Notification modal is rendered in the global layout -->
+
 </div>

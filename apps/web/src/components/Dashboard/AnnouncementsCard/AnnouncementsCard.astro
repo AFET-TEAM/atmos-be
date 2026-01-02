@@ -1,6 +1,8 @@
 ---
 import "./announcements-card.scss";
 import Icon from "../../../../public/icons/icon.astro";
+import { getAnnouncements } from '@/api/AnnouncementsApi';
+const announcements = await getAnnouncements();
 
 type AnnouncumnetItem = {
   id: string;
@@ -11,9 +13,7 @@ type AnnouncumnetItem = {
   authorRole?: string;
 };
 
-const { announcements = [] } = Astro.props as {
-  announcements?: AnnouncumnetItem[];
-};
+
 
 const visible: AnnouncumnetItem[] = announcements.slice(0, 5);
 ---

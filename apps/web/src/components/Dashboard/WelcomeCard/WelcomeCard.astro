@@ -11,11 +11,11 @@ console.log("WelcomeCard user:", user);
     <h2>Welcome again {user?.full_name || "User"}.</h2>
     <div class="info-row">
         <Icon name={"adjustmentIcon"} width={10} height={10}/>
-        <p>{user?.user_department || "N/A"}</p>
+        <p>{user?.department_label || "N/A"}</p>
     </div>
     <div class="info-row">
         <Icon name="users" width={10} height={10}/>
-        <p>{user?.team || "N/A"}</p>
+        <p>{user?.team_label || "N/A"}</p>
     </div>
     <div class="info-row">
         <Icon name="mail" width={10} height={10} />

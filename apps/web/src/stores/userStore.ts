@@ -1,4 +1,3 @@
-import { getDepartmentById } from "@/api/UsersApi";
 import { tokenManager } from "@/axios/axiosInstance";
 import { atom, computed } from "nanostores";
 
@@ -13,13 +12,14 @@ export interface User {
   team?: string;
   profession?: string;
   created_at?: string;
+  department_label: string;
+  team_label: string;
+  directorate_label: string;
 }
 
-// Nanostores atoms - mevcut tokenManager'ı kullanarak
 export const $user = atom<User | null>(null);
 export const $token = atom<string | null>(null);
 
-// Computed values (derived state)
 export const $isLoggedIn = computed(
   $user,
   (user: User | null) => user !== null
@@ -34,10 +34,9 @@ export const $userRole = computed(
 );
 export const $userDepartment = computed(
   $user,
-  (user: User | null) => getDepartmentById(user?.user_department) || "N/A"
+  (user: User | null) => user?.department_label || "N/A"
 );
 
-// Initialize store from localStorage (sadece browser'da)
 if (typeof window !== "undefined") {
   const storedUser = tokenManager.getUser();
   const storedToken = tokenManager.getToken();
@@ -46,7 +45,6 @@ if (typeof window !== "undefined") {
   if (storedToken) $token.set(storedToken);
 }
 
-// Actions - tokenManager ile senkronize
 export function setUser(user: User | null) {
   $user.set(user);
   if (user) {
