@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS users (
   address TEXT,
   user_department VARCHAR(100),
   directorate INTEGER REFERENCES directorates(id),
+  gender VARCHAR(50),
   connection BOOLEAN DEFAULT FALSE,
   user_status_id INTEGER REFERENCES user_statuses(id),
   role VARCHAR(50) DEFAULT 'user',
@@ -243,6 +244,15 @@ CREATE TABLE IF NOT EXISTS announcements (
 
 --directorates
 CREATE TABLE IF NOT EXISTS directorates (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL UNIQUE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  deleted_at TIMESTAMPTZ
+);
+
+-- departments
+CREATE TABLE IF NOT EXISTS departments (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL UNIQUE,
   created_at TIMESTAMPTZ DEFAULT NOW(),

@@ -19,5 +19,20 @@ export const lookupsRoutes = () => {
     table: "idea_assignees",
     tag: "lookups",
   });
+  listRoute(lookups, {
+    path: "/departments",
+    table: "departments",
+    tag: "lookups",
+  });
+  listRoute(lookups, {
+    path: "/directorates",
+    table: "directorates",
+    tag: "lookups",
+  });
+  listRoute(lookups, {
+    path: "/teams",
+    table: "teams",
+    tag: "lookups",
+  });
   return lookups;
 };

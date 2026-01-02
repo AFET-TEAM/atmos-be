@@ -6,6 +6,7 @@ type propsType = {
     fullName?: string;
     profilePicture: string;
     status: string;
+    gender?: string;
   };
   imageSize?: string;
   disableIndicator: boolean;
@@ -31,7 +32,7 @@ function getStatusClass(status: string) {
     <div class="image-wrapper">
       <img
         class={imageSize}
-        src={user?.profilePicture ? user.profilePicture : "/default-avatar.png"}
+        src={user?.profilePicture ? user.profilePicture : user.gender === "female" ? "/DefaultImageWoman.png" : "/DefaultImageMan.png"}
         alt="user-profile-picture"
       />
       {

@@ -25,6 +25,7 @@ export const usersRoutes = () => {
         connection: t.Optional(t.Boolean()),
         user_status_id: t.Optional(t.Numeric()),
         role: t.Optional(t.String()),
+        gender: t.Optional(t.String()),
       }),
       bodyKeys: [
         "email",
@@ -41,6 +42,7 @@ export const usersRoutes = () => {
         "directorate",
         "directorate_label",
         "role",
+        "gender",
       ] as const,
     },
     update: {
@@ -60,6 +62,7 @@ export const usersRoutes = () => {
           connection: t.Optional(t.Boolean()),
           user_status_id: t.Optional(t.Numeric()),
           role: t.Optional(t.String()),
+          gender: t.Optional(t.String()),
         })
       ),
       bodyKeys: [
@@ -77,12 +80,14 @@ export const usersRoutes = () => {
         "directorate",
         "directorate_label",
         "role",
+        "gender",
       ] as const,
       touchUpdatedAt: true,
     },
     ownerCheck: {
       ownerField: "id",
-      getUserId: ({ params }) => Number((params as any)?.id ?? 0),
+      getUserId: ({ params }: { params: any }) =>
+        Number((params as any)?.id ?? 0),
     },
     rbac: { can: async () => true },
   });

@@ -16,4 +16,5 @@ export type AuthUser = {
   department_label?: string;
   directorate_label?: string;
   team_label?: string;
+  gender?: string;
 };

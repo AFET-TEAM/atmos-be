@@ -8,7 +8,8 @@ export async function registerUser(
   user_department: number,
   address: string,
   team: string | undefined,
-  directorate: number
+  directorate: number,
+  gender: string | undefined
 ) {
   const response = await instance.post("/auth/register", {
     email,
@@ -18,6 +19,7 @@ export async function registerUser(
     address,
     team,
     directorate,
+    gender,
   });
 
   return response.data;

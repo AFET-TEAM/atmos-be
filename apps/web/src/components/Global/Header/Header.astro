@@ -7,7 +7,6 @@ import "./Header.scss";
 
 
 const user = getUser();
-console.log("Header user:", user);
 ---
 
 <header class="header">
@@ -32,7 +31,7 @@ console.log("Header user:", user);
         <img
           class="avatar-img"
           id="header-user-avatar"
-          src={user?.profile_picture || "/default-avatar.png"}
+          src={user?.profile_picture ? user.profile_picture : user?.gender === "female" ? "/DefaultImageWoman.png" : "/DefaultImageMan.png"}
           alt="avatar"
           width="32"
           height="32"

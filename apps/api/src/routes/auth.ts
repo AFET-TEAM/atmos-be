@@ -39,6 +39,7 @@ export const authRoutes = () =>
           user_department,
           team,
           directorate,
+          gender,
         } = body;
 
         try {
@@ -84,7 +85,7 @@ export const authRoutes = () =>
           }
 
           const result = await query(
-            "INSERT INTO users (email, password, full_name, user_status_id, address, user_department, department_label, directorate, directorate_label, team, team_label) VALUES ($1, $2, $3, 1, $4, $5, $6, $7, $8, $9, $10) RETURNING id, email, full_name, user_department, department_label, address, user_status_id, directorate, directorate_label, team, team_label, role",
+            "INSERT INTO users (email, password, full_name, user_status_id, address, user_department, department_label, directorate, directorate_label, team, team_label, gender) VALUES ($1, $2, $3, 1, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id, email, full_name, user_department, department_label, address, user_status_id, directorate, directorate_label, team, team_label, gender, role",
             [
               email,
               hashedPassword,
@@ -96,6 +97,7 @@ export const authRoutes = () =>
               directorateLabel,
               team,
               teamLabel,
+              gender,
             ]
           );
 
@@ -120,6 +122,7 @@ export const authRoutes = () =>
             directorate: newUser.directorate,
             directorate_label: newUser.directorate_label,
             team_label: newUser.team_label,
+            gender: newUser.gender,
           };
 
           const token = await jwt.sign(user);
@@ -153,6 +156,7 @@ export const authRoutes = () =>
           user_department: t.Optional(t.Numeric()),
           team: t.Optional(t.String()),
           directorate: t.Optional(t.Numeric()),
+          gender: t.Optional(t.String()), // "male" veya "female"
         }),
         detail: { summary: "Register new user", tags: ["auth"] },
       }
@@ -165,7 +169,7 @@ export const authRoutes = () =>
 
         try {
           const result = await query(
-            "SELECT id, email, password, full_name, team, team_label, profession, profile_picture, address, connection, user_department, department_label, user_status_id, role, directorate, directorate_label FROM users WHERE email = $1 AND deleted_at IS NULL",
+            "SELECT id, email, password, full_name, team, team_label, profession, profile_picture, address, connection, user_department, department_label, user_status_id, role, directorate, directorate_label, gender FROM users WHERE email = $1 AND deleted_at IS NULL",
             [email]
           );
 
@@ -212,6 +216,7 @@ export const authRoutes = () =>
             user_status_id: dbUser.user_status_id,
             directorate: dbUser.directorate,
             directorate_label: dbUser.directorate_label,
+            gender: dbUser.gender,
           };
 
           const token = await jwt.sign({

@@ -166,3 +166,63 @@ export const filterUsersByFields = async (field: any) => {
     return [];
   }
 };
+export const updateUser = async (
+  id: number,
+  userData: {
+    email?: string;
+    full_name?: string;
+    team?: string;
+    profession?: string;
+    profile_picture?: string;
+    address?: string;
+    user_department?: number;
+    department_label?: string;
+    directorate?: number;
+    directorate_label?: string;
+    team_label?: string;
+    connection?: boolean;
+    user_status_id?: number;
+    role?: string;
+  }
+) => {
+  try {
+    const response = await instance.patch(`/users/${id}`, userData);
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating user ${id}:`, error);
+    return null;
+  }
+};
+
+export const deleteUser = async (id: number) => {
+  try {
+    const response = await instance.delete(`/users/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error deleting user ${id}:`, error);
+    return null;
+  }
+};
+
+export const createUser = async (userData: {
+  email: string;
+  full_name: string;
+  team?: string;
+  profession?: string;
+  profile_picture?: string;
+  address?: string;
+  user_department?: number;
+  department_label?: string;
+  directorate?: number;
+  directorate_label?: string;
+  team_label?: string;
+  role?: string;
+}) => {
+  try {
+    const response = await instance.post("/users", userData);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating user:", error);
+    return null;
+  }
+};

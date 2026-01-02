@@ -15,6 +15,7 @@ export interface User {
   department_label: string;
   team_label: string;
   directorate_label: string;
+  gender: string;
 }
 
 export const $user = atom<User | null>(null);
