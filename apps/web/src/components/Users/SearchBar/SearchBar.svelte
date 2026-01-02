@@ -38,7 +38,7 @@
     const filterCriteria: any = {
       team: choosedTeam || "",
       department: choosedDepartment || "",
-      directorate: choosedDirectorate ? Number(choosedDirectorate) : undefined,
+      directorate: choosedDirectorate || "",
     };
 
     filteredUsers = await filterUsersByFields(filterCriteria);

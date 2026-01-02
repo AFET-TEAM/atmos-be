@@ -35,7 +35,6 @@ export const filterRoutes = () => {
         const queryParams: any[] = [];
         let paramIndex = 1;
 
-        // ✅ Filtrelemeyi düzelt
         if (department && department !== "") {
           queryStr += ` AND u.user_department = $${paramIndex}::character varying`;
           queryParams.push(String(department));
