@@ -1,19 +1,22 @@
 ---
 import Icon from "public/icons/icon.astro";
 import "./ui.scss";
-type Dropdown = {
-    options?: Options[];
-    label?: string;
-};
 
 type Options = {
     name: string;
-    id: number;
-}
-//todo: değer seçildiğinde fonksiyonellik eklenecek.
-//todo?: değer seçildiğinde rotate eklenebilir görsellik açısından.
+    id?: number;
+    team?: string;
+};
 
-const {options, label} = Astro.props as Dropdown;
+type DropdownProps = {
+    options?: Options[];
+    label?: string;
+    id?: string;
+    name?: string;
+    onChange?: (value: string) => void;
+};
+
+const { options, label, id, name, onChange } = Astro.props as DropdownProps;
 ---
 
 <label>
@@ -21,14 +24,41 @@ const {options, label} = Astro.props as Dropdown;
         <div class="dropdown-icon">
             <Icon name={"arrowBottom"} width={7} height={7}/>
         </div>
-        <select class="dropdown">
+        <select
+            class="dropdown"
+            id={id}
+            name={name}
+        >
             <option value="" disabled selected>{label}</option>
             {
-                options?.map((option) => (
-                        <option value={option.id} key={option.id}>{option.name}</option>
-                ))
+                options?.map((option) => {
+                    // Teams için 'team' alanını, diğerleri için 'id' alanını kullan
+                    const displayName = option.name || option.team || "";
+                    const value = option.id !== undefined ? String(option.id) : (option.team || "");
+
+                    return (
+                        <option value={value} key={value}>
+                            {displayName}
+                        </option>
+                    );
+                })
             }
         </select>
     </div>
 </label>
+
+<script define:vars={{ onChange }}>
+    if (typeof window !== "undefined") {
+        const selectElement = document.getElementById("{id}");
+
+        if (selectElement && onChange) {
+            selectElement.addEventListener("change", (e) => {
+                const value = e.target.value;
+                onChange(value);
+            });
+        }
+    }
+</script>
+
+
 

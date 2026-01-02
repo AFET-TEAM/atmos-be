@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS users (
   profile_picture TEXT,
   address TEXT,
   user_department VARCHAR(100),
+  directorate INTEGER REFERENCES directorates(id),
   connection BOOLEAN DEFAULT FALSE,
   user_status_id INTEGER REFERENCES user_statuses(id),
   role VARCHAR(50) DEFAULT 'user',
@@ -227,6 +228,29 @@ CREATE TABLE IF NOT EXISTS likes (
   -- NOT: likes tablosunda deleted_at YOK (soft delete disabled)
 );
 
+
+-- Announcements
+CREATE TABLE IF NOT EXISTS announcements (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  content TEXT NOT NULL,
+  created_by INTEGER REFERENCES users(id),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  deleted_at TIMESTAMPTZ
+);
+
+
+--directorates
+CREATE TABLE IF NOT EXISTS directorates (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL UNIQUE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  deleted_at TIMESTAMPTZ
+);
+
+
 -- ============================================================================
 -- 5. INDEXES (Performans için indexler)
 -- ============================================================================
@@ -280,6 +304,8 @@ CREATE INDEX IF NOT EXISTS idx_ideas_date ON ideas(date);
 CREATE INDEX IF NOT EXISTS idx_ideas_deleted_at ON ideas(deleted_at);
 
 CREATE INDEX IF NOT EXISTS idx_departments_deleted_at ON departments(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_directorates_name ON directorates(name);
+
 
 -- Comments indexes
 CREATE INDEX IF NOT EXISTS idx_comments_user_id ON comments(user_id);
@@ -291,6 +317,8 @@ CREATE INDEX IF NOT EXISTS idx_comments_deleted_at ON comments(deleted_at);
 CREATE INDEX IF NOT EXISTS idx_likes_user_id ON likes(user_id);
 CREATE INDEX IF NOT EXISTS idx_likes_target ON likes(target_type, target_id);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_likes_unique ON likes(user_id, target_type, target_id);
+
+CREATE INDEX IF NOT EXISTS idx_announcements_created_by ON announcements(created_by);
 
 -- ============================================================================
 -- 6. SEED DATA (Başlangıç Verileri)

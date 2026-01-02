@@ -31,8 +31,15 @@ export const authRoutes = () =>
     .post(
       "/auth/register",
       async ({ body, jwt, cookie }) => {
-        const { email, password, full_name, address, user_department, teams } =
-          body;
+        const {
+          email,
+          password,
+          full_name,
+          address,
+          user_department,
+          team,
+          directorate,
+        } = body;
 
         try {
           const existingUser = await query(
@@ -49,42 +56,73 @@ export const authRoutes = () =>
 
           const hashedPassword = await hashPassword(password);
 
+          let departmentLabel = null;
+          if (user_department) {
+            const deptRes = await query(
+              "SELECT name FROM departments WHERE id = $1",
+              [user_department]
+            );
+            departmentLabel = deptRes.rows[0]?.name || null;
+          }
+
+          let directorateLabel = null;
+          if (directorate) {
+            const dirRes = await query(
+              "SELECT name FROM directorates WHERE id = $1",
+              [directorate]
+            );
+            directorateLabel = dirRes.rows[0]?.name || null;
+          }
+
+          let teamLabel = null;
+          if (team) {
+            const teamRes = await query(
+              "SELECT name FROM teams WHERE id = $1",
+              [team]
+            );
+            teamLabel = teamRes.rows[0]?.name || null;
+          }
+
           const result = await query(
-            "INSERT INTO users (email, password, full_name, user_status_id, address, user_department) VALUES ($1, $2, $3, 1, $4, $5) RETURNING id, email, full_name, user_department, address, user_status_id",
-            [email, hashedPassword, full_name, address, user_department]
+            "INSERT INTO users (email, password, full_name, user_status_id, address, user_department, department_label, directorate, directorate_label, team, team_label) VALUES ($1, $2, $3, 1, $4, $5, $6, $7, $8, $9, $10) RETURNING id, email, full_name, user_department, department_label, address, user_status_id, directorate, directorate_label, team, team_label, role",
+            [
+              email,
+              hashedPassword,
+              full_name,
+              address,
+              user_department,
+              departmentLabel,
+              directorate,
+              directorateLabel,
+              team,
+              teamLabel,
+            ]
           );
 
           const newUser = result.rows[0];
           if (!newUser) {
             throw new Error("User creation failed");
           }
+
           const user: AuthUser = {
             id: newUser.id,
             email: newUser.email,
             role: "user",
             full_name: newUser.full_name,
-            team: newUser.teams,
+            team: newUser.team,
             profession: undefined,
             profile_picture: undefined,
             address: newUser.address,
             connection: undefined,
             user_department: newUser.user_department,
+            department_label: newUser.department_label,
             user_status_id: newUser.user_status_id,
+            directorate: newUser.directorate,
+            directorate_label: newUser.directorate_label,
+            team_label: newUser.team_label,
           };
 
-          const token = await jwt.sign({
-            id: user.id,
-            email: user.email,
-            role: user.role,
-            full_name: user.full_name,
-            team: user.team,
-            profession: user.profession,
-            profile_picture: user.profile_picture,
-            address: user.address,
-            connection: user.connection,
-            user_department: user.user_department,
-            user_status_id: user.user_status_id,
-          });
+          const token = await jwt.sign(user);
 
           if (cookie[JWT_COOKIE]) {
             cookie[JWT_COOKIE].set({
@@ -95,13 +133,6 @@ export const authRoutes = () =>
               secure: process.env.NODE_ENV === "production",
               maxAge: 60 * 60 * 24 * 7,
             });
-          }
-
-          if (teams) {
-            await query(
-              "INSERT INTO team_memberships (team_id, user_id) VALUES ($1, $2)",
-              [Number(teams), newUser.id]
-            );
           }
 
           return { token, user };
@@ -119,8 +150,9 @@ export const authRoutes = () =>
           password: t.String({ minLength: 6 }),
           full_name: t.String({ minLength: 2 }),
           address: t.Optional(t.String()),
-          user_department: t.Optional(t.String()),
-          teams: t.Optional(t.String()),
+          user_department: t.Optional(t.Numeric()),
+          team: t.Optional(t.String()),
+          directorate: t.Optional(t.Numeric()),
         }),
         detail: { summary: "Register new user", tags: ["auth"] },
       }
@@ -133,7 +165,7 @@ export const authRoutes = () =>
 
         try {
           const result = await query(
-            "SELECT id, email, password, full_name, team, profession, profile_picture, address, connection, user_department, user_status_id, role FROM users WHERE email = $1 AND deleted_at IS NULL",
+            "SELECT id, email, password, full_name, team, profession, profile_picture, address, connection, user_department, user_status_id, role, directorate FROM users WHERE email = $1 AND deleted_at IS NULL",
             [email]
           );
 
@@ -170,15 +202,18 @@ export const authRoutes = () =>
             role: dbUser.role || "user",
             full_name: dbUser.full_name || "",
             team: dbUser.team,
+            team_label: dbUser.team_label,
             profession: dbUser.profession,
             profile_picture: dbUser.profile_picture,
             address: dbUser.address,
             connection: dbUser.connection,
             user_department: dbUser.user_department,
+            department_label: dbUser.department_label,
             user_status_id: dbUser.user_status_id,
+            directorate: dbUser.directorate,
+            directorate_label: dbUser.directorate_label,
           };
 
-          // JWT token oluştur
           const token = await jwt.sign({
             id: user.id,
             email: user.email,
@@ -191,10 +226,12 @@ export const authRoutes = () =>
             connection: user.connection,
             user_department: user.user_department,
             user_status_id: user.user_status_id,
+            directorate: user.directorate,
+            department_label: user.department_label,
+            directorate_label: user.directorate_label,
+            team_label: user.team_label,
           });
 
-          // Cookie'ye kaydet
-          // Cookie'ye kaydet
           if (cookie[JWT_COOKIE]) {
             cookie[JWT_COOKIE].set({
               value: token,

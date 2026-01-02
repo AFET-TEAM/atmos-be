@@ -1,16 +1,6 @@
 ---
-import { getSortOptions, getUsersTeams } from "../../../api/UsersApi";
-import Dropdown from "../../UI/Dropdown.astro";
-import SearchInput from "../../UI/SearchInput.astro";
+import SearchBarSvelte from "./SearchBar.svelte";
 import "./search-bar.scss";
-
-const $teams = await getUsersTeams();
-const $sortOptions = await getSortOptions();
 ---
 
-<section class="searchbar-container">
-  <Dropdown options={$teams} label="Choose Teams" />
-  <Dropdown options={$sortOptions} label="Sort A/Z" />
-
-  <SearchInput/>
-</section>
+<SearchBarSvelte client:load />

@@ -2,12 +2,15 @@ import { Elysia } from "elysia";
 import { swaggerPlugin } from "./config/swagger";
 import { query } from "./db";
 import { authPlugin } from "./plugins/auth";
+import { announcementsRoutes } from "./routes/announcements";
 import { authRoutes } from "./routes/auth";
 import { cityRoutes } from "./routes/city";
 import { commentsRoutes } from "./routes/comments";
 import { contentRoutes } from "./routes/content";
 import { countUserInfo } from "./routes/count";
 import { departmentsRoutes } from "./routes/department";
+import { directorateRoutes } from "./routes/directorate";
+import { filterRoutes } from "./routes/filter";
 import { likesRoutes } from "./routes/likes";
 import { lookupsRoutes } from "./routes/lookups";
 import { meetingsRoutes } from "./routes/meetings";
@@ -75,7 +78,11 @@ const v1 = new Elysia({ prefix: "/v1", name: "api:v1" })
   .use(departmentsRoutes())
   .use(cityRoutes())
   .use(countUserInfo)
-  .use(TabHeaders());
+  .use(TabHeaders())
+  .use(announcementsRoutes())
+  .use(directorateRoutes())
+  .use(filterRoutes());
+
 app.use(v1);
 
 app.listen({ port: 3000, hostname: "0.0.0.0" });

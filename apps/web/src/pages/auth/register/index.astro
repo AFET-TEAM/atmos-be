@@ -1,5 +1,5 @@
 ---
-import { getDepartments, registerUser, getCities , getTeams} from "@/api/AuthApi";
+import { getDepartments, registerUser, getCities , getTeams, getDirectorates} from "@/api/AuthApi";
 import AuthLayout from "../../../layouts/AuthLayout.astro";
 import { get } from 'svelte/store';
 
@@ -8,6 +8,7 @@ let errorMessage = "";
 const departments = await getDepartments();
 const teams = await getTeams();
 const cities = await getCities();
+const directorates = await getDirectorates();
 
 if (Astro.request.method === "GET") {
   const authCookie = Astro.cookies.get("auth");
@@ -23,23 +24,17 @@ if (Astro.request.method === "POST") {
     const email = data.get("email")?.toString();
     const password = data.get("password")?.toString();
     const passwordAgain = data.get("passwordAgain")?.toString();
-    const user_department = data.get("department")?.toString();
+    const user_department = Number(data.get("department"));
+    const team = data.get("teams")?.toString();
+    const directorate = Number(data.get("directorate"));
     const address = data.get("city")?.toString();
 
-    console.log({
-      name,
-      email,
-      password,
-      passwordAgain,
-      user_department,
-      address
-    });
     if (!name || !email || !password || !passwordAgain || !user_department || !address) {
       errorMessage = "Tüm alanlar zorunludur";
     } else if (password !== passwordAgain) {
       errorMessage = "Şifreler eşleşmiyor";
     } else {
-      await registerUser(email, password, name, user_department, address);
+      await registerUser(email, password, name, user_department, address, team, directorate);
       return Astro.redirect("/auth/login");
     }
   } catch (error: any) {
@@ -113,7 +108,7 @@ if (Astro.request.method === "POST") {
       </div>
 
          <div class="form-group">
-        <label for="teams">Departman</label>
+        <label for="teams">Takım</label>
         <div class="input-wrapper">
           <span class="input-icon">🏢</span>
           <select id="teams" name="teams" required>
@@ -131,8 +126,21 @@ if (Astro.request.method === "POST") {
           <span class="input-icon">🏢</span>
           <select id="department" name="department" required>
             <option value="" disabled selected>Departmanınızı seçin</option>
-            {departments.map((dept: { id: string; name: string }) => (
-              <option value={dept.name}>{dept.name}</option>
+            {departments.map((dept: { id: number; name: string }) => (
+              <option value={dept.id}>{dept.name}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="directorate">Direktörlük</label>
+        <div class="input-wrapper">
+          <span class="input-icon">🏢</span>
+          <select id="directorate" name="directorate" required>
+            <option value="" disabled selected>Direktörlüğünüzü seçin</option>
+            {directorates.map((dept: { id: number; name: string }) => (
+              <option value={dept.id}>{dept.name}</option>
             ))}
           </select>
         </div>

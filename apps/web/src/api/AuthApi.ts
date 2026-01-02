@@ -5,8 +5,10 @@ export async function registerUser(
   email: string,
   password: string,
   full_name: string,
-  user_department: string,
-  address: string
+  user_department: number,
+  address: string,
+  team: string | undefined,
+  directorate: number
 ) {
   const response = await instance.post("/auth/register", {
     email,
@@ -14,6 +16,8 @@ export async function registerUser(
     full_name,
     user_department,
     address,
+    team,
+    directorate,
   });
 
   return response.data;
@@ -54,4 +58,9 @@ export async function getCities() {
 export async function getUserInfoCount(userId: number | undefined) {
   const response = await instance.get(`/users/${userId}/counts`);
   return response.data;
+}
+
+export async function getDirectorates() {
+  const response = await instance.get("/directorates");
+  return Array.isArray(response.data) ? response.data : [];
 }

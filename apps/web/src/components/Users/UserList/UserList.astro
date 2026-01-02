@@ -5,7 +5,7 @@ import { getUsers } from "@/api/UsersApi";
 import UserAvatar from "../UserAvatar/UserAvatar.astro";
 const $users = await getUsers();
 
-console.log("UserList users:", $users);
+console.log($users);
 
 let isDropdownVisible = false;
 ---
@@ -28,7 +28,7 @@ let isDropdownVisible = false;
                 height={11}
                 color={"none"}
               />
-              <p>{user.userDepartment}</p>
+              <p>{user.departmentLabel}</p>
             </div>
             <div class="info">
               <Icon name={"mail"} width={11} height={11} color={"none"} />

@@ -1,3 +1,4 @@
+import { getDepartmentById } from "@/api/UsersApi";
 import { tokenManager } from "@/axios/axiosInstance";
 import { atom, computed } from "nanostores";
 
@@ -33,7 +34,7 @@ export const $userRole = computed(
 );
 export const $userDepartment = computed(
   $user,
-  (user: User | null) => user?.user_department || "N/A"
+  (user: User | null) => getDepartmentById(user?.user_department) || "N/A"
 );
 
 // Initialize store from localStorage (sadece browser'da)

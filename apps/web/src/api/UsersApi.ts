@@ -29,9 +29,35 @@ export const getUserById = async (id: number | string | undefined) => {
 export const getUsersTeams = async () => {
   try {
     const response = await instance.get("/teams");
-    return response.data;
+    return Array.isArray(response.data)
+      ? response.data
+      : response.data.data || [];
   } catch (error) {
     console.error("Error fetching teams:", error);
+    return [];
+  }
+};
+
+export const getUsersDepartments = async () => {
+  try {
+    const response = await instance.get("/departments");
+    return Array.isArray(response.data)
+      ? response.data
+      : response.data.data || [];
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+    return [];
+  }
+};
+
+export const getUsersDirectorates = async () => {
+  try {
+    const response = await instance.get("/directorates");
+    return Array.isArray(response.data)
+      ? response.data
+      : response.data.data || [];
+  } catch (error) {
+    console.error("Error fetching directorates:", error);
     return [];
   }
 };
@@ -49,7 +75,9 @@ export const getUserByProfession = async () => {
 export const getSortOptions = async () => {
   try {
     const response = await instance.get("/sortOptions");
-    return response.data;
+    return Array.isArray(response.data)
+      ? response.data
+      : response.data.data || [];
   } catch (error) {
     console.error("Error fetching sort options:", error);
     return [];
@@ -59,7 +87,9 @@ export const getSortOptions = async () => {
 export const getImportantLinks = async () => {
   try {
     const response = await instance.get("/importantLinks");
-    return response.data;
+    return Array.isArray(response.data)
+      ? response.data
+      : response.data.data || [];
   } catch (error) {
     console.error("Error fetching important links:", error);
     return [];
@@ -69,7 +99,9 @@ export const getImportantLinks = async () => {
 export const getTabNameForUserDetails = async () => {
   try {
     const response = await instance.get("/tab_headers");
-    return response.data;
+    return Array.isArray(response.data)
+      ? response.data
+      : response.data.data || [];
   } catch (error) {
     console.error("Error fetching tab names for user details:", error);
     return [];
@@ -122,5 +154,15 @@ export const createMeeting = async (meetingData: {
   } catch (error) {
     console.error("Error creating meeting:", error);
     return null;
+  }
+};
+
+export const filterUsersByFields = async (field: any) => {
+  try {
+    const response = await instance.post("/filter/users-by-fields", field);
+    return response.data;
+  } catch (error) {
+    console.error("Error filtering users:", error);
+    return [];
   }
 };

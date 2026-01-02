@@ -12,4 +12,8 @@ export type AuthUser = {
   connection?: boolean;
   user_department?: string;
   user_status_id?: number;
+  directorate?: string;
+  department_label?: string;
+  directorate_label?: string;
+  team_label?: string;
 };
