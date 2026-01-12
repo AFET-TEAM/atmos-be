@@ -122,7 +122,7 @@ if (Astro.request.method === "POST") {
 
   <script>
     import { tokenManager } from '@/axios/axiosInstance';
-import { $user } from '@/stores/userStore';
+import { userAtom } from '@/stores/userStore';
 
     document.addEventListener('DOMContentLoaded', () => {
 
@@ -144,8 +144,9 @@ import { $user } from '@/stores/userStore';
           try {
             const userData = JSON.parse(decodeURIComponent(cookieUser));
             console.log('📥 Copying user from cookie to localStorage:', userData);
-            $user.set(userData);
             tokenManager.setUser(userData);
+            userAtom.set(userData);
+            console.log('✅ User set to atom:', userData);
           } catch (e) {
             console.error('User cookie parse error:', e);
           }

@@ -18,23 +18,26 @@ export interface User {
   gender: string;
 }
 
-export const $user = atom<User | null>(null);
-export const $token = atom<string | null>(null);
+export const userAtom = atom<User | null>(null);
+export const tokenAtom = atom<string | null>(null);
+
+export const $user = userAtom;
+export const $token = tokenAtom;
 
 export const $isLoggedIn = computed(
-  $user,
+  userAtom,
   (user: User | null) => user !== null
 );
 export const $userName = computed(
-  $user,
+  userAtom,
   (user: User | null) => user?.full_name || "Guest"
 );
 export const $userRole = computed(
-  $user,
+  userAtom,
   (user: User | null) => user?.role || "user"
 );
 export const $userDepartment = computed(
-  $user,
+  userAtom,
   (user: User | null) => user?.department_label || "N/A"
 );
 
@@ -42,36 +45,50 @@ if (typeof window !== "undefined") {
   const storedUser = tokenManager.getUser();
   const storedToken = tokenManager.getToken();
 
-  if (storedUser) $user.set(storedUser);
-  if (storedToken) $token.set(storedToken);
+  if (storedUser) userAtom.set(storedUser);
+
+  if (storedToken) tokenAtom.set(storedToken);
+
+  const syncInterval = setInterval(() => {
+    const currentUser = userAtom.get();
+    const localStorageUser = tokenManager.getUser();
+
+    if (!currentUser && localStorageUser) userAtom.set(localStorageUser);
+
+    if (currentUser && localStorageUser) {
+      clearInterval(syncInterval);
+    }
+  }, 500);
+
+  setTimeout(() => clearInterval(syncInterval), 10000);
 }
 
 export function setUser(user: User | null) {
-  $user.set(user);
+  userAtom.set(user);
   if (user) {
     tokenManager.setUser(user);
   }
 }
 
 export function setToken(token: string | null) {
-  $token.set(token);
+  tokenAtom.set(token);
   if (token) {
     tokenManager.setToken(token);
   }
 }
 
 export function updateUser(updates: Partial<User>) {
-  const currentUser = $user.get();
+  const currentUser = userAtom.get();
   if (currentUser) {
     const updatedUser = { ...currentUser, ...updates };
-    $user.set(updatedUser);
+    userAtom.set(updatedUser);
     tokenManager.setUser(updatedUser);
   }
 }
 
 export function logout() {
-  $user.set(null);
-  $token.set(null);
+  userAtom.set(null);
+  tokenAtom.set(null);
   tokenManager.removeToken();
 
   if (typeof window !== "undefined") {
@@ -93,26 +110,26 @@ export function logout() {
 }
 
 export function login(user: User, token: string) {
-  $user.set(user);
-  $token.set(token);
+  userAtom.set(user);
+  tokenAtom.set(token);
   tokenManager.setUser(user);
   tokenManager.setToken(token);
 }
 
 export function getUser(): User | null {
-  let user = $user.get();
+  let user = userAtom.get();
   if (!user && typeof window !== "undefined") {
     user = tokenManager.getUser();
-    if (user) $user.set(user);
+    if (user) userAtom.set(user);
   }
   return user;
 }
 
 export function getToken(): string | null {
-  let token = $token.get();
+  let token = tokenAtom.get();
   if (!token && typeof window !== "undefined") {
     token = tokenManager.getToken();
-    if (token) $token.set(token);
+    if (token) tokenAtom.set(token);
   }
   return token;
 }

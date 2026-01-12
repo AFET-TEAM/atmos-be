@@ -1,7 +1,7 @@
 <script lang="ts">
+  import type { Field } from "@/types/DocumentTypes/DocumentTypes";
   import { createEventDispatcher, onMount } from "svelte";
   import "./FormModal.scss";
-  import type { Field } from "@/types/DocumentTypes/DocumentTypes";
 
   export let open = false;
   export let saving = false;
@@ -12,10 +12,11 @@
 
   const dispatch = createEventDispatcher<{
     close: void;
-    submit: Record<string, string | number>;
+    submit: Record<string, string | number | File | null>;
   }>();
 
-  let localValues: Record<string, string | number> = {};
+  let localValues: Record<string, string | number | File | null> = {};
+  let fileInputs: Record<string, File | null> = {};
   let errors: Record<string, string> = {};
   let showErrors = false;
   let modalEl: HTMLDivElement | null = null;
@@ -30,20 +31,31 @@
   }
 
   $: if (open) {
-    const nextVals: Record<string, string | number> = {};
+    const nextVals: Record<string, string | number | File | null> = {};
     const nextErrs: Record<string, string> = {};
     for (const f of fields) {
-      nextVals[f.key] = f.value ?? "";
+      nextVals[f.key] = f.type === "file" ? null : (f.value ?? "");
       nextErrs[f.key] = "";
     }
     localValues = nextVals;
     errors = nextErrs;
     showErrors = false;
+    fileInputs = {};
   }
 
   function validate(): boolean {
     const next: Record<string, string> = {};
     for (const f of fields) {
+      if (f.type === "file") {
+        const file = fileInputs[f.key];
+        if (f.required && !file) {
+          next[f.key] = "Bu alan zorunludur.";
+        } else {
+          next[f.key] = "";
+        }
+        continue;
+      }
+
       const raw = localValues[f.key];
       const val = (raw ?? "").toString().trim();
 
@@ -71,7 +83,19 @@
     const ok = validate();
     showErrors = true;
     if (!ok) return;
-    dispatch("submit", { ...localValues });
+    const submitData = { ...localValues };
+    // Add file inputs to submit data
+    for (const key in fileInputs) {
+      submitData[key] = fileInputs[key];
+    }
+    dispatch("submit", submitData);
+  }
+
+  function handleFileChange(key: string, event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] || null;
+    fileInputs[key] = file;
+    localValues[key] = file;
   }
 
   function onWindowKeydown(e: KeyboardEvent) {
@@ -88,7 +112,7 @@
           ? `[data-key="${fields[idx].key}"]`
           : `[data-key="${fields[0]?.key}"]`;
       const el = modalEl.querySelector<HTMLInputElement | HTMLTextAreaElement>(
-        selector
+        selector,
       );
       el?.focus();
     });
@@ -127,6 +151,18 @@
             placeholder={f.placeholder}
             bind:value={localValues[f.key]}
           ></textarea>
+        {:else if f.type === "file"}
+          <input
+            data-key={f.key}
+            type="file"
+            accept=".pdf,.doc,.docx,.txt,.jpg,.png"
+            on:change={(e) => handleFileChange(f.key, e)}
+          />
+          {#if fileInputs[f.key]}
+            <small class="file-info"
+              >Seçilen dosya: {fileInputs[f.key]?.name}</small
+            >
+          {/if}
         {:else}
           <input
             data-key={f.key}

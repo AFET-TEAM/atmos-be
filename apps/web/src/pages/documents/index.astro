@@ -1,15 +1,15 @@
 ---
-import Layout from "../../layouts/Layout.astro";
 import { getAllDocuments } from "@/api/DocumentsApi";
-import DynamicCard from "@/components/UI/DynamicCard.svelte";
 import DocumentsHeader from "@/components/Documents/DocumentsHeader.svelte";
+import DynamicCard from "@/components/UI/DynamicCard.svelte";
+import Layout from "../../layouts/Layout.astro";
 
 const allDocuments = await getAllDocuments();
 const $admin: boolean = true;
-function onDownload(document: DocumentType) {
+function onDownload(document: Document) {
   console.log("Download document:", document);
 }
-function onUpdate(document: DocumentType) {
+function onUpdate(document: Document) {
   console.log("Update document:", document);
 }
 function onDelete(documentId: string) {
@@ -20,7 +20,7 @@ function onDelete(documentId: string) {
 <Layout title="Documents">
   <DocumentsHeader client:load />
   {
-    allDocuments.map((document: DocumentType) => (
+    allDocuments.map((document: any) => (
       <DynamicCard
         title={document.title}
         description={document.description}

@@ -104,6 +104,8 @@ export const contentRoutes = () => {
         title: t.String(),
         description: t.Optional(t.String()),
         file_url: t.Optional(t.String()),
+        file_data: t.Optional(t.String()),
+        file_name: t.Optional(t.String()),
         date: t.Optional(t.String()),
       }),
       bodyKeys: [
@@ -111,6 +113,8 @@ export const contentRoutes = () => {
         "title",
         "description",
         "file_url",
+        "file_data",
+        "file_name",
         "date",
       ] as const,
     },
@@ -121,6 +125,8 @@ export const contentRoutes = () => {
           title: t.String(),
           description: t.Optional(t.String()),
           file_url: t.Optional(t.String()),
+          file_data: t.Optional(t.String()),
+          file_name: t.Optional(t.String()),
           date: t.Optional(t.String()),
         })
       ),
@@ -129,6 +135,8 @@ export const contentRoutes = () => {
         "title",
         "description",
         "file_url",
+        "file_data",
+        "file_name",
         "date",
       ] as const,
     },
@@ -137,26 +145,93 @@ export const contentRoutes = () => {
       getUserId: ({ body }) => (body as any)?.user_id ?? 0,
     },
     rbac: { can: async () => true },
-  }).get(
-    "/documents/:id",
-    async ({ params }) => {
-      const userId = parseInt(params.id);
-      if (!userId) return { error: "Invalid user ID", data: [] };
-
-      const res = await query(
-        `SELECT id, title, description, file_url, date
-         FROM documents WHERE user_id = $1 AND deleted_at IS NULL ORDER BY date DESC`,
-        [userId]
-      );
-      return { data: res.rows };
-    },
-    {
-      detail: {
-        summary: "get user's documents",
-        tags: ["content"],
+    before: {
+      create: async (ctx) => {
+        const body = ctx.body as any;
+        // Convert base64 to binary if file_data exists
+        if (body.file_data) {
+          // Base64 string'i Buffer'a çevir
+          const buffer = Buffer.from(body.file_data, "base64");
+          // Binary data olarak body'ye ekle
+          body.file_data = buffer;
+        }
       },
-    }
-  );
+      update: async (ctx) => {
+        const body = ctx.body as any;
+        // Convert base64 to binary if file_data exists
+        if (body.file_data) {
+          const buffer = Buffer.from(body.file_data, "base64");
+          body.file_data = buffer;
+        }
+      },
+    },
+  })
+    .get(
+      "/documents/:id",
+      async ({ params }) => {
+        const userId = parseInt(params.id);
+        if (!userId) return { error: "Invalid user ID", data: [] };
+
+        const res = await query(
+          `SELECT id, title, description, file_url, date
+         FROM documents WHERE user_id = $1 AND deleted_at IS NULL ORDER BY date DESC`,
+          [userId]
+        );
+        return { data: res.rows };
+      },
+      {
+        detail: {
+          summary: "get user's documents",
+          tags: ["content"],
+        },
+      }
+    )
+    .get(
+      "/documents/:id/download",
+      async ({ params, set }) => {
+        const docId = parseInt(params.id);
+        if (!docId) {
+          set.status = 400;
+          return { error: "Invalid document ID" };
+        }
+
+        const res = await query(
+          `SELECT file_data, file_name, title FROM documents WHERE id = $1 AND deleted_at IS NULL`,
+          [docId]
+        );
+
+        const row = res.rows[0];
+        if (!row || !row.file_data) {
+          set.status = 404;
+          return { error: "File not found" };
+        }
+
+        const file_data = row.file_data;
+        const file_name = row.file_name as string | undefined;
+        const title = row.title as string;
+        const fileName = file_name || `${title}.bin`;
+
+        // Set appropriate headers for file download
+        set.headers["Content-Type"] = "application/octet-stream";
+        set.headers[
+          "Content-Disposition"
+        ] = `attachment; filename="${fileName}"`;
+
+        // Return binary data
+        return new Response(file_data, {
+          headers: {
+            "Content-Type": "application/octet-stream",
+            "Content-Disposition": `attachment; filename="${fileName}"`,
+          },
+        });
+      },
+      {
+        detail: {
+          summary: "Download document file",
+          tags: ["content"],
+        },
+      }
+    );
 
   const reports = createCrudRoutes({
     table: "reports",

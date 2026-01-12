@@ -12,10 +12,30 @@ const instance = axios.create({
 const TOKEN_KEY = "auth_token";
 const USER_KEY = "user_data";
 
+function getCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+
+  if (parts.length === 2) {
+    const cookieValue = parts.pop()?.split(";").shift();
+    return cookieValue ? decodeURIComponent(cookieValue) : null;
+  }
+
+  return null;
+}
+
 export const tokenManager = {
   getToken: (): string | null => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem(TOKEN_KEY);
+      let token = localStorage.getItem(TOKEN_KEY);
+
+      if (!token) {
+        token = getCookie("auth");
+      }
+
+      return token;
     }
     return null;
   },
@@ -38,7 +58,25 @@ export const tokenManager = {
 
   getUser: () => {
     if (typeof window !== "undefined") {
-      const userData = localStorage.getItem(USER_KEY);
+      // First try localStorage
+      let userData = localStorage.getItem(USER_KEY);
+
+      // If not in localStorage, try cookie
+      if (!userData) {
+        const cookieUser = getCookie("user");
+        if (cookieUser) {
+          try {
+            const user = JSON.parse(cookieUser);
+            // Cache it in localStorage for next time
+            localStorage.setItem(USER_KEY, JSON.stringify(user));
+            return user;
+          } catch (e) {
+            console.error("Failed to parse user cookie:", e);
+            return null;
+          }
+        }
+      }
+
       return userData ? JSON.parse(userData) : null;
     }
     return null;
