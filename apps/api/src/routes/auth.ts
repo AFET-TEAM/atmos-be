@@ -40,6 +40,7 @@ export const authRoutes = () =>
           team,
           directorate,
           gender,
+          job,
         } = body;
 
         try {
@@ -84,20 +85,31 @@ export const authRoutes = () =>
             teamLabel = teamRes.rows[0]?.name || null;
           }
 
+          let jobValue = null;
+          if (job) {
+            const jobRes = await query("SELECT name FROM jobs WHERE id = $1", [
+              job,
+            ]);
+            jobValue = jobRes.rows[0]?.name || null;
+          }
+
           const result = await query(
-            "INSERT INTO users (email, password, full_name, user_status_id, address, user_department, department_label, directorate, directorate_label, team, team_label, gender) VALUES ($1, $2, $3, 1, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id, email, full_name, user_department, department_label, address, user_status_id, directorate, directorate_label, team, team_label, gender, role",
+            "INSERT INTO users (email, password, full_name, user_status_id, address, user_department, department_label, directorate, directorate_label, team, team_label, gender, job, jobvalue) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING id, email, full_name, user_department, department_label, address, user_status_id, directorate, directorate_label, team, team_label, gender, role, job, jobvalue",
             [
-              email,
-              hashedPassword,
-              full_name,
-              address,
-              user_department,
-              departmentLabel,
-              directorate,
-              directorateLabel,
-              team,
-              teamLabel,
-              gender,
+              email, // $1
+              hashedPassword, // $2
+              full_name, // $3
+              1, // $4 (user_status_id)
+              address, // $5
+              user_department, // $6
+              departmentLabel, // $7
+              directorate, // $8
+              directorateLabel, // $9
+              team, // $10
+              teamLabel, // $11
+              gender, // $12
+              job, // $13
+              jobValue, // $14
             ]
           );
 
@@ -123,6 +135,8 @@ export const authRoutes = () =>
             directorate_label: newUser.directorate_label,
             team_label: newUser.team_label,
             gender: newUser.gender,
+            job: newUser.job,
+            jobValue: newUser.jobvalue,
           };
 
           const token = await jwt.sign(user);
@@ -141,8 +155,10 @@ export const authRoutes = () =>
           return { token, user };
         } catch (error) {
           console.error("Register error:", error);
+          const errorMessage =
+            error instanceof Error ? error.message : "Registration failed";
           return new Response(
-            JSON.stringify({ error: "Registration failed" }),
+            JSON.stringify({ error: errorMessage, details: String(error) }),
             { status: 500, headers: { "Content-Type": "application/json" } }
           );
         }
@@ -156,7 +172,8 @@ export const authRoutes = () =>
           user_department: t.Optional(t.Numeric()),
           team: t.Optional(t.String()),
           directorate: t.Optional(t.Numeric()),
-          gender: t.Optional(t.String()), // "male" veya "female"
+          gender: t.Optional(t.String()),
+          job: t.Optional(t.Numeric()),
         }),
         detail: { summary: "Register new user", tags: ["auth"] },
       }
@@ -169,7 +186,7 @@ export const authRoutes = () =>
 
         try {
           const result = await query(
-            "SELECT id, email, password, full_name, team, team_label, profession, profile_picture, address, connection, user_department, department_label, user_status_id, role, directorate, directorate_label, gender FROM users WHERE email = $1 AND deleted_at IS NULL",
+            "SELECT id, email, password, full_name, team, team_label, profession, profile_picture, address, connection, user_department, department_label, user_status_id, role, directorate, directorate_label, gender, job, jobvalue FROM users WHERE email = $1 AND deleted_at IS NULL",
             [email]
           );
 
@@ -217,6 +234,8 @@ export const authRoutes = () =>
             directorate: dbUser.directorate,
             directorate_label: dbUser.directorate_label,
             gender: dbUser.gender,
+            job: dbUser.job,
+            jobValue: dbUser.jobvalue,
           };
 
           const token = await jwt.sign({
@@ -235,6 +254,9 @@ export const authRoutes = () =>
             department_label: user.department_label,
             directorate_label: user.directorate_label,
             team_label: user.team_label,
+            gender: user.gender,
+            job: user.job,
+            jobValue: user.jobValue,
           });
 
           if (cookie[JWT_COOKIE]) {
@@ -244,7 +266,7 @@ export const authRoutes = () =>
               sameSite: "lax",
               path: "/",
               secure: process.env.NODE_ENV === "production",
-              maxAge: 60 * 60 * 24 * 7, // 7 gün
+              maxAge: 60 * 60 * 24 * 7,
             });
           }
 

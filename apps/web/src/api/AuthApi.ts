@@ -10,7 +10,7 @@ export async function registerUser(
   team: string | undefined,
   directorate: number,
   gender: string | undefined,
-  job: string | undefined
+  job: number | undefined
 ) {
   const response = await instance.post("/auth/register", {
     email,

@@ -11,6 +11,7 @@ import { countUserInfo } from "./routes/count";
 import { departmentsRoutes } from "./routes/department";
 import { directorateRoutes } from "./routes/directorate";
 import { filterRoutes } from "./routes/filter";
+import { jobsRoutes } from "./routes/jobs";
 import { likesRoutes } from "./routes/likes";
 import { lookupsRoutes } from "./routes/lookups";
 import { meetingsRoutes } from "./routes/meetings";
@@ -86,7 +87,8 @@ const v1 = new Elysia({ prefix: "/v1", name: "api:v1" })
   .use(TabHeaders())
   .use(announcementsRoutes())
   .use(directorateRoutes())
-  .use(filterRoutes());
+  .use(filterRoutes())
+  .use(jobsRoutes());
 
 app.use(v1);
 

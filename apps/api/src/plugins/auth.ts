@@ -14,7 +14,7 @@ export const authPlugin = new Elysia({ name: "plugin:auth" })
       exp: "7d",
     })
   )
-  // 1) derive'e generic ver: { user?: AuthUser }
+
   .derive<{ user?: AuthUser }>(async ({ headers, cookie, jwt }) => {
     const auth = headers["authorization"] || headers["Authorization"];
     let token =
@@ -42,13 +42,18 @@ export const authPlugin = new Elysia({ name: "plugin:auth" })
             connection: (payload as any).connection || undefined,
             user_department: (payload as any).user_department || undefined,
             user_status_id: (payload as any).user_status_id || undefined,
+            directorate: (payload as any).directorate || undefined,
+            department_label: (payload as any).department_label || undefined,
+            directorate_label: (payload as any).directorate_label || undefined,
+            team_label: (payload as any).team_label || undefined,
+            gender: (payload as any).gender || undefined,
+            job: String((payload as any).job || ""),
+            jobValue: String((payload as any).jobValue || ""),
           };
         }
-      } catch {
-        // invalid token -> anonymous
-      }
+      } catch {}
     }
     return { user };
   })
-  // 2) plugin olarak işaretle (tipler taşınsın)
+
   .as("scoped");

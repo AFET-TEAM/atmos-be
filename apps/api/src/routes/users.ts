@@ -26,6 +26,8 @@ export const usersRoutes = () => {
         user_status_id: t.Optional(t.Numeric()),
         role: t.Optional(t.String()),
         gender: t.Optional(t.String()),
+        job: t.Optional(t.String()),
+        jobValue: t.Optional(t.String()),
       }),
       bodyKeys: [
         "email",
@@ -43,6 +45,8 @@ export const usersRoutes = () => {
         "directorate_label",
         "role",
         "gender",
+        "job",
+        "jobValue",
       ] as const,
     },
     update: {
@@ -63,6 +67,8 @@ export const usersRoutes = () => {
           user_status_id: t.Optional(t.Numeric()),
           role: t.Optional(t.String()),
           gender: t.Optional(t.String()),
+          job: t.Optional(t.String()),
+          jobValue: t.Optional(t.String()),
         })
       ),
       bodyKeys: [
@@ -81,6 +87,8 @@ export const usersRoutes = () => {
         "directorate_label",
         "role",
         "gender",
+        "job",
+        "jobValue",
       ] as const,
       touchUpdatedAt: true,
     },
@@ -92,7 +100,6 @@ export const usersRoutes = () => {
     rbac: { can: async () => true },
   });
 
-  // /users/:id/about (1-1)
   const plugin = new Elysia({ name: "routes:users:about" })
     .get(
       "/users/:id/about",

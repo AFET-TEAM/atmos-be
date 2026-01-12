@@ -13,13 +13,14 @@ let isDropdownVisible = false;
 <section class="cards-container">
   {
     $users.map((user: any) => (
+      console.log(user),
       <a href={`/users/${user.id}`}>
         <div class="card">
           <div class="image-container">
             <UserAvatar imageSize="user-image-md" user={user} />
           </div>
           <div class="content">
-            <div class="badge">{user.profession}</div>
+            <div class="badge">{user.jobvalue}</div>
             <h3>{user.fullName}</h3>
             <div class="info">
               <Icon
