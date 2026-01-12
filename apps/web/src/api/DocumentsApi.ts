@@ -2,10 +2,11 @@ import instance from "@/axios/axiosInstance";
 
 export interface DocumentItem {
   id: number;
-  user_id: number;
+  userId: number;
   title: string;
   description: string | null;
   file_url: string | null;
+  filename?: string | null;
   date: string | null;
   created_at: string;
   updated_at: string | null;

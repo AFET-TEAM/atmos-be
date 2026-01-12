@@ -59,6 +59,7 @@ const app = new Elysia()
   });
 
 const v1 = new Elysia({ prefix: "/v1", name: "api:v1" })
+  .use(authPlugin)
   .onAfterHandle(({ set }) => {
     set.headers["x-api-version"] = "1";
   })

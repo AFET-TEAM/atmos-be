@@ -58,7 +58,7 @@ export const contentRoutes = () => {
     },
     ownerCheck: {
       ownerField: "user_id",
-      getUserId: ({ body }) => (body as any)?.user_id ?? 0,
+      getUserId: ({ user }) => user?.id ?? 0,
     },
     rbac: { can: async () => true },
   })
@@ -142,23 +142,25 @@ export const contentRoutes = () => {
     },
     ownerCheck: {
       ownerField: "user_id",
-      getUserId: ({ body }) => (body as any)?.user_id ?? 0,
+      getUserId: ({ user }) => user?.id ?? 0,
     },
-    rbac: { can: async () => true },
+    rbac: {
+      can: async (ctx) => {
+        if (ctx.user?.role === "admin") return true;
+        return true;
+      },
+    },
     before: {
       create: async (ctx) => {
         const body = ctx.body as any;
-        // Convert base64 to binary if file_data exists
+
         if (body.file_data) {
-          // Base64 string'i Buffer'a çevir
           const buffer = Buffer.from(body.file_data, "base64");
-          // Binary data olarak body'ye ekle
           body.file_data = buffer;
         }
       },
       update: async (ctx) => {
         const body = ctx.body as any;
-        // Convert base64 to binary if file_data exists
         if (body.file_data) {
           const buffer = Buffer.from(body.file_data, "base64");
           body.file_data = buffer;
@@ -211,13 +213,11 @@ export const contentRoutes = () => {
         const title = row.title as string;
         const fileName = file_name || `${title}.bin`;
 
-        // Set appropriate headers for file download
         set.headers["Content-Type"] = "application/octet-stream";
         set.headers[
           "Content-Disposition"
         ] = `attachment; filename="${fileName}"`;
 
-        // Return binary data
         return new Response(file_data, {
           headers: {
             "Content-Type": "application/octet-stream",

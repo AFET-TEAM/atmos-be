@@ -1,55 +1,10 @@
 ---
-import { getAllDocuments } from "@/api/DocumentsApi";
 import DocumentsHeader from "@/components/Documents/DocumentsHeader.svelte";
-import DynamicCard from "@/components/UI/DynamicCard.svelte";
+import DocumentsList from "@/components/Documents/DocumentsList.svelte";
 import Layout from "../../layouts/Layout.astro";
-
-const allDocuments = await getAllDocuments();
-const $admin: boolean = true;
-function onDownload(document: Document) {
-  console.log("Download document:", document);
-}
-function onUpdate(document: Document) {
-  console.log("Update document:", document);
-}
-function onDelete(documentId: string) {
-  console.log("Delete document with ID:", documentId);
-}
 ---
 
 <Layout title="Documents">
-  <DocumentsHeader client:load />
-  {
-    allDocuments.map((document: any) => (
-      <DynamicCard
-        title={document.title}
-        description={document.description}
-        owner={document.author}
-        titleHref={`/documents/${document.id}`}
-        isAdmin={$admin}
-        actions={[
-          {
-            label: "Download",
-            onClick: () => onDownload(document),
-            variant: "blue",
-            icon: "download",
-          },
-          {
-            label: "Update",
-            onClick: () => onUpdate(document),
-            variant: "green",
-            icon: "update",
-            adminOnly: true,
-          },
-          {
-            label: "Delete",
-            onClick: () => onDelete(document.id),
-            variant: "red",
-            icon: "delete",
-            adminOnly: true,
-          },
-        ]}
-      />
-    ))
-  }
+  <DocumentsHeader client:load on:documentCreated={() => window.location.reload()} />
+  <DocumentsList client:load />
 </Layout>

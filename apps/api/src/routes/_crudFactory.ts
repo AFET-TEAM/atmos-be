@@ -60,16 +60,14 @@ export type CrudFactoryOptions = {
     touchUpdatedAt?: boolean;
   };
 
-  /** Soft delete ayarı */
   softDelete?: {
-    enabled: boolean; // true -> DELETE yerine UPDATE deleted_at
-    column?: string; // varsayılan: "deleted_at"
+    enabled: boolean;
+    column?: string;
   };
 
-  /** Sahiplik kontrolü (update/delete için) */
   ownerCheck?: {
-    ownerField: string; // tabloda user_id gibi
-    getUserId: (ctx: HookCtx) => number | string; // oturumdaki kullanıcı
+    ownerField: string;
+    getUserId: (ctx: HookCtx) => number | string;
   };
 
   /** RBAC kontrolü */
@@ -150,8 +148,11 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
     return !!(await opts.rbac.can(ctx, action, table, resource));
   };
 
-  const ensureOwner = async (id: number | string) => {
+  const ensureOwner = async (id: number | string, user?: AuthUser) => {
     if (!opts.ownerCheck) return true;
+    // Admin her zaman owner kontrolünü bypass eder
+    if (user?.role === "admin") return true;
+
     const { ownerField } = opts.ownerCheck;
     const res = await query<{ [k: string]: any }>(
       `SELECT ${ownerField} FROM ${table} WHERE id=$1`,
@@ -159,7 +160,7 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
     );
     const row = res.rows[0];
     if (!row) return false;
-    const hookCtx = buildHookCtx(r, { id }, {}, undefined);
+    const hookCtx = buildHookCtx(r, { id }, {}, undefined, user);
     const currentUserId = opts.ownerCheck.getUserId(hookCtx);
     return String(row[ownerField]) === String(currentUserId);
   };
@@ -285,7 +286,7 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
 
         if (!(await checkRbac(hookCtx, "update", { id })))
           return forbidden(opts.rbac?.forbidMessage);
-        if (!(await ensureOwner(id)))
+        if (!(await ensureOwner(id, (ctx as any).user)))
           return forbidden("Only owner can update this resource");
 
         await opts.before?.update?.(hookCtx);
@@ -335,7 +336,7 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
 
       if (!(await checkRbac(hookCtx, "delete", { id })))
         return forbidden(opts.rbac?.forbidMessage);
-      if (!(await ensureOwner(id)))
+      if (!(await ensureOwner(id, (ctx as any).user)))
         return forbidden("Only owner can delete this resource");
 
       await opts.before?.delete?.(hookCtx);
