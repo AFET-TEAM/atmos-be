@@ -42,6 +42,8 @@ CREATE TABLE IF NOT EXISTS users (
   user_department VARCHAR(100),
   directorate INTEGER REFERENCES directorates(id),
   gender VARCHAR(50),
+  job VARCHAR(100),
+  jobValue VARCHAR(100) ,
   connection BOOLEAN DEFAULT FALSE,
   user_status_id INTEGER REFERENCES user_statuses(id),
   role VARCHAR(50) DEFAULT 'user',
@@ -259,6 +261,15 @@ CREATE TABLE IF NOT EXISTS departments (
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   deleted_at TIMESTAMPTZ
 );
+
+
+CREATE TABLE IF NOT EXISTS jobs (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL UNIQUE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  deleted_at TIMESTAMPTZ
+)
 
 
 -- ============================================================================
