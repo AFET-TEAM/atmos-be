@@ -9,7 +9,8 @@ export async function registerUser(
   address: string,
   team: string | undefined,
   directorate: number,
-  gender: string | undefined
+  gender: string | undefined,
+  job: string | undefined
 ) {
   const response = await instance.post("/auth/register", {
     email,
@@ -20,6 +21,7 @@ export async function registerUser(
     team,
     directorate,
     gender,
+    job,
   });
 
   return response.data;
@@ -64,5 +66,10 @@ export async function getUserInfoCount(userId: number | undefined) {
 
 export async function getDirectorates() {
   const response = await instance.get("/directorates");
+  return Array.isArray(response.data) ? response.data : [];
+}
+
+export async function getJobs() {
+  const response = await instance.get("/jobs");
   return Array.isArray(response.data) ? response.data : [];
 }
