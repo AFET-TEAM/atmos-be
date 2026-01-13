@@ -1,50 +1,88 @@
 <script lang="ts">
-  import type { CurrentUser, TechTalk, TechTalkComment } from "../types/TechTalks";
-  import "./TechtalkDetails.scss";
-  import TechTalkSideList from "../TechtalkSideList/TechtalkSideList.svelte";  
-  import Icon from "../../UI/Icon.svelte";
+  import type { Comment } from "@/api/CommentsApi";
   import {
-    addCommentWithMe,
-    updateTechTalkComment,
-    deleteTechTalkComment,
-    addTechTalkLike,
-  } from "@/api/TechTalksApi";
-  import { fetchCurrentUser } from "@/api/IdeasApi";
+    createComment,
+    deleteComment,
+    fetchComments,
+    updateComment,
+  } from "@/api/CommentsApi";
+  import { fetchLikes, toggleLike } from "@/api/LikesApi";
+  import { getUserById } from "@/api/UsersApi";
+  import { userAtom } from "@/stores/userStore";
   import { onMount } from "svelte";
+  import Icon from "../../UI/Icon.svelte";
+  import TechTalkSideList from "../TechtalkSideList/TechtalkSideList.svelte";
+  import type { TechTalk } from "../types/TechTalks";
+  import "./TechtalkDetails.scss";
 
   export let talk: TechTalk;
   export let others: TechTalk[] = [];
 
-  let comments: TechTalkComment[] = [...(talk?.comments ?? [])];
+  let comments: Comment[] = [];
   let commentText = "";
   let sending = false;
-  let likes = Number(talk?.likes ?? 0);
+  let likesCount = 0;
   let liking = false;
-  let currentUser: CurrentUser | null = null;
   let editingId: number | null = null;
   let hasLiked = false;
   let editingText = "";
+  let loading = false;
 
-  const ytMatch = talk.videoUrl?.match(
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/
+  $: currentUser = $userAtom;
+  $: isAdmin = currentUser?.role === "admin";
+
+  const videoUrl = talk.video_url || talk.videoUrl;
+  const thumbnailUrl = talk.thumbnail_url || talk.thumbnailUrl;
+
+  const ytMatch = videoUrl?.match(
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/,
   );
   const youtubeId = ytMatch ? ytMatch[1] : null;
 
   onMount(async () => {
-    currentUser = await fetchCurrentUser();
-
-    if (currentUser && talk.likedUserIds) {
-      hasLiked = talk.likedUserIds.includes(Number(currentUser.id));
-    }
+    await loadCommentsAndLikes();
   });
+
+  async function loadCommentsAndLikes() {
+    loading = true;
+    try {
+      // Yorumları yükle
+      const fetchedComments = await fetchComments("techtalk", talk.id);
+      comments = fetchedComments;
+
+      // Beğenileri yükle
+      const likes = await fetchLikes("techtalk", talk.id);
+      likesCount = likes.length;
+
+      // Kullanıcı beğenmiş mi kontrol et
+      if (currentUser) {
+        hasLiked = likes.some((like) => like.user_id === currentUser.id);
+      }
+    } catch (error) {
+      console.error("Yükleme hatası:", error);
+    } finally {
+      loading = false;
+    }
+  }
 
   async function submitComment() {
     const text = commentText.trim();
     if (!text || sending) return;
+    if (!currentUser) {
+      alert("Yorum yapmak için giriş yapmalısınız.");
+      return;
+    }
+
     sending = true;
     try {
-      const updatedTalk = await addCommentWithMe(String(talk.id), text);
-      comments = updatedTalk.comments ?? [];
+      await createComment({
+        user_id: currentUser.id,
+        target_type: "techtalk",
+        target_id: talk.id,
+        text: text,
+      });
+
+      await loadCommentsAndLikes();
       commentText = "";
     } catch (e) {
       console.error("Yorum gönderilemedi:", e);
@@ -54,9 +92,9 @@
     }
   }
 
-  function startEdit(comment: TechTalkComment) {
+  function startEdit(comment: Comment) {
     editingId = comment.id;
-    editingText = comment.comment;
+    editingText = comment.text;
   }
 
   function cancelEdit() {
@@ -70,11 +108,8 @@
 
     sending = true;
     try {
-      const updatedTalk = await updateTechTalkComment(String(talk.id), commentId, {
-        comment: text,
-        date: new Date().toISOString().slice(0, 10),
-      });
-      comments = updatedTalk.comments ?? [];
+      await updateComment(commentId, text);
+      await loadCommentsAndLikes();
       editingId = null;
       editingText = "";
     } catch (e) {
@@ -90,8 +125,8 @@
 
     sending = true;
     try {
-      const updatedTalk = await deleteTechTalkComment(String(talk.id), commentId);
-      comments = updatedTalk.comments ?? [];
+      await deleteComment(commentId);
+      await loadCommentsAndLikes();
     } catch (e) {
       console.error("Yorum silinemedi:", e);
       alert("Yorum silinemedi.");
@@ -100,7 +135,7 @@
     }
   }
 
- async function handleLike() {
+  async function handleLike() {
     if (liking) return;
     if (!currentUser) {
       alert("Beğenmek için giriş yapmalısın.");
@@ -108,22 +143,25 @@
     }
 
     liking = true;
-
     try {
-      const updatedTalk = await addTechTalkLike(String(talk.id));
-      likes = Number(updatedTalk.likes ?? likes);
+      await toggleLike({
+        user_id: currentUser.id,
+        target_type: "techtalk",
+        target_id: talk.id,
+      });
 
-      if (updatedTalk.likedUserIds) {
-        hasLiked = updatedTalk.likedUserIds.includes(
-          Number(currentUser.id)
-        );
-      }
+      await loadCommentsAndLikes();
     } catch (e) {
       console.error("Beğeni gönderilemedi:", e);
       alert("Beğeni gönderilemedi.");
     } finally {
       liking = false;
     }
+  }
+
+  function canEditDelete(comment: Comment): boolean {
+    if (!currentUser) return false;
+    return isAdmin || comment.user_id === currentUser.id;
   }
 </script>
 
@@ -139,11 +177,11 @@
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowfullscreen
         ></iframe>
-      {:else if talk.thumbnailUrl}
+      {:else if thumbnailUrl}
         <div class="thumb-wrap">
-          <img class="thumb" src={talk.thumbnailUrl} alt={talk.title} />
+          <img class="thumb" src={thumbnailUrl} alt={talk.title} />
           <div class="play-badge">
-            <Icon name="play" width={78} height={78}/>
+            <Icon name="play" width={78} height={78} />
           </div>
         </div>
       {:else}
@@ -151,11 +189,10 @@
       {/if}
     </div>
 
-    
     <div class="titlebar">
       <h1 class="title">{talk.title}</h1>
-    
-       <div class="title-stats" aria-label="İstatistikler">
+
+      <div class="title-stats" aria-label="İstatistikler">
         <button
           type="button"
           class={`stat like-btn ${hasLiked ? "liked" : ""}`}
@@ -163,7 +200,7 @@
           disabled={liking}
         >
           <Icon name="like" />
-          <span>{likes}</span>
+          <span>{likesCount}</span>
         </button>
 
         <div class="stat" title="Yorum sayısı">
@@ -175,20 +212,30 @@
 
     <div class="meta">
       <img class="avatar" src="/avatar-placeholder.png" alt="" />
-        <div class="owner">
-          <div class="owner-name">{talk.owner}</div>
-          <div class="date-group">
-            <span class="date-icon" > <Icon name="clock" width={14} height={14} /> </span>
-            <span class="date" > {talk.date} </span>   
-          </div>
+      <div class="owner">
+        {#await getUserById(talk.userId || talk.user_id)}
+          <div class="owner-name">Yükleniyor...</div>
+        {:then user}
+          <div class="owner-name">{user?.fullName || "Bilinmeyen"}</div>
+        {/await}
+        <div class="date-group">
+          <span class="date-icon">
+            <Icon name="clock" width={14} height={14} />
+          </span>
+          <span class="date">
+            {talk.date && talk.date !== ""
+              ? new Date(talk.date).toLocaleDateString("tr-TR")
+              : "-"}
+          </span>
         </div>
+      </div>
     </div>
 
     <div class="comment-input">
       <span class="ci-icon" aria-hidden="true">
         <Icon name="pencil" width={14} height={14} />
       </span>
-    
+
       <input
         placeholder="Yorum yaz..."
         bind:value={commentText}
@@ -200,7 +247,7 @@
           }
         }}
       />
-      
+
       <button
         class="send-btn"
         type="button"
@@ -213,63 +260,67 @@
     </div>
 
     <div class="comments">
-    {#if comments.length > 0}
-      {#each comments as c (c.id)}
-        <div class="comment">
-          <div class="comment-head">
-            {#if editingId === c.id}
-              <input
-                class="comment-edit-input"
-                bind:value={editingText}
-              />
-              <div class="comment-edit-actions">
-                <button type="button" on:click={() => saveEdit(c.id)}>Kaydet</button>
-                <button type="button" on:click={cancelEdit}>Vazgeç</button>
-              </div>
-            {:else}
-              <p>{c.comment}</p>
-            {/if}
-          </div>
-        
-          <div class="comment-info">
-            <div class="comment-user">
-              <Icon name="users" />
-              <p>{c.userName}</p>
+      {#if loading}
+        <div class="empty-player">Yorumlar yükleniyor...</div>
+      {:else if comments.length > 0}
+        {#each comments as c (c.id)}
+          <div class="comment">
+            <div class="comment-head">
+              {#if editingId === c.id}
+                <input class="comment-edit-input" bind:value={editingText} />
+                <div class="comment-edit-actions">
+                  <button type="button" on:click={() => saveEdit(c.id)}
+                    >Kaydet</button
+                  >
+                  <button type="button" on:click={cancelEdit}>Vazgeç</button>
+                </div>
+              {:else}
+                <p>{c.text}</p>
+              {/if}
             </div>
-          
-            <div class="comment-date">
-              <Icon name="clock" />
-              <span>{c.date}</span>
-            </div>
-          
-            {#if currentUser && Number(currentUser.id) === c.userId}
-              <div class="comment-actions">
-                <button
-                  type="button"
-                  class="icon-btn edit-btn"
-                  on:click={() => startEdit(c)}
-                >
-                  <Icon name="pencil" width={14} height={14} />
-                </button>
-                <button
-                  type="button"
-                  class="icon-btn delete-btn"
-                  on:click={() => handleDelete(c.id)}
-                >
-                  <Icon name="delete" width={14} height={14} />
-                </button>
-              </div>
-            {/if}
-          </div>
-        </div>
-      {/each}
-    {:else}
-      <div class="empty-player">Henüz yorum yok</div>
-    {/if}
-  </div>
 
+            <div class="comment-info">
+              <div class="comment-user">
+                <Icon name="users" />
+                {#await getUserById(c.user_id)}
+                  <p>Yükleniyor...</p>
+                {:then user}
+                  <p>{user?.fullName || "Bilinmeyen"}</p>
+                {/await}
+              </div>
+
+              <div class="comment-date">
+                <Icon name="clock" />
+                <span>{new Date(c.created_at).toLocaleDateString("tr-TR")}</span
+                >
+              </div>
+
+              {#if canEditDelete(c)}
+                <div class="comment-actions">
+                  <button
+                    type="button"
+                    class="icon-btn edit-btn"
+                    on:click={() => startEdit(c)}
+                  >
+                    <Icon name="pencil" width={14} height={14} />
+                  </button>
+                  <button
+                    type="button"
+                    class="icon-btn delete-btn"
+                    on:click={() => handleDelete(c.id)}
+                  >
+                    <Icon name="delete" width={14} height={14} />
+                  </button>
+                </div>
+              {/if}
+            </div>
+          </div>
+        {/each}
+      {:else}
+        <div class="empty-player">Henüz yorum yok</div>
+      {/if}
+    </div>
   </section>
 
   <TechTalkSideList items={others} activeId={Number(talk.id)} />
-  
 </div>

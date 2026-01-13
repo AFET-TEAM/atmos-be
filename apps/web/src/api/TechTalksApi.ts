@@ -25,7 +25,7 @@ export async function updateTechTalk(
   id: number,
   payload: Partial<TechTalk>
 ): Promise<TechTalk> {
-  const { data } = await instance.put<TechTalk>(`/techtalks/${id}`, payload);
+  const { data } = await instance.patch<TechTalk>(`/techtalks/${id}`, payload);
   return data;
 }
 

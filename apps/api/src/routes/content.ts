@@ -19,6 +19,7 @@ export const contentRoutes = () => {
         duration_min: t.Optional(t.Numeric()),
         video_url: t.Optional(t.String()),
         thumbnail_url: t.Optional(t.String()),
+        teams_room_url: t.Optional(t.String()),
         date: t.Optional(t.String()),
       }),
       bodyKeys: [
@@ -29,6 +30,7 @@ export const contentRoutes = () => {
         "duration_min",
         "video_url",
         "thumbnail_url",
+        "teams_room_url",
         "date",
       ] as const,
     },
@@ -42,6 +44,7 @@ export const contentRoutes = () => {
           duration_min: t.Optional(t.Numeric()),
           video_url: t.Optional(t.String()),
           thumbnail_url: t.Optional(t.String()),
+          teams_room_url: t.Optional(t.String()),
           date: t.Optional(t.String()),
         })
       ),
@@ -53,6 +56,7 @@ export const contentRoutes = () => {
         "duration_min",
         "video_url",
         "thumbnail_url",
+        "teams_room_url",
         "date",
       ] as const,
     },

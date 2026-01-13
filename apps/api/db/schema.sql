@@ -137,6 +137,7 @@ CREATE TABLE IF NOT EXISTS techtalks (
   duration_min INTEGER,
   video_url TEXT,
   thumbnail_url TEXT,
+  teams_room_url TEXT,
   date TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),

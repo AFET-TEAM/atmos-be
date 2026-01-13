@@ -9,14 +9,17 @@
   import { createEventDispatcher } from "svelte";
   const dispatch = createEventDispatcher<{
     close: void;
-    submit: { id?: number; payload: {
-      title: string;
-      description: string; 
-      owner: string;
-      thumbnailUrl: string;
-      videoUrl: string;
-      location: string
-    }};
+    submit: {
+      id?: number;
+      payload: {
+        title: string;
+        description: string;
+        thumbnailUrl: string;
+        teamsRoomUrl: string;
+        videoUrl: string;
+        location: string;
+      };
+    };
   }>();
 
   type Field = {
@@ -29,18 +32,58 @@
     autoFocus?: boolean;
   };
 
-  type SubmitValues = Record<string, string | number>;
+  type SubmitValues = Record<string, string | number | File | null>;
 
   $: modalTitle = talkToEdit ? "TechTalk Güncelle" : "Yeni TechTalk Ekle";
   $: submitLabel = talkToEdit ? "Güncelle" : "Kaydet";
 
   $: fields = [
-    { key: "title", label: "Başlık", required: true,  value: talkToEdit?.title ?? "", autoFocus: true },
-    { key: "description", label: "Açıklama", required: true,  value: talkToEdit?.description ?? "", type: "textarea", placeholder: "Kısa açıklama..." },
-    { key: "owner", label: "Konuşmacı", required: true,  value: talkToEdit?.owner ?? "" },
-    { key: "location", label: "Lokasyon", required: true, value: talkToEdit?.location ?? "", placeholder: "Örn: Online"},
-    { key: "thumbnailUrl", label: "Thumbnail URL", required: false,  value: talkToEdit?.thumbnailUrl ?? "", type: "url", placeholder: "https://..." },
-    { key: "videoUrl", label: "Video URL", required: true,  value: talkToEdit?.videoUrl ?? "", type: "url", placeholder: "https://youtu.be/..." }
+    {
+      key: "title",
+      label: "Başlık",
+      required: true,
+      value: talkToEdit?.title ?? "",
+      autoFocus: true,
+    },
+    {
+      key: "description",
+      label: "Açıklama",
+      required: true,
+      value: talkToEdit?.description ?? "",
+      type: "textarea",
+      placeholder: "Kısa açıklama...",
+    },
+    {
+      key: "location",
+      label: "Lokasyon",
+      required: true,
+      value: talkToEdit?.location ?? "",
+      placeholder: "Örn: Online",
+    },
+    {
+      key: "thumbnailUrl",
+      label: "Thumbnail URL",
+      required: false,
+      value: (talkToEdit?.thumbnail_url || talkToEdit?.thumbnailUrl) ?? "",
+      type: "url",
+      placeholder: "https://...",
+    },
+    {
+      key: "teamsRoomUrl",
+      label: "Teams Oda URL",
+      required: false,
+      value: talkToEdit?.teams_room_url ?? "",
+      type: "url",
+      placeholder: "https://teams.microsoft.com/...",
+    },
+    {
+      key: "videoUrl",
+      label: "Video URL",
+      required: true,
+      value: (talkToEdit?.video_url || talkToEdit?.videoUrl) ?? "",
+      type: "url",
+      placeholder: "https://youtu.be/...",
+    },
   ] satisfies Field[];
 
   function handleInnerSubmit(e: CustomEvent<SubmitValues>) {
@@ -48,21 +91,21 @@
     const payload = {
       title: String(v.title ?? ""),
       description: String(v.description ?? ""),
-      owner: String(v.owner ?? ""),
       location: String(v.location ?? ""),
       thumbnailUrl: String(v.thumbnailUrl ?? ""),
-      videoUrl: String(v.videoUrl ?? "")
+      teamsRoomUrl: String(v.teamsRoomUrl ?? ""),
+      videoUrl: String(v.videoUrl ?? ""),
     };
     dispatch("submit", { id: talkToEdit?.id, payload });
   }
 </script>
 
 <FormModal
-  {open} 
+  {open}
   {saving}
   title={modalTitle}
   {fields}
-  submitLabel={submitLabel}
+  {submitLabel}
   cancelLabel="İptal"
   on:close={() => dispatch("close")}
   on:submit={handleInnerSubmit}
