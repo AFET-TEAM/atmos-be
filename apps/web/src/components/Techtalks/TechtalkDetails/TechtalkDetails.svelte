@@ -76,7 +76,6 @@
     sending = true;
     try {
       await createComment({
-        user_id: currentUser.id,
         target_type: "techtalk",
         target_id: talk.id,
         text: text,
@@ -145,7 +144,6 @@
     liking = true;
     try {
       await toggleLike({
-        user_id: currentUser.id,
         target_type: "techtalk",
         target_id: talk.id,
       });

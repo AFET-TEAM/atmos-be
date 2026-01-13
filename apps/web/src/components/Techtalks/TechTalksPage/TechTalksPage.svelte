@@ -123,12 +123,12 @@
       currentUserId === talk.userId || currentUserId === talk.user_id;
 
     return [
-      {
-        label: "Görüntüle",
-        onClick: () => (window.location.href = `/techtalks/${talk.id}`),
-        variant: "blue" as const,
-        icon: "download" as const,
-      },
+      // {
+      //   label: "Görüntüle",
+      //   onClick: () => (window.location.href = `/techtalks/${talk.id}`),
+      //   variant: "blue" as const,
+      //   icon: "download" as const,
+      // },
       {
         label: "Güncelle",
         onClick: () => handleUpdate(talk),
@@ -166,7 +166,6 @@
         <DynamicCard
           imgSrc={talk.thumbnailUrl || talk.thumbnail_url || ""}
           title={talk.title}
-          titleHref={`/techtalks/${talk.id}`}
           description={talk.description || ""}
           owner={talk.userId?.toString() || talk.user_id?.toString() || ""}
           {isAdmin}
