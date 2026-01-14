@@ -21,6 +21,9 @@ export const contentRoutes = () => {
         thumbnail_url: t.Optional(t.String()),
         teams_room_url: t.Optional(t.String()),
         date: t.Optional(t.String()),
+        selected_date: t.Optional(t.String()),
+        selected_time: t.Optional(t.String()),
+        cloud_drive_link: t.Optional(t.String()),
       }),
       bodyKeys: [
         "user_id",
@@ -32,6 +35,9 @@ export const contentRoutes = () => {
         "thumbnail_url",
         "teams_room_url",
         "date",
+        "selected_date",
+        "selected_time",
+        "cloud_drive_link",
       ] as const,
     },
     update: {
@@ -46,6 +52,9 @@ export const contentRoutes = () => {
           thumbnail_url: t.Optional(t.String()),
           teams_room_url: t.Optional(t.String()),
           date: t.Optional(t.String()),
+          selected_date: t.Optional(t.String()),
+          selected_time: t.Optional(t.String()),
+          cloud_drive_link: t.Optional(t.String()),
         })
       ),
       bodyKeys: [
@@ -58,6 +67,9 @@ export const contentRoutes = () => {
         "thumbnail_url",
         "teams_room_url",
         "date",
+        "selected_date",
+        "selected_time",
+        "cloud_drive_link",
       ] as const,
     },
     ownerCheck: {
@@ -68,10 +80,10 @@ export const contentRoutes = () => {
   })
     .get("/lastTechTalks", async () => {
       const res = await query(`
-        SELECT id, title, description, date, video_url, thumbnail_url
+        SELECT id, title, description, date, video_url, thumbnail_url, location, duration_min, selected_date, selected_time, cloud_drive_link
         FROM techtalks
         WHERE deleted_at IS NULL
-        ORDER BY date DESC
+        ORDER BY ABS(EXTRACT(EPOCH FROM (date::TIMESTAMPTZ - NOW())))
         LIMIT 1
       `);
       return res.rows[0];
@@ -110,6 +122,7 @@ export const contentRoutes = () => {
         file_url: t.Optional(t.String()),
         file_data: t.Optional(t.String()),
         file_name: t.Optional(t.String()),
+        content: t.Optional(t.String()),
         date: t.Optional(t.String()),
       }),
       bodyKeys: [
@@ -120,6 +133,7 @@ export const contentRoutes = () => {
         "file_data",
         "file_name",
         "date",
+        "content",
       ] as const,
     },
     update: {
@@ -132,6 +146,7 @@ export const contentRoutes = () => {
           file_data: t.Optional(t.String()),
           file_name: t.Optional(t.String()),
           date: t.Optional(t.String()),
+          content: t.Optional(t.String()),
         })
       ),
       bodyKeys: [
@@ -141,6 +156,7 @@ export const contentRoutes = () => {
         "file_url",
         "file_data",
         "file_name",
+        "content",
         "date",
       ] as const,
     },
@@ -179,7 +195,7 @@ export const contentRoutes = () => {
         if (!userId) return { error: "Invalid user ID", data: [] };
 
         const res = await query(
-          `SELECT id, title, description, file_url, date
+          `SELECT id, title, description, file_url, date, content
          FROM documents WHERE user_id = $1 AND deleted_at IS NULL ORDER BY date DESC`,
           [userId]
         );

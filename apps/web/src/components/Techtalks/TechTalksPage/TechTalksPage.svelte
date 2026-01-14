@@ -94,11 +94,9 @@
       };
 
       if (id) {
-        // Güncelleme
         const updated = await updateTechTalk(id, base);
         talks = talks.map((t) => (t.id === id ? updated : t));
       } else {
-        // Yeni oluşturma
         const newTalk = await createTechTalk(base);
         talks = [...talks, newTalk];
       }

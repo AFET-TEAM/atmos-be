@@ -26,6 +26,14 @@ CREATE TABLE IF NOT EXISTS idea_assignees (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS directorates (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL UNIQUE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  deleted_at TIMESTAMPTZ
+);
+
 -- ============================================================================
 -- 2. CORE TABLES (Ana Tablolar)
 -- ============================================================================
@@ -34,13 +42,17 @@ CREATE TABLE IF NOT EXISTS idea_assignees (
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
   email VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL DEFAULT '',
   full_name VARCHAR(255) NOT NULL,
   team VARCHAR(100),
+  team_label VARCHAR(100),
   profession VARCHAR(100),
   profile_picture TEXT,
   address TEXT,
   user_department VARCHAR(100),
+  department_label VARCHAR(100),
   directorate INTEGER REFERENCES directorates(id),
+  directorate_label VARCHAR(100),
   gender VARCHAR(50),
   job VARCHAR(100),
   jobValue VARCHAR(100) ,
@@ -55,7 +67,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- About Me (1-1 ilişki users ile)
 CREATE TABLE IF NOT EXISTS about_me (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
   title VARCHAR(255),
   description TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -139,6 +151,9 @@ CREATE TABLE IF NOT EXISTS techtalks (
   thumbnail_url TEXT,
   teams_room_url TEXT,
   date TIMESTAMPTZ,
+  selected_date VARCHAR(100),
+  selected_time VARCHAR(100),
+  cloud_drive_link TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   deleted_at TIMESTAMPTZ
@@ -151,6 +166,9 @@ CREATE TABLE IF NOT EXISTS documents (
   title VARCHAR(255) NOT NULL,
   description TEXT,
   file_url TEXT,
+  file_data BYTEA,
+  file_name VARCHAR(255),
+  content TEXT,
   date TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -228,8 +246,8 @@ CREATE TABLE IF NOT EXISTS likes (
   user_id INTEGER NOT NULL REFERENCES users(id),
   target_type VARCHAR(50) NOT NULL,
   target_id INTEGER NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-  -- NOT: likes tablosunda deleted_at YOK (soft delete disabled)
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, target_type, target_id)
 );
 
 
@@ -245,34 +263,6 @@ CREATE TABLE IF NOT EXISTS announcements (
 );
 
 
---directorates
-CREATE TABLE IF NOT EXISTS directorates (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL UNIQUE,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  deleted_at TIMESTAMPTZ
-);
-
--- departments
-CREATE TABLE IF NOT EXISTS departments (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL UNIQUE,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  deleted_at TIMESTAMPTZ
-);
-
-
-CREATE TABLE IF NOT EXISTS jobs (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL UNIQUE,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  deleted_at TIMESTAMPTZ
-)
-
-
 -- ============================================================================
 -- 5. INDEXES (Performans için indexler)
 -- ============================================================================
@@ -280,6 +270,7 @@ CREATE TABLE IF NOT EXISTS jobs (
 -- Users indexes
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_deleted_at ON users(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_users_password ON users(password);
 
 -- About Me indexes
 CREATE INDEX IF NOT EXISTS idx_about_me_user_id ON about_me(user_id);
@@ -327,7 +318,7 @@ CREATE INDEX IF NOT EXISTS idx_ideas_deleted_at ON ideas(deleted_at);
 
 CREATE INDEX IF NOT EXISTS idx_departments_deleted_at ON departments(deleted_at);
 CREATE INDEX IF NOT EXISTS idx_directorates_name ON directorates(name);
-
+CREATE INDEX IF NOT EXISTS idx_directorates_deleted_at ON directorates(deleted_at);
 
 -- Comments indexes
 CREATE INDEX IF NOT EXISTS idx_comments_user_id ON comments(user_id);
@@ -338,9 +329,9 @@ CREATE INDEX IF NOT EXISTS idx_comments_deleted_at ON comments(deleted_at);
 -- Likes indexes
 CREATE INDEX IF NOT EXISTS idx_likes_user_id ON likes(user_id);
 CREATE INDEX IF NOT EXISTS idx_likes_target ON likes(target_type, target_id);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_likes_unique ON likes(user_id, target_type, target_id);
 
 CREATE INDEX IF NOT EXISTS idx_announcements_created_by ON announcements(created_by);
+CREATE INDEX IF NOT EXISTS idx_announcements_deleted_at ON announcements(deleted_at);
 
 -- ============================================================================
 -- 6. SEED DATA (Başlangıç Verileri)
