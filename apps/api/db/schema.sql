@@ -130,6 +130,7 @@ CREATE TABLE IF NOT EXISTS tasks (
   task_status_id INTEGER REFERENCES task_statuses(id),
   related_type VARCHAR(50), -- 'techtalk', 'document', 'report', 'idea', 'meeting'
   related_id INTEGER,
+  status BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   deleted_at TIMESTAMPTZ
@@ -231,10 +232,10 @@ CREATE TABLE IF NOT EXISTS departments (
 CREATE TABLE IF NOT EXISTS comments (
   id SERIAL PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id),
-  target_type VARCHAR(50) NOT NULL, -- 'techtalk', 'document', 'report', 'idea', vb.
+  target_type VARCHAR(50) NOT NULL,
   target_id INTEGER NOT NULL,
   text TEXT NOT NULL,
-  parent_id INTEGER REFERENCES comments(id), -- İç içe yorumlar için
+  parent_id INTEGER REFERENCES comments(id),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   deleted_at TIMESTAMPTZ
