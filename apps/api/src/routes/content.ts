@@ -24,6 +24,7 @@ export const contentRoutes = () => {
         selected_date: t.Optional(t.String()),
         selected_time: t.Optional(t.String()),
         cloud_drive_link: t.Optional(t.String()),
+        status: t.Optional(t.String()),
       }),
       bodyKeys: [
         "user_id",
@@ -38,6 +39,7 @@ export const contentRoutes = () => {
         "selected_date",
         "selected_time",
         "cloud_drive_link",
+        "status",
       ] as const,
     },
     update: {
@@ -55,6 +57,7 @@ export const contentRoutes = () => {
           selected_date: t.Optional(t.String()),
           selected_time: t.Optional(t.String()),
           cloud_drive_link: t.Optional(t.String()),
+          status: t.Optional(t.String()),
         })
       ),
       bodyKeys: [
@@ -70,6 +73,7 @@ export const contentRoutes = () => {
         "selected_date",
         "selected_time",
         "cloud_drive_link",
+        "status",
       ] as const,
     },
     ownerCheck: {
@@ -80,11 +84,11 @@ export const contentRoutes = () => {
   })
     .get("/lastTechTalks", async () => {
       const res = await query(`
-        SELECT id, title, description, date, video_url, thumbnail_url, location, duration_min, selected_date, selected_time, cloud_drive_link
+        SELECT id, title, description, date, video_url, thumbnail_url, location, duration_min, selected_date, selected_time, cloud_drive_link, status
         FROM techtalks
         WHERE deleted_at IS NULL
         ORDER BY ABS(EXTRACT(EPOCH FROM (date::TIMESTAMPTZ - NOW())))
-        LIMIT 1
+        LIMIT 3
       `);
       return res.rows[0];
     })
