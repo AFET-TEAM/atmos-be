@@ -152,9 +152,7 @@ CREATE TABLE IF NOT EXISTS techtalks (
   thumbnail_url TEXT,
   teams_room_url TEXT,
   date TIMESTAMPTZ,
-  selected_date VARCHAR(100),
-  selected_time VARCHAR(100),
-  cloud_drive_link TEXT,
+  status BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   deleted_at TIMESTAMPTZ

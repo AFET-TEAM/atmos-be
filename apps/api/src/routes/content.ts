@@ -21,10 +21,8 @@ export const contentRoutes = () => {
         thumbnail_url: t.Optional(t.String()),
         teams_room_url: t.Optional(t.String()),
         date: t.Optional(t.String()),
-        selected_date: t.Optional(t.String()),
-        selected_time: t.Optional(t.String()),
-        cloud_drive_link: t.Optional(t.String()),
-        status: t.Optional(t.String()),
+        time: t.Optional(t.String()),
+        status: t.Optional(t.Boolean()),
       }),
       bodyKeys: [
         "user_id",
@@ -36,9 +34,7 @@ export const contentRoutes = () => {
         "thumbnail_url",
         "teams_room_url",
         "date",
-        "selected_date",
-        "selected_time",
-        "cloud_drive_link",
+        "time",
         "status",
       ] as const,
     },
@@ -54,10 +50,8 @@ export const contentRoutes = () => {
           thumbnail_url: t.Optional(t.String()),
           teams_room_url: t.Optional(t.String()),
           date: t.Optional(t.String()),
-          selected_date: t.Optional(t.String()),
-          selected_time: t.Optional(t.String()),
-          cloud_drive_link: t.Optional(t.String()),
-          status: t.Optional(t.String()),
+          time: t.Optional(t.String()),
+          status: t.Optional(t.Boolean()),
         })
       ),
       bodyKeys: [
@@ -70,9 +64,7 @@ export const contentRoutes = () => {
         "thumbnail_url",
         "teams_room_url",
         "date",
-        "selected_date",
-        "selected_time",
-        "cloud_drive_link",
+        "time",
         "status",
       ] as const,
     },
@@ -82,16 +74,25 @@ export const contentRoutes = () => {
     },
     rbac: { can: async () => true },
   })
-    .get("/lastTechTalks", async () => {
-      const res = await query(`
-        SELECT id, title, description, date, video_url, thumbnail_url, location, duration_min, selected_date, selected_time, cloud_drive_link, status
+    .get(
+      "/lastTechTalks",
+      async () => {
+        const res = await query(`
+        SELECT id, title, description, date, video_url, thumbnail_url, location, duration_min, status
         FROM techtalks
-        WHERE deleted_at IS NULL
+        WHERE deleted_at IS NULL AND date IS NOT NULL
         ORDER BY ABS(EXTRACT(EPOCH FROM (date::TIMESTAMPTZ - NOW())))
         LIMIT 3
       `);
-      return res.rows[0];
-    })
+        return { data: res.rows };
+      },
+      {
+        detail: {
+          summary: "get last tech talks",
+          tags: ["content"],
+        },
+      }
+    )
     .get(
       "/techtalks/:id",
       async ({ params }) => {
@@ -99,7 +100,7 @@ export const contentRoutes = () => {
         if (!userId) return { error: "Invalid user ID", data: [] };
 
         const res = await query(
-          `SELECT id, title, description, date, video_url, thumbnail_url, location, duration_min
+          `SELECT id, title, description, date, video_url, thumbnail_url, location, duration_min, status
            FROM techtalks WHERE user_id = $1 AND deleted_at IS NULL ORDER BY date DESC`,
           [userId]
         );
