@@ -75,7 +75,7 @@ export const directorateRoutes = () =>
       async ({ body }) => {
         const { directorate } = body as any;
         const result = await query(
-          "INSERT INTO directorates (name, created_at) VALUES ($1, NOW()) RETURNING id, name, created_at",
+          "INSERT INTO directorates (name) VALUES ($1) RETURNING id, name, created_at",
           [directorate]
         );
         const row = result.rows[0];
@@ -85,7 +85,6 @@ export const directorateRoutes = () =>
         return {
           id: Number(row.id),
           name: String(row.name),
-          created_at: String(row.created_at),
         };
       },
       {
@@ -95,7 +94,6 @@ export const directorateRoutes = () =>
         response: t.Object({
           id: t.Number(),
           name: t.String(),
-          created_at: t.String(),
         }),
         detail: { summary: "Create a new directorate", tags: ["directorates"] },
       }
