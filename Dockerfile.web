@@ -2,8 +2,8 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# PNPM kurulumu
-RUN npm install -g pnpm
+# PNPM kurulumu - Daha stabil bir yöntem kullan
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Dosyaları kopyala
 COPY package.json pnpm-lock.yaml* ./
@@ -28,8 +28,8 @@ RUN pnpm --filter atos build
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-# PNPM kurulumu
-RUN npm install -g pnpm
+# PNPM kurulumu - Daha stabil bir yöntem kullan
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
