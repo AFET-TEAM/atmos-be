@@ -1,5 +1,55 @@
-.techtalk-card {
+.techtalks-slider-root {
   position: relative;
+  width: 100%;
+  padding-bottom: 32px;
+}
+
+.techtalk-dots {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 0;
+}
+
+.techtalk-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  border: none;
+  background: #ddd;
+  padding: 0;
+  cursor: pointer;
+}
+
+.techtalk-dot.is-active {
+  width: 16px;
+  background: $primary;
+}
+
+.techtalks-slider-viewport {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.techtalks-slider-track {
+  display: flex;
+  flex-wrap: nowrap;
+  transition: transform 0.6s ease;
+}
+
+.techtalk-card {
+  flex: 0 0 100%;
+  max-width: 100%;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  padding-bottom: 8px;
 
   .card-image-container {
     width: 100%;
@@ -9,14 +59,15 @@
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
+    position: relative;
 
     .card-image {
-      margin-top: 40px;
       width: 90%;
       height: 80%;
-      object-fit: cover;
+      object-fit: initial;
       border-radius: 8px;
     }
+
     .tech-talk-badge {
       @include badges(
         $position: absolute,
@@ -94,5 +145,63 @@
         }
       }
     }
+  }
+}
+
+.techtalk-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: none;
+  background: #ffffffdd;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  line-height: 1;
+  z-index: 5;
+
+  &:hover {
+    background: #ffffff;
+  }
+}
+
+.techtalk-arrow--prev {
+  left: 12px;
+}
+
+.techtalk-arrow--next {
+  right: 12px;
+}
+
+.techtalk-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.techtalk-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  border: none;
+  background: #ddd;
+  padding: 0;
+  cursor: pointer;
+}
+
+.techtalk-dot.is-active {
+  width: 16px;
+  background: $primary;
+}
+
+@media (max-width: 768px) {
+  .techtalk-card {
+    border-radius: 12px;
   }
 }

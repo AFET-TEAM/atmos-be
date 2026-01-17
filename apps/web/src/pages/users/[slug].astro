@@ -1,36 +1,54 @@
 ---
-import { getUserById, getUserMeetings } from "@/api/UsersApi";
 import MeetList from "@/components/Users/MeetList/MeetList.astro";
 import TabsWrapper from "@/components/Users/TabMenu/TabsWrapper.svelte";
 import UserMembers from "@/components/Users/UserMembers/UserMembers.astro";
 import UserProfileCard from "@/components/Users/UserProfileCard/UserProfileCard.astro";
 import Layout from "../../layouts/Layout.astro";
 import "./_users.scss";
-const { slug } = Astro.params;
 
+import { getUserById, getUserMeetings } from "@/api/UsersApi";
 
+const slugParam = Astro.params.slug;
 
-const $user = await getUserById(slug)
-const userMeetings = await getUserMeetings(slug);
+if (!slugParam) {
+  throw new Error("Geçersiz kullanıcı slug");
+}
 
-const $meets = userMeetings?.map((meet: any) => ({
+const decodedSlug = decodeURIComponent(slugParam);
+
+const lastDashIndex = decodedSlug.lastIndexOf("-");
+if (lastDashIndex === -1) {
+  throw new Error("Geçersiz kullanıcı slug");
+}
+
+const idEncoded = decodedSlug.slice(lastDashIndex + 1);
+
+const idString = Buffer.from(idEncoded, "base64").toString("utf8");
+const userId = Number(idString);
+
+if (!userId || Number.isNaN(userId)) {
+  throw new Error("Geçersiz kullanıcı id");
+}
+
+const user = await getUserById(String(userId));
+
+const userMeetings = await getUserMeetings(String(userId));
+
+const meets = userMeetings?.map((meet: any) => ({
   ...meet,
   title: meet.title,
   time: meet.time,
 }));
-
-
 ---
 
 <Layout title="User Detail">
-
   <header class="page-top">
-    <UserProfileCard user={$user} />
-    <UserMembers user={$user} />
+    <UserProfileCard user={user} />
+    <UserMembers user={user} />
   </header>
 
   <main class="page-content">
-    <MeetList meets={$meets} />
-    <TabsWrapper userId={slug} client:load />
+    <MeetList meets={meets} />
+    <TabsWrapper userId={String(userId)} client:load />
   </main>
 </Layout>

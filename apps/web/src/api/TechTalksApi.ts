@@ -44,9 +44,11 @@ export async function putTechTalk(
   return data;
 }
 
-export async function fetchLastTechTalk() {
-  const { data } = await instance.get<TechTalk>("/lastTechTalks");
-  return data;
+export async function fetchLastTechTalk(): Promise<TechTalk[]> {
+  const { data } = await instance.get<{ data: TechTalk[] }>("/lastTechTalks");
+
+  console.log("Fetched last TechTalks:", data);
+  return data.data;
 }
 
 export async function addTechTalkComment(
