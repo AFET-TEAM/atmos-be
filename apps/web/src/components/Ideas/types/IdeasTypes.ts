@@ -26,3 +26,18 @@ export type CurrentUser = {
   name: string;
   role: Role;
 };
+
+export type RawIdeaFromApi = {
+  id: number;
+  userId: number;
+  title: string;
+  description: string;
+  fileUrl: string;
+  frontendCount: number;
+  backendCount: number;
+  ideaAssigneeId: number;
+  date: string;
+  approvedBy?: string[];
+  frontendParticipants?: string[];
+  backendParticipants?: string[];
+};
