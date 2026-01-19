@@ -1,6 +1,5 @@
 ---
 import { getUser } from '@/stores/userStore';
-import Icon from "public/icons/icon.astro";
 import LogoutButton from "../LogoutButton.svelte";
 import NotificationHeader from "../NotificationHeader/NotificationHeader.astro";
 import "./Header.scss";
@@ -23,7 +22,7 @@ const user = getUser();
   </div>
 
   <div class="header-right">
-    <div class="icon"><Icon name="mail" /></div>
+    <!-- <div class="icon"><Icon name="mail" /></div> -->
     <NotificationHeader />
     <div class="avatar">
       <span class="user-name" id="header-user-name">{user?.full_name || "Kullanıcı"}</span>
@@ -38,7 +37,7 @@ const user = getUser();
         />
       </div>
     </div>
-    <LogoutButton client:load />
+    <LogoutButton client:load className="logout-header" />
     <button
       class="hamburger-btn"
       type="button"

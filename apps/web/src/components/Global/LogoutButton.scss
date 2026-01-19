@@ -1,0 +1,27 @@
+.logout-button {
+  @include flexible(inline-flex, row, center, center, 8px);
+  height: 42px;
+  padding: 0 16px;
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  background: #ffffff;
+  color: #18a0fb;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+
+  text-decoration: none;
+
+  &:hover {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    background: #f9fafb;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(24, 160, 251, 0.35);
+  }
+}

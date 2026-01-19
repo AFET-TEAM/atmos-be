@@ -1,13 +1,13 @@
 <script lang="ts">
-  import type { TechTalk } from "../types/TechTalks";
   import DynamicCard from "../../UI/DynamicCard.svelte";
+  import type { TechTalk } from "../types/TechTalks";
 
   export let talk: TechTalk;
   export let isAdmin: boolean = false;
   export let onDownload: (talk: TechTalk) => void;
   export let onUpdate: (talk: TechTalk) => void;
   export let onDelete: (id: number) => void;
-
+console.log("talk",talk);
 </script>
 
 <DynamicCard
