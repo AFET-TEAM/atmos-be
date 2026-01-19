@@ -1,6 +1,9 @@
 <script>
   import { logoutUser } from "@/api/AuthApi";
   import IconButton from "../UI/IconButton.svelte";
+  import "./LogoutButton.scss";
+
+   export let className = "";
 
   const handleLogout = async () => {
     try {
@@ -17,8 +20,7 @@
 <IconButton
   text="Çıkış Yap"
   buttonType="secondary"
-  className="customLink"
-  color="blue"
-  border={true}
+  iconName="logout"
+  className={`logout-button ${className}`}
   on:click={handleLogout}
 />

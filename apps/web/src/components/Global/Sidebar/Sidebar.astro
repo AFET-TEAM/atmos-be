@@ -1,6 +1,7 @@
 ---
 import CustomLink from "@/components/UI/CustomLink.astro";
 import RoleGate from "@/components/UI/RoleGate.astro";
+import LogoutButton from "../LogoutButton.svelte";
 import "./sidebar.scss";
 ---
 
@@ -46,6 +47,7 @@ import "./sidebar.scss";
       <CustomLink text="Announcements" href="/add-announcements" iconName="notification" />
     </RoleGate>
 
+    <LogoutButton client:load className="customLink logout-sidebar" />
 
   </div>
 </article>

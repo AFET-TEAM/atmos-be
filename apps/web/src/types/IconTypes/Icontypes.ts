@@ -11,4 +11,5 @@ export type IconName =
   | "clock"
   | "pencil"
   | "like"
-  | "comment";
+  | "comment"
+  | "logout";
