@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: "http://localhost:3000/v1/",
+  baseURL: "https://atos-api.afet.space/v1/",
   timeout: 10000,
   withCredentials: true,
   headers: {
@@ -58,16 +58,12 @@ export const tokenManager = {
 
   getUser: () => {
     if (typeof window !== "undefined") {
-      // First try localStorage
       let userData = localStorage.getItem(USER_KEY);
-
-      // If not in localStorage, try cookie
       if (!userData) {
         const cookieUser = getCookie("user");
         if (cookieUser) {
           try {
             const user = JSON.parse(cookieUser);
-            // Cache it in localStorage for next time
             localStorage.setItem(USER_KEY, JSON.stringify(user));
             return user;
           } catch (e) {
@@ -120,7 +116,7 @@ instance.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 instance.interceptors.response.use(
@@ -140,7 +136,7 @@ instance.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default instance;

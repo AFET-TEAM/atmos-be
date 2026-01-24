@@ -34,6 +34,12 @@ CREATE TABLE IF NOT EXISTS directorates (
   deleted_at TIMESTAMPTZ
 );
 
+CREATE TABLE IF NOT EXISTS cities (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL UNIQUE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- ============================================================================
 -- 2. CORE TABLES (Ana Tablolar)
 -- ============================================================================
@@ -358,6 +364,91 @@ INSERT INTO idea_assignees (name) VALUES
   ('DevOps Team'),
   ('Design Team')
 ON CONFLICT DO NOTHING;
+
+-- Cities (Türkiye İlleri)
+INSERT INTO cities (name) VALUES
+  ('Adana'),
+  ('Adıyaman'),
+  ('Afyonkarahisar'),
+  ('Ağrı'),
+  ('Aksaray'),
+  ('Amasya'),
+  ('Ankara'),
+  ('Antalya'),
+  ('Ardahan'),
+  ('Artvin'),
+  ('Aydın'),
+  ('Balıkesir'),
+  ('Bartın'),
+  ('Batman'),
+  ('Bayburt'),
+  ('Bilecik'),
+  ('Bingöl'),
+  ('Bitlis'),
+  ('Bolu'),
+  ('Burdur'),
+  ('Bursa'),
+  ('Çanakkale'),
+  ('Çankırı'),
+  ('Çorum'),
+  ('Denizli'),
+  ('Diyarbakır'),
+  ('Düzce'),
+  ('Edirne'),
+  ('Elazığ'),
+  ('Erzincan'),
+  ('Erzurum'),
+  ('Eskişehir'),
+  ('Gaziantep'),
+  ('Giresun'),
+  ('Gümüşhane'),
+  ('Hakkari'),
+  ('Hatay'),
+  ('Iğdır'),
+  ('Isparta'),
+  ('İstanbul'),
+  ('İzmir'),
+  ('Kahramanmaraş'),
+  ('Karabük'),
+  ('Karaman'),
+  ('Kars'),
+  ('Kastamonu'),
+  ('Kayseri'),
+  ('Kilis'),
+  ('Kırıkkale'),
+  ('Kırklareli'),
+  ('Kırşehir'),
+  ('Kocaeli'),
+  ('Konya'),
+  ('Kütahya'),
+  ('Malatya'),
+  ('Manisa'),
+  ('Mardin'),
+  ('Mersin'),
+  ('Muğla'),
+  ('Muş'),
+  ('Nevşehir'),
+  ('Niğde'),
+  ('Ordu'),
+  ('Osmaniye'),
+  ('Rize'),
+  ('Sakarya'),
+  ('Samsun'),
+  ('Şanlıurfa'),
+  ('Siirt'),
+  ('Sinop'),
+  ('Şırnak'),
+  ('Sivas'),
+  ('Tekirdağ'),
+  ('Tokat'),
+  ('Trabzon'),
+  ('Tunceli'),
+  ('Uşak'),
+  ('Van'),
+  ('Yalova'),
+  ('Yozgat'),
+  ('Zonguldak')
+ON CONFLICT (name) DO NOTHING;
 
 -- ============================================================================
 -- TAMAMLANDI

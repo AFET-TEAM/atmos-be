@@ -19,6 +19,7 @@ import { TabHeaders } from "./routes/tabsheader";
 import { tasksRoutes } from "./routes/tasks";
 import { teamsRoutes } from "./routes/teams";
 import { usersRoutes } from "./routes/users";
+import { initializeSchedulers } from "./scheduler";
 
 const CORS_ORIGINS = [
   "http://localhost:4321",
@@ -91,6 +92,9 @@ const v1 = new Elysia({ prefix: "/v1", name: "api:v1" })
   .use(jobsRoutes());
 
 app.use(v1);
+
+// Initialize schedulers
+initializeSchedulers();
 
 app.listen({ port: 3000, hostname: "0.0.0.0" });
 console.log("Elysia on http://localhost:3000 | API: /v1 | Swagger: /swagger");
