@@ -1,5 +1,4 @@
 <script lang="ts">
-  import DynamicCard from "@/components/UI/DynamicCard.svelte";
   import { userAtom } from "@/stores/userStore";
   import { onMount } from "svelte";
   import {
@@ -10,6 +9,7 @@
   } from "../../../api/TechTalksApi";
   import ConfirmModal from "../../UI/ConfirmModal.svelte";
   import CreateTechTalkModal from "../CreateTechtalkModal/CreateTechtalksModal.svelte";
+  import TechTalksCards from '../TechTalksCards/TechTalksCards.svelte';
   import type { TechTalk } from "../types/TechTalks";
   import "./TechtalksPage.scss";
 
@@ -161,14 +161,13 @@
   {:else}
     <div class="tt-list">
       {#each talks as talk (talk.id)}
-        <DynamicCard
-          imgSrc={talk.thumbnailUrl || talk.thumbnail_url || ""}
-          title={talk.title}
-          description={talk.description || ""}
-          owner={talk.userId?.toString() || talk.user_id?.toString() || ""}
-          {isAdmin}
-          actions={getActions(talk)}
-        />
+       <TechTalksCards
+        {talk}
+        {isAdmin}
+        onDownload={() => {}}
+        onUpdate={handleUpdate}
+        onDelete={handleDeleteRequest}
+      />
       {/each}
     </div>
   {/if}

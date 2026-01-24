@@ -26,6 +26,9 @@
     width: 100%;
   }
 }
+.sidebar .links .logout-sidebar {
+  display: none;
+}
 
 .sidebar-close {
   position: absolute;
@@ -34,7 +37,6 @@
   left: auto;
   transform: none;
   margin: 0;
-
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -73,5 +75,22 @@
     display: flex;
     top: 12px;
     right: 20px;
+  }
+
+  .sidebar .links .logout-sidebar {
+    display: flex;
+    @include flexible(flex, null, flex-start, center, 10px);
+    width: 100%;
+    margin-top: 8px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    height: auto;
+    justify-content: flex-start;
+    color: #18a0fb !important;
+    svg {
+      color: #5d6679 !important;
+    }
   }
 }

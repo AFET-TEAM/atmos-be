@@ -1,4 +1,5 @@
 import type {
+  FetchTechTalkResponse,
   TechTalk,
   TechTalkComment,
 } from "@/components/Techtalks/types/TechTalks";
@@ -13,8 +14,22 @@ export async function fetchTechTalks(): Promise<TechTalk[]> {
 }
 
 export async function fetchTechTalk(id: number): Promise<TechTalk> {
-  const { data } = await instance.get<TechTalk>(`/techtalks/${id}`);
-  return data;
+  const { data } = await instance.get<FetchTechTalkResponse>(
+    `/techtalks/${id}`,
+  );
+
+  if (Array.isArray(data.data) && data.data.length > 0) {
+    return data.data[0];
+  }
+
+  const all = await fetchTechTalks();
+  const found = all.find((t) => t.id === id);
+
+  if (!found) {
+    throw new Error("TechTalk bulunamadı");
+  }
+
+  return found;
 }
 
 export async function deleteTechTalk(id: number): Promise<void> {
@@ -23,14 +38,14 @@ export async function deleteTechTalk(id: number): Promise<void> {
 
 export async function updateTechTalk(
   id: number,
-  payload: Partial<TechTalk>
+  payload: Partial<TechTalk>,
 ): Promise<TechTalk> {
   const { data } = await instance.patch<TechTalk>(`/techtalks/${id}`, payload);
   return data;
 }
 
 export async function createTechTalk(
-  payload: Omit<TechTalk, "id">
+  payload: Omit<TechTalk, "id">,
 ): Promise<TechTalk> {
   const { data } = await instance.post<TechTalk>("/techtalks", payload);
   return data;
@@ -38,23 +53,25 @@ export async function createTechTalk(
 
 export async function putTechTalk(
   id: number,
-  payload: Partial<TechTalk>
+  payload: Partial<TechTalk>,
 ): Promise<TechTalk> {
   const { data } = await instance.put<TechTalk>(`/techtalks/${id}`, payload);
   return data;
 }
 
-export async function fetchLastTechTalk() {
-  const { data } = await instance.get<TechTalk>("/lastTechTalks");
-  return data;
+export async function fetchLastTechTalk(): Promise<TechTalk[]> {
+  const { data } = await instance.get<{ data: TechTalk[] }>("/lastTechTalks");
+
+  console.log("Fetched last TechTalks:", data);
+  return data.data;
 }
 
 export async function addTechTalkComment(
   techtalkId: string,
-  payload: Omit<TechTalkComment, "id">
+  payload: Omit<TechTalkComment, "id">,
 ): Promise<TechTalk> {
   const { data: talk } = await instance.get<TechTalk>(
-    `/techtalks/${techtalkId}`
+    `/techtalks/${techtalkId}`,
   );
 
   const comments = talk.comments ?? [];
@@ -70,7 +87,7 @@ export async function addTechTalkComment(
 
   const { data: updated } = await instance.put<TechTalk>(
     `/techtalks/${techtalkId}`,
-    updatedTalk
+    updatedTalk,
   );
 
   return updated;
@@ -78,7 +95,7 @@ export async function addTechTalkComment(
 
 export async function addCommentWithMe(
   techtalkId: string,
-  comment: string
+  comment: string,
 ): Promise<TechTalk> {
   const user = await fetchCurrentUser();
 
@@ -93,20 +110,20 @@ export async function addCommentWithMe(
 export async function updateTechTalkComment(
   techtalkId: string,
   commentId: number,
-  payload: Partial<Pick<TechTalkComment, "comment" | "date">>
+  payload: Partial<Pick<TechTalkComment, "comment" | "date">>,
 ): Promise<TechTalk> {
   const { data: talk } = await instance.get<TechTalk>(
-    `/techtalks/${techtalkId}`
+    `/techtalks/${techtalkId}`,
   );
 
   const comments = talk.comments ?? [];
   const updatedComments = comments.map((c) =>
-    c.id === commentId ? { ...c, ...payload } : c
+    c.id === commentId ? { ...c, ...payload } : c,
   );
 
   const { data: updated } = await instance.put<TechTalk>(
     `/techtalks/${techtalkId}`,
-    { ...talk, comments: updatedComments }
+    { ...talk, comments: updatedComments },
   );
 
   return updated;
@@ -114,10 +131,10 @@ export async function updateTechTalkComment(
 
 export async function deleteTechTalkComment(
   techtalkId: string,
-  commentId: number
+  commentId: number,
 ): Promise<TechTalk> {
   const { data: talk } = await instance.get<TechTalk>(
-    `/techtalks/${techtalkId}`
+    `/techtalks/${techtalkId}`,
   );
 
   const comments = talk.comments ?? [];
@@ -125,7 +142,7 @@ export async function deleteTechTalkComment(
 
   const { data: updated } = await instance.put<TechTalk>(
     `/techtalks/${techtalkId}`,
-    { ...talk, comments: filteredComments }
+    { ...talk, comments: filteredComments },
   );
 
   return updated;
@@ -136,7 +153,7 @@ export async function addTechTalkLike(techtalkId: string): Promise<TechTalk> {
   const userId = Number(user.id) || 0;
 
   const { data: talk } = await instance.get<TechTalk>(
-    `/techtalks/${techtalkId}`
+    `/techtalks/${techtalkId}`,
   );
 
   const likedUserIds: number[] = talk.likedUserIds ?? [];
@@ -160,7 +177,7 @@ export async function addTechTalkLike(techtalkId: string): Promise<TechTalk> {
 
   const { data: updated } = await instance.put<TechTalk>(
     `/techtalks/${techtalkId}`,
-    updatedTalk
+    updatedTalk,
   );
 
   return updated;

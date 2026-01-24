@@ -36,9 +36,7 @@
       width: 150px;
       height: 42px;
       padding: 5px;
-      border-top-left-radius: 12px;
-      border-bottom-left-radius: 12px;
-      border-bottom-right-radius: 12px;
+      border-radius: 12px;
       box-shadow: 0 2px 4px 0 #cccccc80;
 
       .user-name {
@@ -46,8 +44,9 @@
       }
 
       .image-wrapper {
-        position: relative;
-        display: inline-block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
         .avatar-img {
           border-radius: 50%;
@@ -64,6 +63,10 @@
           border: 2px solid white;
         }
       }
+    }
+    .logout-header {
+      color: #18a0fb !important;
+      gap: 0.5rem;
     }
   }
 
@@ -107,6 +110,10 @@
 
     .hamburger-btn {
       display: flex;
+    }
+
+    .logout-header {
+      display: none;
     }
   }
 }

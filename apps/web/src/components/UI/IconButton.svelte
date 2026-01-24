@@ -17,7 +17,7 @@
   style="color: {color}"
 >
   {#if iconName}
-    <Icon name={iconName} size={16} />
+    <Icon name={iconName} size={24} />
   {/if}
   {#if text}
     <span class={`${color}`}>{text}</span>

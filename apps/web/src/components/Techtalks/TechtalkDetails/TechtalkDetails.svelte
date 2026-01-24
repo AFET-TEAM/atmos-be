@@ -7,7 +7,6 @@
     updateComment,
   } from "@/api/CommentsApi";
   import { fetchLikes, toggleLike } from "@/api/LikesApi";
-  import { getUserById } from "@/api/UsersApi";
   import { userAtom } from "@/stores/userStore";
   import { onMount } from "svelte";
   import Icon from "../../UI/Icon.svelte";
@@ -40,21 +39,23 @@
   const youtubeId = ytMatch ? ytMatch[1] : null;
 
   onMount(async () => {
+      console.log("TechTalk Details — gelen talk:", talk);
+  console.log("TechTalk Details — talk.id:", talk?.id);
+  console.log(" video_url:", talk?.video_url, " | videoUrl:", talk?.videoUrl);
+  console.log("thumbnail_url:", talk?.thumbnail_url, " | thumbnailUrl:", talk?.thumbnailUrl);
+  console.log("ownerId:", talk?.userId, " | user_id:", talk?.user_id);
     await loadCommentsAndLikes();
   });
 
   async function loadCommentsAndLikes() {
     loading = true;
     try {
-      // Yorumları yükle
       const fetchedComments = await fetchComments("techtalk", talk.id);
       comments = fetchedComments;
 
-      // Beğenileri yükle
       const likes = await fetchLikes("techtalk", talk.id);
       likesCount = likes.length;
 
-      // Kullanıcı beğenmiş mi kontrol et
       if (currentUser) {
         hasLiked = likes.some((like) => like.user_id === currentUser.id);
       }
@@ -156,7 +157,8 @@
       liking = false;
     }
   }
-
+console.log("currentUser:", currentUser);
+console.log("talk", talk);
   function canEditDelete(comment: Comment): boolean {
     if (!currentUser) return false;
     return isAdmin || comment.user_id === currentUser.id;
@@ -210,7 +212,8 @@
 
     <div class="meta">
       <img class="avatar" src="/avatar-placeholder.png" alt="" />
-      <div class="owner">
+      <!-- CURRENT USER GELDİĞİNDE AÇILACAK -->
+      <!-- <div class="owner">
         {#await getUserById(talk.userId || talk.user_id)}
           <div class="owner-name">Yükleniyor...</div>
         {:then user}
@@ -226,7 +229,24 @@
               : "-"}
           </span>
         </div>
-      </div>
+      </div> -->
+    <div class="owner">
+  <div class="owner-name">
+    {talk.userId || talk.user_id || "Bilinmeyen"}
+  </div>
+
+  <div class="date-group">
+    <span class="date-icon">
+      <Icon name="clock" width={14} height={14} />
+    </span>
+    <span class="date">
+      {talk.date && talk.date !== ""
+        ? new Date(talk.date).toLocaleDateString("tr-TR")
+        : "-"}
+    </span>
+  </div>
+</div>
+
     </div>
 
     <div class="comment-input">
@@ -278,15 +298,19 @@
             </div>
 
             <div class="comment-info">
-              <div class="comment-user">
+              <!-- CURRENT USER GELDİĞİNDE AÇILACAK -->
+              <!-- <div class="comment-user">
                 <Icon name="users" />
                 {#await getUserById(c.user_id)}
                   <p>Yükleniyor...</p>
                 {:then user}
                   <p>{user?.fullName || "Bilinmeyen"}</p>
                 {/await}
+              </div> -->
+              <div class="comment-user">
+                <Icon name="users" />
+                <p>{c.user_id}</p>
               </div>
-
               <div class="comment-date">
                 <Icon name="clock" />
                 <span>{new Date(c.created_at).toLocaleDateString("tr-TR")}</span

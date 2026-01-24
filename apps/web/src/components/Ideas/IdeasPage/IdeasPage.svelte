@@ -1,14 +1,14 @@
 <script lang="ts">
-  import dayjs from 'dayjs';
-  import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-  import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-  import { onMount } from 'svelte';
+  import dayjs from "dayjs";
+  import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+  import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+  import { onMount } from "svelte";
   dayjs.extend(isSameOrBefore);
   dayjs.extend(isSameOrAfter);
 
-  import IdeasCard from '../IdeasCard/IdeasCard.svelte';
-  import IdeasControls from '../IdeasControls/IdeasControls.svelte';
-  import IdeasModal from '../IdeasModal/IdeasModal.svelte';
+  import IdeasCard from "../IdeasCard/IdeasCard.svelte";
+  import IdeasControls from "../IdeasControls/IdeasControls.svelte";
+  import IdeasModal from "../IdeasModal/IdeasModal.svelte";
 
   import {
     approveIdea as svcApproveIdea,
@@ -20,17 +20,17 @@
     rejectIdea as svcRejectIdea,
     updateIdea as svcUpdateIdea,
     type Idea
-  } from '../../../api/IdeasApi';
+  } from "../../../api/IdeasApi";
 
-  import ConfirmModal from '@/components/UI/ConfirmModal.svelte';
-  import { fetchCurrentUser } from '../../../api/IdeasApi';
-  import type { CurrentUser } from '../types/IdeasTypes';
+  import ConfirmModal from "@/components/UI/ConfirmModal.svelte";
+  import { checkAuth, currentUser as getCurrentUser } from "@/utils/user";
+  import type { CurrentUser, RawIdeaFromApi } from "../types/IdeasTypes";
 
   function isCompleted(date: string) {
-    return !!date && dayjs(date).isSameOrBefore(dayjs(), 'day');
+    return !!date && dayjs(date).isSameOrBefore(dayjs(), "day");
   }
   function isUpcoming(date: string) {
-    return !!date && dayjs(date).isSameOrAfter(dayjs().add(1, 'day'), 'day');
+    return !!date && dayjs(date).isSameOrAfter(dayjs().add(1, "day"), "day");
   }
 
   let currentUser: CurrentUser | null = null;
@@ -42,86 +42,107 @@
   let isEditMode = false;
   let selectedIdea: Idea | null = null;
 
-  let ideaTitle = '';
-  let date = '';
-  let description = '';
+  let ideaTitle = "";
+  let date = "";
+  let description = "";
   let presentationFileName: string | undefined;
   let frontendCount: number | undefined;
   let backendCount: number | undefined;
-  let ownerName = '';
+  let ownerName = "";
 
   let confirmOpen = false;
   let confirmMode: "approve" | "reject" | "delete" | null = null;
   let confirmIdeaId: number | null = null;
   let confirmBusy = false;
 
-  const isApproved = (idea: Idea) => idea.approvedBy.length >= 1;
-  const isPending = (idea: Idea) => idea.approvedBy.length === 0;
+  const isApproved = (idea: Idea) => (idea.approvedBy?.length ?? 0) >= 1;
+  const isPending = (idea: Idea) => (idea.approvedBy?.length ?? 0) === 0;
 
   const PAGE_SIZE = 4;
   let pendingPage = 1;
 
-  let sortOrder: 'az' | 'za' = 'az';
-  let searchTerm = '';
+  let sortOrder: "az" | "za" = "az";
+  let searchTerm = "";
   let modalReadOnly = false;
 
-$: sortedApproved = ideas
-  .filter(isApproved)
-  .filter((i) =>
-    i.title.toLowerCase().includes(searchTerm.trim().toLowerCase())
-  )
-  .sort((a, b) =>
-    sortOrder === 'az'
-      ? a.title.localeCompare(b.title)
-      : b.title.localeCompare(a.title)
-  );
-
-$: allPending = ideas
-  .filter(isPending)
-  .filter((i) =>
-    i.title.toLowerCase().includes(searchTerm.trim().toLowerCase())
-  )
-  .sort((a, b) =>
-    sortOrder === 'az'
-      ? a.title.localeCompare(b.title)
-      : b.title.localeCompare(a.title)
-  );
-
-$: myId = currentUser?.id ?? '';
-
-$: pendingForAdmin = allPending;
-
-$: pendingForUser = allPending.filter(
-  (i) => i.ownerId && i.ownerId === myId
-);
-
-$: activePending = isAdmin ? pendingForAdmin : pendingForUser;
-
-$: totalPendingPages = Math.ceil(activePending.length / PAGE_SIZE);
-$: displayedPending = activePending.slice(0, pendingPage * PAGE_SIZE);
-
-$: {
-  if (!isEditMode) {
-    modalReadOnly = false;
-  } else if (isAdmin) {
-    modalReadOnly = false;
-  } else if (selectedIdea && currentUser) {
-    const isMyIdea = selectedIdea.ownerId === currentUser.id;
-    const isPending = selectedIdea.approvedBy.length === 0;
-    modalReadOnly = !(isMyIdea && isPending);
-  } else {
-    modalReadOnly = true;
+  function mapIdea(item: RawIdeaFromApi): Idea {
+    return {
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      date: item.date,
+      owner: "",
+      ownerId: String(item.userId),
+      presentationFileName: item.fileUrl,
+      frontendCount: item.frontendCount,
+      backendCount: item.backendCount,
+      approvedBy: item.approvedBy ?? [],
+      frontendParticipants: item.frontendParticipants ?? [],
+      backendParticipants: item.backendParticipants ?? []
+    };
   }
-}
 
-$: confirmTitle =
-  confirmMode === "approve"
-    ? "Are you sure you want to approve this idea?"
-    : confirmMode === "reject"
-    ? "Are you sure you want to reject this idea?"
-    : confirmMode === "delete"
-    ? "Are you sure you want to delete this idea?"
-    : "Are you sure?";
+  $: sortedApproved = ideas
+    .filter(isApproved)
+    .filter((i) =>
+      i.title.toLowerCase().includes(searchTerm.trim().toLowerCase())
+    )
+    .sort((a, b) =>
+      sortOrder === "az"
+        ? a.title.localeCompare(b.title)
+        : b.title.localeCompare(a.title)
+    );
+
+  $: allPending = ideas
+    .filter(isPending)
+    .filter((i) =>
+      i.title.toLowerCase().includes(searchTerm.trim().toLowerCase())
+    )
+    .sort((a, b) =>
+      sortOrder === "az"
+        ? a.title.localeCompare(b.title)
+        : b.title.localeCompare(a.title)
+    );
+
+  $: myId = currentUser?.id ?? "";
+
+  $: pendingForAdmin = allPending;
+
+  $: pendingForUser = allPending.filter(
+    (i) => i.ownerId && i.ownerId === myId
+  );
+
+  $: activePending = isAdmin
+    ? pendingForAdmin
+    : currentUser
+    ? pendingForUser
+    : allPending;
+
+  $: totalPendingPages = Math.ceil(activePending.length / PAGE_SIZE);
+  $: displayedPending = activePending.slice(0, pendingPage * PAGE_SIZE);
+
+  $: {
+    if (!isEditMode) {
+      modalReadOnly = false;
+    } else if (isAdmin) {
+      modalReadOnly = false;
+    } else if (selectedIdea && currentUser) {
+      const isMyIdea = selectedIdea.ownerId === currentUser.id;
+      const isPending = (selectedIdea.approvedBy?.length ?? 0) === 0;
+      modalReadOnly = !(isMyIdea && isPending);
+    } else {
+      modalReadOnly = true;
+    }
+  }
+
+  $: confirmTitle =
+    confirmMode === "approve"
+      ? "Are you sure you want to approve this idea?"
+      : confirmMode === "reject"
+      ? "Are you sure you want to reject this idea?"
+      : confirmMode === "delete"
+      ? "Are you sure you want to delete this idea?"
+      : "Are you sure?";
 
   function showMorePending() {
     if (pendingPage < totalPendingPages) pendingPage++;
@@ -130,31 +151,57 @@ $: confirmTitle =
     pendingPage = 1;
   }
 
-  async function init() {
+  async function reloadIdeas() {
     try {
-      const [user, ideasData] = await Promise.all([fetchCurrentUser(), svcFetchIdeas()]);
-      currentUser = user;
-      isAdmin = user.role === 'admin';
-      isUser = user.role === 'user';
-      ownerName = user.name;
-      ideas = ideasData;
+      const raw = await svcFetchIdeas();
+      ideas = raw.map(mapIdea);
     } catch (err) {
-      console.error('Init error:', err);
+      console.error("Fetch ideas error:", err);
     }
   }
+
+  async function init() {
+    try {
+      const rawUser = getCurrentUser();
+      const authenticated = checkAuth();
+
+      if (authenticated && rawUser) {
+        currentUser = {
+          id: String(rawUser.id),
+          name: rawUser.full_name ?? rawUser.email ?? "",
+          role: rawUser.role ?? "user"
+        } as CurrentUser;
+
+        isAdmin = currentUser.role === "admin";
+        isUser = currentUser.role === "user";
+        ownerName = currentUser.name;
+      } else {
+        currentUser = null;
+        isAdmin = false;
+        isUser = false;
+        ownerName = "";
+      }
+
+      await reloadIdeas();
+      pendingPage = 1;
+    } catch (err) {
+      console.error("Init error:", err);
+    }
+  }
+
   onMount(init);
 
   function openModal() {
     isModalOpen = true;
     isEditMode = false;
     selectedIdea = null;
-    ideaTitle = '';
-    date = '';
-    description = '';
+    ideaTitle = "";
+    date = "";
+    description = "";
     presentationFileName = undefined;
     frontendCount = undefined;
     backendCount = undefined;
-    ownerName = currentUser?.name ?? '';
+    ownerName = currentUser?.name ?? "";
   }
 
   function editIdea(idea: Idea) {
@@ -169,53 +216,45 @@ $: confirmTitle =
     backendCount = idea.backendCount;
   }
 
-  async function fetchIdeas() {
-    try {
-      ideas = await svcFetchIdeas();
-    } catch (err) {
-      console.error('Fetch ideas error:', err);
-    }
-  }
-
   async function submitIdea() {
-  try {
-    if (!currentUser) return;
+    try {
+      if (!currentUser) return;
 
-    const base = {
-      title: ideaTitle,
-      owner: ownerName || currentUser.name,
-      ownerId: currentUser.id,
-      date,
-      description,
-      presentationFileName,
-      frontendCount,
-      backendCount,
-    };
+      const base = {
+        title: ideaTitle,
+        owner: ownerName || currentUser.name,
+        ownerId: currentUser.id,
+        date,
+        description,
+        presentationFileName,
+        frontendCount,
+        backendCount
+      };
 
-    if (!isEditMode) {
-      await svcCreateIdea({
-        ...base,
-        approvedBy: [],
-      });
-    } else if (selectedIdea) {
-      await svcUpdateIdea(selectedIdea.id, {
-        ...base,
-      });
+      if (!isEditMode) {
+        await svcCreateIdea({
+          ...base,
+          approvedBy: []
+        });
+      } else if (selectedIdea) {
+        await svcUpdateIdea(selectedIdea.id, {
+          ...base
+        });
+      }
+
+      await reloadIdeas();
+      isModalOpen = false;
+      pendingPage = 1;
+    } catch (err) {
+      console.error("Submit error:", err);
     }
-
-    await fetchIdeas();
-    isModalOpen = false;
-    pendingPage = 1;
-  } catch (err) {
-    console.error("Submit error:", err);
   }
-}
 
-    async function doApprove(id: number) {
+  async function doApprove(id: number) {
     if (!currentUser) return;
     try {
       await svcApproveIdea(id, currentUser.name);
-      await fetchIdeas();
+      await reloadIdeas();
       isModalOpen = false;
       pendingPage = 1;
     } catch (err) {
@@ -226,7 +265,7 @@ $: confirmTitle =
   async function doReject(id: number) {
     try {
       await svcRejectIdea(id);
-      await fetchIdeas();
+      await reloadIdeas();
       isModalOpen = false;
       pendingPage = 1;
     } catch (err) {
@@ -237,7 +276,7 @@ $: confirmTitle =
   async function doDelete(id: number) {
     try {
       await svcDeleteIdea(id);
-      await fetchIdeas();
+      await reloadIdeas();
       isModalOpen = false;
       pendingPage = 1;
     } catch (err) {
@@ -294,34 +333,29 @@ $: confirmTitle =
     resetConfirm();
   }
 
-async function onJoinFrontend(id: number) {
-  try {
-    if (!currentUser) return;
-    await svcJoinFrontend(id, currentUser.id);
-    await fetchIdeas();
-  } catch (err) {
-    console.error('Join frontend error:', err);
+  async function onJoinFrontend(id: number) {
+    try {
+      if (!currentUser) return;
+      await svcJoinFrontend(id, currentUser.id);
+      await reloadIdeas();
+    } catch (err) {
+      console.error("Join frontend error:", err);
+    }
   }
-}
 
-async function onJoinBackend(id: number) {
-  try {
-    if (!currentUser) return;
-    await svcJoinBackend(id, currentUser.id);
-    await fetchIdeas();
-  } catch (err) {
-    console.error('Join backend error:', err);
+  async function onJoinBackend(id: number) {
+    try {
+      if (!currentUser) return;
+      await svcJoinBackend(id, currentUser.id);
+      await reloadIdeas();
+    } catch (err) {
+      console.error("Join backend error:", err);
+    }
   }
-}
-
 </script>
 
 <section>
-  {#if isUser || isAdmin}
-    <IdeasControls bind:sortOrder bind:searchTerm />
-  {/if}
-
-  {#if isUser || isAdmin}
+  <IdeasControls bind:sortOrder bind:searchTerm />
     <IdeasCard
       {isAdmin}
       {displayedPending}
@@ -338,43 +372,42 @@ async function onJoinBackend(id: number) {
       onJoinBackend={onJoinBackend}
       currentUserId={currentUser?.id}
     />
-  {/if}
 
-  <IdeasModal
-    bind:isModalOpen
-    {isEditMode}
-    {selectedIdea}
-    readOnly={modalReadOnly}
-    {isAdmin}
-    bind:ownerName
-    bind:ideaTitle
-    bind:date
-    bind:description
-    {presentationFileName}
-    bind:frontendCount
-    bind:backendCount
-    onChangeFile={(e) => {
-      const target = e.target as HTMLInputElement;
-      if (target?.files?.[0]) {
-        presentationFileName = target.files[0].name;
-      }
-    }}
-    onSubmitIdea={submitIdea}
-    onApproveIdea={requestApprove}
-    onRejectIdea={requestReject}
-    onDeleteIdea={requestDelete}
-  />
+    <IdeasModal
+      bind:isModalOpen
+      {isEditMode}
+      {selectedIdea}
+      readOnly={modalReadOnly}
+      {isAdmin}
+      bind:ownerName
+      bind:ideaTitle
+      bind:date
+      bind:description
+      {presentationFileName}
+      bind:frontendCount
+      bind:backendCount
+      onChangeFile={(e) => {
+        const target = e.target as HTMLInputElement;
+        if (target?.files?.[0]) {
+          presentationFileName = target.files[0].name;
+        }
+      }}
+      onSubmitIdea={submitIdea}
+      onApproveIdea={requestApprove}
+      onRejectIdea={requestReject}
+      onDeleteIdea={requestDelete}
+    />
 
-<ConfirmModal
-  open={confirmOpen}
-  title={confirmTitle}
-  message=""
-  confirmText="Yes"
-  cancelText="No"
-  disabled={confirmBusy}
-  on:confirm={handleConfirm}
-  on:cancel={handleCancelConfirm}
-  on:close={handleCancelConfirm}
-/>
+    <ConfirmModal
+      open={confirmOpen}
+      title={confirmTitle}
+      message=""
+      confirmText="Yes"
+      cancelText="No"
+      disabled={confirmBusy}
+      on:confirm={handleConfirm}
+      on:cancel={handleCancelConfirm}
+      on:close={handleCancelConfirm}
+    />
 
 </section>

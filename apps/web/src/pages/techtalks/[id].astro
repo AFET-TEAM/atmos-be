@@ -1,8 +1,8 @@
 ---
-import Layout from "@/layouts/Layout.astro";
-import TechTalkDetail from "@/components/Techtalks/TechtalkDetail.astro";
 import { fetchTechTalk, fetchTechTalks } from "@/api/TechTalksApi";
+import TechTalkDetail from "@/components/Techtalks/TechtalkDetail.astro";
 import type { TechTalk } from "@/components/Techtalks/types/TechTalks";
+import Layout from "@/layouts/Layout.astro";
 
 const id = Number(Astro.params.id);
 if (Number.isNaN(id)) {
@@ -10,10 +10,18 @@ if (Number.isNaN(id)) {
   throw new Error("Geçersiz id");
 }
 
-const talk: TechTalk = await fetchTechTalk(id);
+let talk: TechTalk;
+
+try {
+  talk = await fetchTechTalk(id);
+} catch (err) {
+  console.error("🔴 fetchTechTalk hata:", err);
+  Astro.response.status = 404;
+  throw new Error("TechTalk bulunamadı");
+}
 
 const all: TechTalk[] = await fetchTechTalks();
-const others: TechTalk[] = all.filter(t => t.id !== id);
+const others: TechTalk[] = all.filter((t) => t.id !== id);
 ---
 
 <Layout title={`TechTalk • ${talk.title}`}>

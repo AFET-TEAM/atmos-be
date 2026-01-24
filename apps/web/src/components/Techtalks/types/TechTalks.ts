@@ -39,3 +39,6 @@ export type TechTalkComment = {
   comment: string;
   date: string;
 };
+export type FetchTechTalkResponse = {
+  data: TechTalk[];
+};

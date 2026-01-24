@@ -1,11 +1,12 @@
 import instance from "../axios/axiosInstance";
-export type { Idea } from "../components/Ideas/types/IdeasTypes";
 import type {
-  Idea,
   CreateIdeaPayload,
-  UpdateIdeaPayload,
   CurrentUser,
+  Idea,
+  RawIdeaFromApi,
+  UpdateIdeaPayload,
 } from "../components/Ideas/types/IdeasTypes";
+export type { Idea } from "../components/Ideas/types/IdeasTypes";
 
 const ensureArray = (arr?: string[]) => (Array.isArray(arr) ? arr : []);
 
@@ -14,8 +15,8 @@ export async function fetchCurrentUser(): Promise<CurrentUser> {
   return data;
 }
 
-export async function fetchIdeas(): Promise<Idea[]> {
-  const { data } = await instance.get<Idea[]>("/ideas");
+export async function fetchIdeas(): Promise<RawIdeaFromApi[]> {
+  const { data } = await instance.get<RawIdeaFromApi[]>("/ideas");
   console.log(data);
   return data;
 }
@@ -28,7 +29,7 @@ export async function createIdea(payload: CreateIdeaPayload): Promise<Idea> {
 
 export async function updateIdea(
   id: number,
-  payload: UpdateIdeaPayload
+  payload: UpdateIdeaPayload,
 ): Promise<Idea> {
   const { data } = await instance.put<Idea>(`/ideas/${id}`, payload);
   return data;
@@ -40,7 +41,7 @@ export async function deleteIdea(id: number): Promise<void> {
 
 export async function approveIdea(
   id: number,
-  currentUser: string
+  currentUser: string,
 ): Promise<Idea> {
   const idea = await getIdeaById(id);
   const approved = new Set(ensureArray(idea.approvedBy));

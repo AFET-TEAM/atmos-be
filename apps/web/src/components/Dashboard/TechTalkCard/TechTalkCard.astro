@@ -1,50 +1,165 @@
 ---
-import { fetchLastTechTalk } from '@/api/TechTalksApi';
-import { getUserById } from '@/api/UsersApi';
-import moment from 'moment';
+import { fetchLastTechTalk } from "@/api/TechTalksApi";
+import moment from "moment";
 import Icon from "../../../../public/icons/icon.astro";
 import "./techtalk-card.scss";
-const lastTechTalks = await fetchLastTechTalk();
-const getTechTalkAuthor = await getUserById(lastTechTalks.user_id);
-const techTalkDate = moment(lastTechTalks.date).format("DD MMM YYYY - HH:mm");
-const techTalkDay = moment(lastTechTalks.date).format("DD");
-const techTalkMonth = moment(lastTechTalks.date).format("MMM")
 
+const techTalks = await fetchLastTechTalk();
+const hasTalks = Array.isArray(techTalks) && techTalks.length > 0;
 ---
-<div class="techtalk-card">
-   {
-    lastTechTalks ? (
-     <div class="card-image-container">
-        <div class="tech-talk-badge">TechTalk of Week</div>
-        <img src={lastTechTalks.thumbnail_url ? lastTechTalks.thumbnail_url : "/TechTalkDefaultImg.png"} alt="TechTalk Görseli" class="card-image" />
-    </div>
-    <div class="card-content">
-        <div class="header-row">
-            <div class="date-badge">
-                <span class="day">{techTalkDay}</span>
-                <span class="month">{techTalkMonth}</span>
-            </div>
-            <div class="title-description">
-                <h2 class="title">{lastTechTalks.title}</h2>
-                <p class="description">{lastTechTalks.description}</p>
-            </div>
-        </div>
 
-        <div class="info-item">
-            <Icon name={"mic"} width={8} height={14}/>
-            <span class="info-text">{getTechTalkAuthor?.name}</span>
-        </div>
-        <div class="info-item">
-            <Icon name={"date"} width={8} height={14}/>
-            <span class="info-text">{techTalkDate}</span>
-        </div>
-        {/* <!-- <div class="info-item">
-            <Icon name={"locationIcon"} width={8} height={14}/>
-            <a href="#" class="info-text link">Katıl</a>
-        </div> --> */}
+{hasTalks ? (
+  <section class="techtalks-slider-root">
+    <div class="techtalks-slider-viewport" id="techtalkSlider">
+      <div class="techtalks-slider-track">
+        {
+          techTalks.map((talk: any) => {
+            const techTalkDate = moment(talk.date).format("DD MMM YYYY - HH:mm");
+            const techTalkDay = moment(talk.date).format("DD");
+            const techTalkMonth = moment(talk.date).format("MMM");
+
+            return (
+              <article class="techtalk-card">
+                <div class="card-image-container">
+                  <div class="tech-talk-badge">TechTalk of Week</div>
+                  <img
+                    src={talk.thumbnail_url ? talk.thumbnail_url : "/TechTalkDefaultImg.png"}
+                    alt="TechTalk Görseli"
+                    class="card-image"
+                  />
+                </div>
+
+                <div class="card-content">
+                  <div class="header-row">
+                    <div class="date-badge">
+                      <span class="day">{techTalkDay}</span>
+                      <span class="month">{techTalkMonth}</span>
+                    </div>
+
+                    <div class="title-description">
+                      <h2 class="title">{talk.title}</h2>
+                      <p class="description">{talk.description}</p>
+                    </div>
+                  </div>
+
+                  <div class="info-item">
+                    <Icon name={"mic"} width={8} height={14} />
+                    <span class="info-text">Konuşmacı bilgisi yakında</span>
+                  </div>
+
+                  <div class="info-item">
+                    <Icon name={"date"} width={8} height={14} />
+                    <span class="info-text">{techTalkDate}</span>
+                  </div>
+                </div>
+              </article>
+            );
+          })
+        }
+      </div>
+
+      <button
+        type="button"
+        class="techtalk-arrow techtalk-arrow--prev"
+        aria-label="Önceki TechTalk"
+      >
+        ‹
+      </button>
+      <button
+        type="button"
+        class="techtalk-arrow techtalk-arrow--next"
+        aria-label="Sonraki TechTalk"
+      >
+        ›
+      </button>
     </div>
-    ) : (
-      <p>Çok yakında yeni konular ile karşınızda....</p>
-    )
-   }
-</div>
+
+    <div class="techtalk-dots" id="techtalkDots">
+      {
+        techTalks.map((_, idx) => (
+          <button
+            type="button"
+            class={`techtalk-dot ${idx === 0 ? "is-active" : ""}`}
+            data-index={idx}
+            aria-label={`TechTalk ${idx + 1}`}
+          />
+        ))
+      }
+    </div>
+  </section>
+) : (
+  <p>Çok yakında yeni konular ile karşınızda....</p>
+)}
+
+<script>
+// @ts-nocheck
+
+  const slider = document.getElementById("techtalkSlider");
+  if (slider) {
+    const track = slider.querySelector(".techtalks-slider-track");
+    const slides = track ? Array.from(track.children) : [];
+    const prevBtn = slider.querySelector(".techtalk-arrow--prev");
+    const nextBtn = slider.querySelector(".techtalk-arrow--next");
+    const dotsContainer = document.getElementById("techtalkDots");
+    const dots = dotsContainer
+      ? Array.from(dotsContainer.querySelectorAll(".techtalk-dot"))
+      : [];
+
+    if (track && slides.length > 0) {
+      let index = 0;
+
+      const updatePosition = () => {
+        const width = slider.getBoundingClientRect().width;
+        track.style.transform = `translateX(${-index * width}px)`;
+      };
+
+      const updateDots = () => {
+        dots.forEach((dot, i) => {
+          if (i === index) {
+            dot.classList.add("is-active");
+          } else {
+            dot.classList.remove("is-active");
+          }
+        });
+      };
+
+      const goTo = (newIndex) => {
+        const total = slides.length;
+        index = ((newIndex % total) + total) % total;
+        updatePosition();
+        updateDots();
+      };
+
+      updatePosition();
+      updateDots();
+      window.addEventListener("resize", updatePosition);
+
+      let timer = setInterval(() => {
+        goTo(index + 1);
+      }, 3000);
+
+      const restartTimer = () => {
+        clearInterval(timer);
+        timer = setInterval(() => goTo(index + 1), 4000);
+      };
+
+      prevBtn?.addEventListener("click", () => {
+        goTo(index - 1);
+        restartTimer();
+      });
+
+      nextBtn?.addEventListener("click", () => {
+        goTo(index + 1);
+        restartTimer();
+      });
+
+      dots.forEach((dot, i) => {
+        dot.addEventListener("click", () => {
+          goTo(i);
+          restartTimer();
+        });
+      });
+    }
+  }
+</script>
+
