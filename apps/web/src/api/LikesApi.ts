@@ -10,7 +10,7 @@ export interface Like {
 
 export async function fetchLikes(
   targetType: string,
-  targetId: number
+  targetId: number,
 ): Promise<Like[]> {
   const { data } = await instance.get<Like[]>("/likes", {
     params: {
@@ -22,7 +22,6 @@ export async function fetchLikes(
 }
 
 export async function toggleLike(payload: {
-  user_id: number;
   target_type: string;
   target_id: number;
 }): Promise<{ action: "liked" | "unliked"; id?: number }> {

@@ -24,6 +24,7 @@ import { initializeSchedulers } from "./scheduler";
 const CORS_ORIGINS = [
   "http://localhost:4321",
   "http://localhost:4322",
+  "http://localhost:3000",
   "http://127.0.0.1:4321",
   "http://127.0.0.1:4322",
   "https://atos-api.afet.space",
@@ -72,7 +73,7 @@ const v1 = new Elysia({ prefix: "/v1", name: "api:v1" })
       const res = await query("SELECT 1 as ok");
       return { ok: res.rows[0]?.ok === 1 };
     },
-    { detail: { summary: "DB health check (v1)", tags: ["health"] } }
+    { detail: { summary: "DB health check (v1)", tags: ["health"] } },
   )
   .use(usersRoutes())
   .use(teamsRoutes())

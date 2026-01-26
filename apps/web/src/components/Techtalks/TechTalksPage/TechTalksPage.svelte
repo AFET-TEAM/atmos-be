@@ -9,7 +9,7 @@
   } from "../../../api/TechTalksApi";
   import ConfirmModal from "../../UI/ConfirmModal.svelte";
   import CreateTechTalkModal from "../CreateTechtalkModal/CreateTechtalksModal.svelte";
-  import TechTalksCards from '../TechTalksCards/TechTalksCards.svelte';
+  import TechTalksCards from "../TechTalksCards/TechTalksCards.svelte";
   import type { TechTalk } from "../types/TechTalks";
   import "./TechtalksPage.scss";
 
@@ -83,7 +83,6 @@
 
     try {
       const base = {
-        user_id: $userAtom?.id || 0,
         title: payload.title,
         description: payload.description,
         location: payload.location,
@@ -161,13 +160,13 @@
   {:else}
     <div class="tt-list">
       {#each talks as talk (talk.id)}
-       <TechTalksCards
-        {talk}
-        {isAdmin}
-        onDownload={() => {}}
-        onUpdate={handleUpdate}
-        onDelete={handleDeleteRequest}
-      />
+        <TechTalksCards
+          {talk}
+          {isAdmin}
+          onDownload={() => {}}
+          onUpdate={handleUpdate}
+          onDelete={handleDeleteRequest}
+        />
       {/each}
     </div>
   {/if}

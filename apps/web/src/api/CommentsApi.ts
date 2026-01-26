@@ -10,11 +10,15 @@ export interface Comment {
   created_at: string;
   updated_at: string;
   deleted_at?: string;
+  user_name?: string;
+  userName?: string;
+  user_avatar?: string;
+  userAvatar?: string;
 }
 
 export async function fetchComments(
   targetType: string,
-  targetId: number
+  targetId: number,
 ): Promise<Comment[]> {
   const { data } = await instance.get<Comment[]>("/comments", {
     params: {
@@ -26,7 +30,6 @@ export async function fetchComments(
 }
 
 export async function createComment(payload: {
-  user_id: number;
   target_type: string;
   target_id: number;
   text: string;
@@ -38,7 +41,7 @@ export async function createComment(payload: {
 
 export async function updateComment(
   id: number,
-  text: string
+  text: string,
 ): Promise<Comment> {
   const { data } = await instance.patch<Comment>(`/comments/${id}`, { text });
   return data;

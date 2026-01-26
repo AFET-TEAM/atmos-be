@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: "https://atos-api.afet.space/v1/",
+  baseURL: "http://localhost:3000/v1",
   timeout: 10000,
   withCredentials: true,
   headers: {

@@ -41,6 +41,7 @@ export type CrudFactoryOptions = {
     selectCols?: string[];
     where?: string[];
     orderBy?: string;
+    querySchema?: any; // Elysia query schema
     buildFilters?: (q: Record<string, unknown>) => {
       whereFragments: string[];
       paramsHead: any[];
@@ -76,7 +77,7 @@ export type CrudFactoryOptions = {
       ctx: HookCtx,
       action: CrudAction,
       table: string,
-      resource?: { id?: number | string }
+      resource?: { id?: number | string },
     ) => boolean | Promise<boolean>;
     forbidMessage?: string;
   };
@@ -90,7 +91,7 @@ export type CrudFactoryOptions = {
   /** Ekstra route eklemek için */
   extend?: (
     plugin: Elysia,
-    ctx: { table: string; basePath: string; tag: string }
+    ctx: { table: string; basePath: string; tag: string },
   ) => void;
 };
 
@@ -127,7 +128,7 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
     params: any,
     queryObj: any,
     body: any,
-    user?: AuthUser
+    user?: AuthUser,
   ): HookCtx => ({
     table,
     basePath,
@@ -142,7 +143,7 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
   const checkRbac = async (
     ctx: HookCtx,
     action: CrudAction,
-    resource?: { id?: number | string }
+    resource?: { id?: number | string },
   ) => {
     if (!opts.rbac?.can) return true;
     return !!(await opts.rbac.can(ctx, action, table, resource));
@@ -156,7 +157,7 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
     const { ownerField } = opts.ownerCheck;
     const res = await query<{ [k: string]: any }>(
       `SELECT ${ownerField} FROM ${table} WHERE id=$1`,
-      [id]
+      [id],
     );
     const row = res.rows[0];
     if (!row) return false;
@@ -175,7 +176,7 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
         {},
         ctx.query,
         undefined,
-        (ctx as any).user
+        (ctx as any).user,
       );
       if (!(await checkRbac(hookCtx, "list")))
         return forbidden(opts.rbac?.forbidMessage);
@@ -208,7 +209,10 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
       const out = (await opts.after?.list?.(hookCtx, data)) ?? data;
       return out;
     },
-    { query: pagination, detail: { summary: `List ${table}`, tags: [tag] } }
+    {
+      query: listCfg.querySchema ?? pagination,
+      detail: { summary: `List ${table}`, tags: [tag] },
+    },
   );
 
   /** GET /:id */
@@ -229,16 +233,16 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
           : "";
       const res = await query(
         `SELECT ${ql(
-          getCfg.selectCols!
+          getCfg.selectCols!,
         )} FROM ${table} WHERE id = $1 ${whereSoft}`,
-        [id]
+        [id],
       );
       if (!res.rows[0]) return notFound();
       const data = mapRows(res.rows)[0];
       const out = (await opts.after?.get?.(hookCtx, data)) ?? data;
       return out;
     },
-    { params: idParam, detail: { summary: `Get ${table} by id`, tags: [tag] } }
+    { params: idParam, detail: { summary: `Get ${table} by id`, tags: [tag] } },
   );
 
   /** POST / : create */
@@ -257,7 +261,7 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
       const res = await query(
         `INSERT INTO ${table} (${keys.map((k) => `"${k}"`).join(",")})
          VALUES (${params.join(",")}) RETURNING *`,
-        values
+        values,
       );
       const created = mapRows(res.rows)[0];
       const out = (await opts.after?.create?.(hookCtx, created)) ?? created;
@@ -266,7 +270,7 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
     {
       body: opts.create.bodySchema,
       detail: { summary: `Create ${table}`, tags: [tag] },
-    }
+    },
   );
 
   /** PATCH /:id : update */
@@ -281,7 +285,7 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
           ctx.params,
           {},
           ctx.body,
-          (ctx as any).user
+          (ctx as any).user,
         );
 
         if (!(await checkRbac(hookCtx, "update", { id })))
@@ -304,7 +308,7 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
           `UPDATE ${table} SET ${sets.join(", ")}
            WHERE id = $${keys.length + 1} ${softGuard}
            RETURNING *`,
-          [...keys.map((k) => (data as any)[k]), id]
+          [...keys.map((k) => (data as any)[k]), id],
         );
         if (!res.rows[0]) return notFound();
 
@@ -316,7 +320,7 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
         params: idParam,
         body: opts.update.bodySchema,
         detail: { summary: `Update ${table} (partial)`, tags: [tag] },
-      }
+      },
     );
   }
 
@@ -331,7 +335,7 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
         ctx.params,
         {},
         undefined,
-        (ctx as any).user
+        (ctx as any).user,
       );
 
       if (!(await checkRbac(hookCtx, "delete", { id })))
@@ -344,7 +348,7 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
       if (soft.enabled) {
         const res = await query(
           `UPDATE ${table} SET ${soft.column} = now() WHERE id=$1 AND ${soft.column} IS NULL RETURNING id`,
-          [id]
+          [id],
         );
         if (!res.rows[0]) return notFound();
         const out = (await opts.after?.delete?.(hookCtx, {
@@ -355,7 +359,7 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
       } else {
         const res = await query(
           `DELETE FROM ${table} WHERE id=$1 RETURNING id`,
-          [id]
+          [id],
         );
         if (!res.rows[0]) return notFound();
         const out = (await opts.after?.delete?.(hookCtx, {
@@ -368,7 +372,7 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
     {
       params: idParam,
       detail: { summary: `Delete ${table} by id`, tags: [tag] },
-    }
+    },
   );
 
   opts.extend?.(r, { table, basePath, tag });

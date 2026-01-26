@@ -8,7 +8,7 @@
   } from "@/api/CommentsApi";
   import { fetchLikes, toggleLike } from "@/api/LikesApi";
   import { userAtom } from "@/stores/userStore";
-  import { onMount } from "svelte";
+  import moment from "moment";
   import Icon from "../../UI/Icon.svelte";
   import TechTalkSideList from "../TechtalkSideList/TechtalkSideList.svelte";
   import type { TechTalk } from "../types/TechTalks";
@@ -26,9 +26,22 @@
   let hasLiked = false;
   let editingText = "";
   let loading = false;
+  let currentTalkId: number | null = null;
 
   $: currentUser = $userAtom;
   $: isAdmin = currentUser?.role === "admin";
+
+  $: if (talk?.id && talk.id !== currentTalkId) {
+    currentTalkId = talk.id;
+
+    hasLiked = false;
+    likesCount = 0;
+    comments = [];
+    commentText = "";
+
+    console.log("🔄 TechTalk değişti, yeni ID:", talk.id);
+    loadCommentsAndLikes(talk.id);
+  }
 
   const videoUrl = talk.video_url || talk.videoUrl;
   const thumbnailUrl = talk.thumbnail_url || talk.thumbnailUrl;
@@ -38,26 +51,20 @@
   );
   const youtubeId = ytMatch ? ytMatch[1] : null;
 
-  onMount(async () => {
-      console.log("TechTalk Details — gelen talk:", talk);
-  console.log("TechTalk Details — talk.id:", talk?.id);
-  console.log(" video_url:", talk?.video_url, " | videoUrl:", talk?.videoUrl);
-  console.log("thumbnail_url:", talk?.thumbnail_url, " | thumbnailUrl:", talk?.thumbnailUrl);
-  console.log("ownerId:", talk?.userId, " | user_id:", talk?.user_id);
-    await loadCommentsAndLikes();
-  });
-
-  async function loadCommentsAndLikes() {
+  async function loadCommentsAndLikes(talkId: number) {
     loading = true;
+    console.log("📥 Like/Comment yükleniyor, TechTalk ID:", talkId);
     try {
-      const fetchedComments = await fetchComments("techtalk", talk.id);
+      const fetchedComments = await fetchComments("techtalk", talkId);
       comments = fetchedComments;
 
-      const likes = await fetchLikes("techtalk", talk.id);
+      const likes = await fetchLikes("techtalk", talkId);
       likesCount = likes.length;
+      console.log("❤️ Likes:", likes);
 
       if (currentUser) {
         hasLiked = likes.some((like) => like.user_id === currentUser.id);
+        console.log("✓ hasLiked:", hasLiked, "currentUser.id:", currentUser.id);
       }
     } catch (error) {
       console.error("Yükleme hatası:", error);
@@ -82,7 +89,7 @@
         text: text,
       });
 
-      await loadCommentsAndLikes();
+      await loadCommentsAndLikes(talk.id);
       commentText = "";
     } catch (e) {
       console.error("Yorum gönderilemedi:", e);
@@ -109,7 +116,7 @@
     sending = true;
     try {
       await updateComment(commentId, text);
-      await loadCommentsAndLikes();
+      await loadCommentsAndLikes(talk.id);
       editingId = null;
       editingText = "";
     } catch (e) {
@@ -126,7 +133,7 @@
     sending = true;
     try {
       await deleteComment(commentId);
-      await loadCommentsAndLikes();
+      await loadCommentsAndLikes(talk.id);
     } catch (e) {
       console.error("Yorum silinemedi:", e);
       alert("Yorum silinemedi.");
@@ -149,7 +156,7 @@
         target_id: talk.id,
       });
 
-      await loadCommentsAndLikes();
+      await loadCommentsAndLikes(talk.id);
     } catch (e) {
       console.error("Beğeni gönderilemedi:", e);
       alert("Beğeni gönderilemedi.");
@@ -157,8 +164,8 @@
       liking = false;
     }
   }
-console.log("currentUser:", currentUser);
-console.log("talk", talk);
+  console.log("currentUser:", currentUser);
+  console.log("talk", talk);
   function canEditDelete(comment: Comment): boolean {
     if (!currentUser) return false;
     return isAdmin || comment.user_id === currentUser.id;
@@ -230,23 +237,22 @@ console.log("talk", talk);
           </span>
         </div>
       </div> -->
-    <div class="owner">
-  <div class="owner-name">
-    {talk.userId || talk.user_id || "Bilinmeyen"}
-  </div>
+      <div class="owner">
+        <div class="owner-name">
+          {talk.userId || talk.user_id || "Bilinmeyen"}
+        </div>
 
-  <div class="date-group">
-    <span class="date-icon">
-      <Icon name="clock" width={14} height={14} />
-    </span>
-    <span class="date">
-      {talk.date && talk.date !== ""
-        ? new Date(talk.date).toLocaleDateString("tr-TR")
-        : "-"}
-    </span>
-  </div>
-</div>
-
+        <div class="date-group">
+          <span class="date-icon">
+            <Icon name="clock" width={14} height={14} />
+          </span>
+          <span class="date">
+            {talk.date && talk.date !== ""
+              ? new Date(talk.date).toLocaleDateString("tr-TR")
+              : "-"}
+          </span>
+        </div>
+      </div>
     </div>
 
     <div class="comment-input">
@@ -298,23 +304,15 @@ console.log("talk", talk);
             </div>
 
             <div class="comment-info">
-              <!-- CURRENT USER GELDİĞİNDE AÇILACAK -->
-              <!-- <div class="comment-user">
-                <Icon name="users" />
-                {#await getUserById(c.user_id)}
-                  <p>Yükleniyor...</p>
-                {:then user}
-                  <p>{user?.fullName || "Bilinmeyen"}</p>
-                {/await}
-              </div> -->
               <div class="comment-user">
                 <Icon name="users" />
-                <p>{c.user_id}</p>
+                <p>{c.userName || c.user_name || `User ${c.user_id}`}</p>
               </div>
               <div class="comment-date">
                 <Icon name="clock" />
-                <span>{new Date(c.created_at).toLocaleDateString("tr-TR")}</span
-                >
+                <span>
+                  {moment(c.created_at).format("DD MMM YYYY, HH:mm")}
+                </span>
               </div>
 
               {#if canEditDelete(c)}

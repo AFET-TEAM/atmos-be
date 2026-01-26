@@ -11,6 +11,13 @@ export const likesRoutes = () => {
 
     list: {
       orderBy: "created_at DESC",
+      querySchema: t.Object({
+        target_type: t.Optional(t.String()),
+        target_id: t.Optional(t.Numeric()),
+        limit: t.Optional(t.Numeric()),
+        offset: t.Optional(t.Numeric()),
+        include_deleted: t.Optional(t.Boolean()),
+      }),
       buildFilters: (q) => {
         const whereFragments: string[] = [];
         const paramsHead: any[] = [];
@@ -22,6 +29,7 @@ export const likesRoutes = () => {
           paramsHead.push(Number(q.target_id as string));
           whereFragments.push(`target_id = $${paramsHead.length}`);
         }
+
         return { whereFragments, paramsHead };
       },
     },
@@ -38,29 +46,38 @@ export const likesRoutes = () => {
     update: undefined,
     ownerCheck: {
       ownerField: "user_id",
-      getUserId: ({ body }) => (body as any)?.user_id ?? 0,
+      getUserId: ({ user }) => user?.id ?? 0,
     },
     rbac: { can: async () => true },
 
-    // Ekstra: toggle endpoint’i extend ile ekleyelim
+    before: {
+      create: ({ user, body }) => {
+        if (!user) throw new Response("Unauthorized", { status: 401 });
+        (body as any).user_id = user.id;
+      },
+    },
+
+    // Ekstra: toggle endpoint'i extend ile ekleyelim
     extend: (r, { basePath }) => {
       r.post(
         `${basePath}/toggle`,
-        async ({ body }) => {
-          const { user_id, target_type, target_id } = body as any;
+        async ({ body, user }) => {
+          if (!user) return new Response("Unauthorized", { status: 401 });
+          const { target_type, target_id } = body as any;
+          const user_id = user.id;
           try {
             const ins = await query(
               `INSERT INTO likes (user_id, target_type, target_id)
                VALUES ($1,$2,$3)
                ON CONFLICT (user_id, target_type, target_id)
                DO NOTHING RETURNING *`,
-              [user_id, target_type, target_id]
+              [user_id, target_type, target_id],
             );
             if (ins.rows[0])
               return { action: "liked", ...mapRows(ins.rows)[0] };
             const del = await query(
               `DELETE FROM likes WHERE user_id=$1 AND target_type=$2 AND target_id=$3 RETURNING id`,
-              [user_id, target_type, target_id]
+              [user_id, target_type, target_id],
             );
             return { action: "unliked", ...del.rows[0] };
           } catch {
@@ -69,12 +86,11 @@ export const likesRoutes = () => {
         },
         {
           body: t.Object({
-            user_id: t.Numeric(),
             target_type: t.String(),
             target_id: t.Numeric(),
           }),
           detail: { summary: "Toggle like", tags: ["likes"] },
-        }
+        },
       );
     },
   });

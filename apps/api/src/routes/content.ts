@@ -12,7 +12,6 @@ export const contentRoutes = () => {
     list: { orderBy: "date DESC" },
     create: {
       bodySchema: t.Object({
-        user_id: t.Numeric(),
         title: t.String(),
         description: t.Optional(t.String()),
         location: t.Optional(t.String()),
@@ -25,7 +24,6 @@ export const contentRoutes = () => {
         status: t.Optional(t.Boolean()),
       }),
       bodyKeys: [
-        "user_id",
         "title",
         "description",
         "location",
@@ -41,7 +39,6 @@ export const contentRoutes = () => {
     update: {
       bodySchema: t.Partial(
         t.Object({
-          user_id: t.Numeric(),
           title: t.String(),
           description: t.Optional(t.String()),
           location: t.Optional(t.String()),
@@ -52,10 +49,9 @@ export const contentRoutes = () => {
           date: t.Optional(t.String()),
           time: t.Optional(t.String()),
           status: t.Optional(t.Boolean()),
-        })
+        }),
       ),
       bodyKeys: [
-        "user_id",
         "title",
         "description",
         "location",
@@ -73,6 +69,12 @@ export const contentRoutes = () => {
       getUserId: ({ user }) => user?.id ?? 0,
     },
     rbac: { can: async () => true },
+    before: {
+      create: ({ user, body }) => {
+        if (!user) throw new Response("Unauthorized", { status: 401 });
+        (body as any).user_id = user.id;
+      },
+    },
   })
     .get(
       "/lastTechTalks",
@@ -91,7 +93,7 @@ export const contentRoutes = () => {
           summary: "get last tech talks",
           tags: ["content"],
         },
-      }
+      },
     )
     .get(
       "/techtalks/:id",
@@ -102,7 +104,7 @@ export const contentRoutes = () => {
         const res = await query(
           `SELECT id, title, description, date, video_url, thumbnail_url, location, duration_min, status
            FROM techtalks WHERE user_id = $1 AND deleted_at IS NULL ORDER BY date DESC`,
-          [userId]
+          [userId],
         );
         return { data: res.rows };
       },
@@ -111,7 +113,7 @@ export const contentRoutes = () => {
           summary: "get user's tech talks",
           tags: ["content"],
         },
-      }
+      },
     );
 
   const documents = createCrudRoutes({
@@ -121,7 +123,6 @@ export const contentRoutes = () => {
     list: { orderBy: "date DESC" },
     create: {
       bodySchema: t.Object({
-        user_id: t.Numeric(),
         title: t.String(),
         description: t.Optional(t.String()),
         file_url: t.Optional(t.String()),
@@ -131,7 +132,6 @@ export const contentRoutes = () => {
         date: t.Optional(t.String()),
       }),
       bodyKeys: [
-        "user_id",
         "title",
         "description",
         "file_url",
@@ -144,7 +144,6 @@ export const contentRoutes = () => {
     update: {
       bodySchema: t.Partial(
         t.Object({
-          user_id: t.Numeric(),
           title: t.String(),
           description: t.Optional(t.String()),
           file_url: t.Optional(t.String()),
@@ -152,10 +151,9 @@ export const contentRoutes = () => {
           file_name: t.Optional(t.String()),
           date: t.Optional(t.String()),
           content: t.Optional(t.String()),
-        })
+        }),
       ),
       bodyKeys: [
-        "user_id",
         "title",
         "description",
         "file_url",
@@ -177,7 +175,9 @@ export const contentRoutes = () => {
     },
     before: {
       create: async (ctx) => {
+        if (!ctx.user) throw new Response("Unauthorized", { status: 401 });
         const body = ctx.body as any;
+        body.user_id = ctx.user.id;
 
         if (body.file_data) {
           const buffer = Buffer.from(body.file_data, "base64");
@@ -202,7 +202,7 @@ export const contentRoutes = () => {
         const res = await query(
           `SELECT id, title, description, file_url, date, content
          FROM documents WHERE user_id = $1 AND deleted_at IS NULL ORDER BY date DESC`,
-          [userId]
+          [userId],
         );
         return { data: res.rows };
       },
@@ -211,7 +211,7 @@ export const contentRoutes = () => {
           summary: "get user's documents",
           tags: ["content"],
         },
-      }
+      },
     )
     .get(
       "/documents/:id/download",
@@ -224,7 +224,7 @@ export const contentRoutes = () => {
 
         const res = await query(
           `SELECT file_data, file_name, title FROM documents WHERE id = $1 AND deleted_at IS NULL`,
-          [docId]
+          [docId],
         );
 
         const row = res.rows[0];
@@ -239,9 +239,8 @@ export const contentRoutes = () => {
         const fileName = file_name || `${title}.bin`;
 
         set.headers["Content-Type"] = "application/octet-stream";
-        set.headers[
-          "Content-Disposition"
-        ] = `attachment; filename="${fileName}"`;
+        set.headers["Content-Disposition"] =
+          `attachment; filename="${fileName}"`;
 
         return new Response(file_data, {
           headers: {
@@ -255,7 +254,7 @@ export const contentRoutes = () => {
           summary: "Download document file",
           tags: ["content"],
         },
-      }
+      },
     );
 
   const reports = createCrudRoutes({
@@ -279,7 +278,7 @@ export const contentRoutes = () => {
           title: t.String(),
           file_url: t.Optional(t.String()),
           date: t.Optional(t.String()),
-        })
+        }),
       ),
       bodyKeys: ["user_id", "title", "file_url", "date"] as const,
     },
@@ -297,7 +296,7 @@ export const contentRoutes = () => {
       const res = await query(
         `SELECT id, title, file_url, date
          FROM reports WHERE user_id = $1 AND deleted_at IS NULL ORDER BY date DESC`,
-        [userId]
+        [userId],
       );
       return { data: res.rows };
     },
@@ -306,7 +305,7 @@ export const contentRoutes = () => {
         summary: "get user's reports",
         tags: ["content"],
       },
-    }
+    },
   );
 
   const ideas = createCrudRoutes({
@@ -347,7 +346,7 @@ export const contentRoutes = () => {
           backend_count: t.Optional(t.Numeric()),
           idea_assignee_id: t.Optional(t.Numeric()),
           date: t.Optional(t.String()),
-        })
+        }),
       ),
       bodyKeys: [
         "user_id",
@@ -374,7 +373,7 @@ export const contentRoutes = () => {
       const res = await query(
         `SELECT id, title, description, file_url, frontend_count, backend_count, idea_assignee_id, date
          FROM ideas WHERE user_id = $1 AND deleted_at IS NULL ORDER BY date DESC`,
-        [userId]
+        [userId],
       );
       return { data: res.rows };
     },
@@ -383,7 +382,7 @@ export const contentRoutes = () => {
         summary: "get user's ideas",
         tags: ["content"],
       },
-    }
+    },
   );
 
   return app.use(techtalks).use(documents).use(reports).use(ideas);

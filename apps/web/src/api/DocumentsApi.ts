@@ -13,7 +13,6 @@ export interface DocumentItem {
 }
 
 export interface CreateDocumentPayload {
-  user_id: number;
   title: string;
   description?: string;
   file_url?: string;
@@ -38,7 +37,7 @@ export async function getDocumentBySlug(slug: string): Promise<DocumentItem> {
 }
 
 export async function createDocument(
-  payload: CreateDocumentPayload
+  payload: CreateDocumentPayload,
 ): Promise<DocumentItem> {
   const response = await instance.post<DocumentItem>("/documents", payload);
   return response.data;
@@ -46,11 +45,11 @@ export async function createDocument(
 
 export async function updateDocument(
   id: number,
-  payload: Partial<CreateDocumentPayload>
+  payload: Partial<CreateDocumentPayload>,
 ): Promise<DocumentItem> {
   const response = await instance.patch<DocumentItem>(
     `/documents/${id}`,
-    payload
+    payload,
   );
   return response.data;
 }

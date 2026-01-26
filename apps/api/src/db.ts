@@ -22,10 +22,7 @@ const config = {
   statement_timeout: process.env.PG_STATEMENT_TIMEOUT
     ? Number(process.env.PG_STATEMENT_TIMEOUT)
     : undefined,
-  ssl:
-    process.env.NODE_ENV === "production"
-      ? { rejectUnauthorized: false }
-      : undefined,
+  ssl: process.env.PGSSL === "true" ? { rejectUnauthorized: false } : false,
 } as const;
 
 declare global {
@@ -55,7 +52,7 @@ export const sql = (
 ): QueryConfig => {
   const text = strings.reduce(
     (acc, s, i) => acc + s + (i < values.length ? `$${i + 1}` : ""),
-    ""
+    "",
   );
   return { text, values };
 };
@@ -85,7 +82,7 @@ type Params = ReadonlyArray<unknown>;
 export const query = async <T extends QueryResultRow = QueryResultRow>(
   q: QueryInput,
   params?: Params,
-  options?: { signal?: AbortSignal }
+  options?: { signal?: AbortSignal },
 ): Promise<QueryResult<T>> => {
   const pool = getPool();
   const start = nowMs();
@@ -105,11 +102,11 @@ export const query = async <T extends QueryResultRow = QueryResultRow>(
     return await pool.query<T>(cfg);
   } finally {
     const ms = nowMs() - start;
-    const text = typeof q === "string" ? q : q.text ?? "";
+    const text = typeof q === "string" ? q : (q.text ?? "");
     if (ms > SLOW_MS)
       console.warn(
         `SQL slow (${ms.toFixed(1)}ms):`,
-        text.replace(/\s+/g, " ").slice(0, 180)
+        text.replace(/\s+/g, " ").slice(0, 180),
       );
   }
 };
@@ -123,14 +120,14 @@ export const query = async <T extends QueryResultRow = QueryResultRow>(
 export const queryOne = async <T extends QueryResultRow = QueryResultRow>(
   q: QueryInput,
   params?: Params,
-  options?: { signal?: AbortSignal }
+  options?: { signal?: AbortSignal },
 ): Promise<T | null> => {
   const { rows } = await query<T>(q, params, options);
   if (rows.length === 0) return null;
   if (rows.length > 1) {
-    const text = typeof q === "string" ? q : q.text ?? "";
+    const text = typeof q === "string" ? q : (q.text ?? "");
     throw new Error(
-      `queryOne expected 0–1 rows, got ${rows.length}. SQL: ${preview(text)}`
+      `queryOne expected 0–1 rows, got ${rows.length}. SQL: ${preview(text)}`,
     );
   }
   return rows[0]!;
@@ -145,10 +142,10 @@ export const tx = async <R>(
   fn: (
     q: <T extends QueryResultRow = QueryResultRow>(
       q: QueryInput,
-      params?: Params
+      params?: Params,
     ) => Promise<QueryResult<T>>,
-    client: PoolClient
-  ) => Promise<R>
+    client: PoolClient,
+  ) => Promise<R>,
 ): Promise<R> => {
   const pool = getPool();
   const client = await pool.connect();
@@ -158,7 +155,7 @@ export const tx = async <R>(
     /** Bu query, client'a bağlıdır; aynı transaction içinde kalır. */
     const bound = <T extends QueryResultRow = QueryResultRow>(
       q: QueryInput,
-      params?: Params
+      params?: Params,
     ) => {
       const values = params ? Array.from(params) : [];
       const cfg: QueryConfig =

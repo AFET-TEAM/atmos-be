@@ -66,7 +66,6 @@
       }
 
       const payload = {
-        user_id: user.id,
         title: values.title || "",
         description: values.description || undefined,
         file_url: values.fileUrl || undefined,
