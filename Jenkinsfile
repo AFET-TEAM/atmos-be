@@ -1,101 +1,114 @@
 pipeline {
     agent any
     environment {
-        // Proje İsimleri
         APP_NAME_API = "atos-api"
         APP_NAME_WEB = "atos-web"
-        // Network
-        NETWORK_NAME = "app-network"
+        NETWORK_NAME = "traefik_public"
+        SCANNER_HOME = tool 'sonar-scanner'
     }
 
     stages {
-        stage('Ortam ve Port Analizi') {
+        stage('1. Ortam ve Domain Belirleme') {
             steps {
                 script {
-                    if (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'master') {
-                        // --- PROD ---
+                    if (env.BRANCH_NAME == 'main') {
                         env.API_CONTAINER = "${APP_NAME_API}-prod"
                         env.WEB_CONTAINER = "${APP_NAME_WEB}-prod"
-                        env.API_PORT = "3003"
-                        env.WEB_PORT = "83"  // Web sitesi varsayılan port
-                        echo ">>> CANLI ORTAM (PROD) Hazırlanıyor..."
+                        
+                        env.API_DOMAIN = "api-atos.afet.team"
+                        env.WEB_DOMAIN = "atos.afet.team"
+                        
+                        echo ">>> CANLI ORTAM (PROD) - Web: ${env.WEB_DOMAIN} / API: ${env.API_DOMAIN}"
                     }
-                    else if (env.BRANCH_NAME == 'develop') {
-                        // --- DEV ---
+                    else if (env.BRANCH_NAME == 'test') {
                         env.API_CONTAINER = "${APP_NAME_API}-dev"
                         env.WEB_CONTAINER = "${APP_NAME_WEB}-dev"
-                        env.API_PORT = "3004"
-                        env.WEB_PORT = "8084"
-                        echo ">>> GELİŞTİRME ORTAMI (DEV) Hazırlanıyor..."
-                    }
-                    else {
-                        // --- TEST ---
-                        env.API_CONTAINER = "${APP_NAME_API}-test-${env.BRANCH_NAME}"
-                        env.WEB_CONTAINER = "${APP_NAME_WEB}-test-${env.BRANCH_NAME}"
-                        env.API_PORT = "3005"
-                        env.WEB_PORT = "8085"
+                        
+                        env.API_DOMAIN = "api-atos-dev.afet.team"
+                        env.WEB_DOMAIN = "atos-dev.afet.team"
+                        
+                        echo ">>> GELİŞTİRME ORTAMI (DEV) - Web: ${env.WEB_DOMAIN}"
                     }
                 }
             }
         }
 
-        stage('Build Images') {
+        stage('2. SonarQube Analizi') {
+            steps {
+                withSonarQubeEnv('sonarqube-server') {
+                    sh "${SCANNER_HOME}/bin/sonar-scanner"
+                }
+            }
+        }
+
+        stage('3. Build Images') {
             steps {
                 script {
                     echo "--- API Image Derleniyor (Bun) ---"
-                    // -f Dockerfile.api parametresiyle özel dosya ismini belirtiyoruz
-                    sh "docker build -f Dockerfile.api -t ${APP_NAME_API}:${env.BRANCH_NAME} ."
+                    sh "docker build --no-cache -f Dockerfile.api -t ${APP_NAME_API}:${env.BRANCH_NAME} ."
 
                     echo "--- Web Image Derleniyor (Node/Astro) ---"
-                    // -f Dockerfile.web parametresiyle özel dosya ismini belirtiyoruz
-                    sh "docker build -f Dockerfile.web -t ${APP_NAME_WEB}:${env.BRANCH_NAME} ."
+                    sh "docker build --no-cache -f Dockerfile.web -t ${APP_NAME_WEB}:${env.BRANCH_NAME} ."
                 }
             }
         }
 
-        stage('Deploy API') {
+        stage('4. Deploy API (Backend)') {
             steps {
                 script {
-                    // Eski API container'ı temizle
+                    def bt = '\u0060'
+                    def traefikRule = "Host(${bt}${env.API_DOMAIN}${bt})"
+
                     sh "docker stop ${env.API_CONTAINER} || true"
                     sh "docker rm ${env.API_CONTAINER} || true"
-                    // Network yoksa oluştur (Opsiyonel, hata almamak için)
-                    sh "docker network create ${NETWORK_NAME} || true"
 
-                    // API Başlat
                     sh """
                         docker run -d \
                         --name ${env.API_CONTAINER} \
                         --network ${NETWORK_NAME} \
                         --restart always \
-                        --env-file /var/jenkins_home/prod.env \
-                        -p ${env.API_PORT}:3000 \
+                        --env-file /var/jenkins_home/atos.env \
+                        \
+                        --label "traefik.enable=true" \
+                        --label "traefik.http.routers.${env.API_CONTAINER}.rule=${traefikRule}" \
+                        --label "traefik.http.routers.${env.API_CONTAINER}.entrypoints=websecure" \
+                        --label "traefik.http.routers.${env.API_CONTAINER}.tls.certresolver=myresolver" \
+                        --label "traefik.http.services.${env.API_CONTAINER}.loadbalancer.server.port=3000" \
+                        \
                         ${APP_NAME_API}:${env.BRANCH_NAME}
                     """
                 }
             }
         }
 
-        stage('Deploy Web') {
+        stage('5. Deploy Web (Frontend)') {
             steps {
                 script {
-                    // Eski WEB container'ı temizle
+                    def bt = '\u0060'
+                    def traefikRule = "Host(${bt}${env.WEB_DOMAIN}${bt})"
+
                     sh "docker stop ${env.WEB_CONTAINER} || true"
                     sh "docker rm ${env.WEB_CONTAINER} || true"
 
-                    // Web Başlat (API URL'ini environment olarak geçmek isteyebilirsiniz)
                     sh """
                         docker run -d \
                         --name ${env.WEB_CONTAINER} \
                         --network ${NETWORK_NAME} \
                         --restart always \
-                        -p ${env.WEB_PORT}:4321 \
-                        -e PUBLIC_API_URL=http://${env.API_CONTAINER}:3000 \
+                        -e PUBLIC_API_URL=https://${env.API_DOMAIN} \
+                        \
+                        --label "traefik.enable=true" \
+                        --label "traefik.http.routers.${env.WEB_CONTAINER}.rule=${traefikRule}" \
+                        --label "traefik.http.routers.${env.WEB_CONTAINER}.entrypoints=websecure" \
+                        --label "traefik.http.routers.${env.WEB_CONTAINER}.tls.certresolver=myresolver" \
+                        --label "traefik.http.services.${env.WEB_CONTAINER}.loadbalancer.server.port=4321" \
+                        \
                         ${APP_NAME_WEB}:${env.BRANCH_NAME}
                     """
+                    
                     echo ">>> Deployment Tamamlandı!"
-                    echo "API: Port ${env.API_PORT}"
-                    echo "WEB: Port ${env.WEB_PORT}"
+                    echo "API: https://${env.API_DOMAIN}"
+                    echo "WEB: https://${env.WEB_DOMAIN}"
                 }
             }
         }
