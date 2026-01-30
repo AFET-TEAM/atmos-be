@@ -52,11 +52,7 @@ const filteredUsers = users.filter((user: any) => {
 
 const makeSlug = (u: any) => {
   const name = (u.fullName ?? u.full_name ?? "").toString().trim();
-  const kebab = name.toLowerCase().replace(/\s+/g, "-");
-
-  const encodedId = Buffer.from(String(u.id)).toString("base64");
-
-  return encodeURIComponent(`${kebab}-${encodedId}`);
+  return encodeURIComponent(name);
 };
 
 let isDropdownVisible = false;

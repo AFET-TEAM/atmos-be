@@ -6,7 +6,7 @@ import UserProfileCard from "@/components/Users/UserProfileCard/UserProfileCard.
 import Layout from "../../layouts/Layout.astro";
 import "./_users.scss";
 
-import { getUserById, getUserMeetings } from "@/api/UsersApi";
+import { getUserMeetings, getUsers } from "@/api/UsersApi";
 
 const slugParam = Astro.params.slug;
 
@@ -14,23 +14,20 @@ if (!slugParam) {
   throw new Error("Geçersiz kullanıcı slug");
 }
 
-const decodedSlug = decodeURIComponent(slugParam);
+const fullNameFromUrl = decodeURIComponent(slugParam).trim();
 
-const lastDashIndex = decodedSlug.lastIndexOf("-");
-if (lastDashIndex === -1) {
-  throw new Error("Geçersiz kullanıcı slug");
+const users = await getUsers();
+
+const user = users.find((u: any) => {
+  const fullName = (u.fullName ?? u.full_name ?? "").toString().trim();
+  return fullName === fullNameFromUrl;
+});
+
+if (!user) {
+  throw new Error("Kullanıcı bulunamadı");
 }
 
-const idEncoded = decodedSlug.slice(lastDashIndex + 1);
-
-const idString = Buffer.from(idEncoded, "base64").toString("utf8");
-const userId = Number(idString);
-
-if (!userId || Number.isNaN(userId)) {
-  throw new Error("Geçersiz kullanıcı id");
-}
-
-const user = await getUserById(String(userId));
+const userId = user.id;
 
 const userMeetings = await getUserMeetings(String(userId));
 
