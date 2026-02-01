@@ -50,9 +50,16 @@ const filteredUsers = users.filter((user: any) => {
   );
 });
 
+const toSlug = (s: string) =>
+  s
+    .trim()
+    .toLowerCase()
+    .replace(/\u00A0/g, " ")
+    .replace(/\s+/g, "-");
+
 const makeSlug = (u: any) => {
-  const name = (u.fullName ?? u.full_name ?? "").toString().trim();
-  return encodeURIComponent(name);
+  const name = String(u.fullName ?? u.full_name ?? "");
+  return encodeURIComponent(toSlug(name));
 };
 
 let isDropdownVisible = false;

@@ -13,7 +13,14 @@ type teamMembers = {
   profilePicture: string;
 };
 
+const toSlug = (s: string) =>
+  s
+    .trim()
+    .toLowerCase()
+    .replace(/\u00A0/g, " ")
+    .replace(/\s+/g, "-");
 
+const makeUserSlug = (u: any) => encodeURIComponent(toSlug(String(u?.fullName ?? "")));
 const getUserTeamMember = await getUserTeamMembers(user?.id);
 
 ---
@@ -37,7 +44,7 @@ const getUserTeamMember = await getUserTeamMembers(user?.id);
             <CustomLink
               buttonType="secondary"
               iconName="addFriends"
-              href={`/users/${users.id}`}
+              href={`/users/${makeUserSlug(users)}`}
               color="#666666"
              className="icon-button-secondary"
             />

@@ -4,9 +4,23 @@
 
   a {
     text-decoration: none;
-    color: $primary;
+    color: #5d6679;
     font-weight: 600;
     font-size: 0.8rem;
+  }
+
+  svg {
+    color: #5d6679;
+  }
+
+  &.is-active {
+    a {
+      color: #18a0fb;
+    }
+
+    svg {
+      color: #18a0fb;
+    }
   }
 }
 

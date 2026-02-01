@@ -4,10 +4,14 @@ import TechTalkDetail from "@/components/Techtalks/TechtalkDetail.astro";
 import type { TechTalk } from "@/components/Techtalks/types/TechTalks";
 import Layout from "@/layouts/Layout.astro";
 
-const id = Number(Astro.params.id);
-if (Number.isNaN(id)) {
+const slugParam = Astro.params.slug ?? "";
+
+const idStr = slugParam.split("-").pop() ?? "";
+const id = Number(idStr);
+
+if (!idStr || Number.isNaN(id)) {
   Astro.response.status = 404;
-  throw new Error("Geçersiz id");
+  throw new Error("Geçersiz slug/id");
 }
 
 let talk: TechTalk;
@@ -21,7 +25,7 @@ try {
 }
 
 const all: TechTalk[] = await fetchTechTalks();
-const others: TechTalk[] = all.filter((t) => t.id !== id);
+const others: TechTalk[] = all.filter((t) => Number(t.id) !== id);
 ---
 
 <Layout title={`TechTalk • ${talk.title}`}>

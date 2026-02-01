@@ -14,19 +14,25 @@ if (!slugParam) {
   throw new Error("Geçersiz kullanıcı slug");
 }
 
-const fullNameFromUrl = decodeURIComponent(slugParam).trim();
+const toSlug = (s: string) =>
+  s
+    .trim()
+    .toLowerCase()
+    .replace(/\u00A0/g, " ")
+    .replace(/\s+/g, "-"); // boşlukları - yap
+
+const slugFromUrl = decodeURIComponent(slugParam).trim().toLowerCase();
 
 const users = await getUsers();
 
 const user = users.find((u: any) => {
-  const fullName = (u.fullName ?? u.full_name ?? "").toString().trim();
-  return fullName === fullNameFromUrl;
+  const fullName = String(u.fullName ?? u.full_name ?? "");
+  return toSlug(fullName) === slugFromUrl;
 });
 
 if (!user) {
   throw new Error("Kullanıcı bulunamadı");
 }
-
 const userId = user.id;
 
 const userMeetings = await getUserMeetings(String(userId));

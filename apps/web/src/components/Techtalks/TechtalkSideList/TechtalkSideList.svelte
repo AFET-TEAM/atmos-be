@@ -6,12 +6,28 @@
   export let items: TechTalk[] = [];
   export let activeId: number | undefined;
 
-  const fmt = (d?: string) => {
+   const fmt = (d?: string) => {
     if (!d) return null;
     const date = new Date(d);
     if (isNaN(date.getTime())) return d;
     return date.toLocaleDateString("tr-TR");
   };
+
+  const slugify = (s: string) =>
+    (s || "")
+      .toLowerCase()
+      .trim()
+      .replaceAll("ğ", "g")
+      .replaceAll("ü", "u")
+      .replaceAll("ş", "s")
+      .replaceAll("ı", "i")
+      .replaceAll("ö", "o")
+      .replaceAll("ç", "c")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+  const talkHref = (t: TechTalk) => `/techtalks/${slugify(t.title)}-${t.id}`;
+
 </script>
 
 <aside class="tt-side">
@@ -21,7 +37,7 @@
     {#each items as o (o.id)}
       <a
         class="tt-side__item {activeId === o.id ? 'is-active' : ''}"
-        href={`/techtalks/${o.id}`}
+        href={talkHref(o)}
         title={o.title}
         aria-current={activeId === o.id ? "page" : undefined}
       >

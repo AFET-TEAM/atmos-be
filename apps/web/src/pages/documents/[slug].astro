@@ -1,7 +1,7 @@
 ---
-import Layout from "../../layouts/Layout.astro";
-import DocumentDetailHeader from "@/components/Documents/DocumentDetailHeader.svelte";
 import { getDocumentBySlug } from "@/api/DocumentsApi";
+import DocumentDetailHeader from "@/components/Documents/DocumentDetailHeader.svelte";
+import Layout from "../../layouts/Layout.astro";
 const { slug } = Astro.params;
 
 if (!slug) {
@@ -11,7 +11,6 @@ const document = await getDocumentBySlug(slug);
 ---
 
 <Layout title="Document Detail">
-  <div>Document Detail for {slug}</div>
 
   <section>
     <DocumentDetailHeader client:load slug={slug} document={document} />
