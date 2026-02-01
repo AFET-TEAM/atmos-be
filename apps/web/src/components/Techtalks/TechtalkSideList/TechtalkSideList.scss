@@ -18,7 +18,9 @@
     padding: 10px;
     text-decoration: none;
     color: inherit;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease,
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease,
       transform 0.06s ease;
 
     &:hover {
@@ -33,7 +35,7 @@
   }
 
   .tt-side__thumb {
-    width: 110px;
+    max-width: 110px;
     aspect-ratio: 16/9;
     border-radius: 10px;
     overflow: hidden;

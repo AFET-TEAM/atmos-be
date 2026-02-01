@@ -18,7 +18,7 @@
 </script>
 
 <IconButton
-  text="Çıkış Yap"
+  text="Log Out"
   buttonType="secondary"
   iconName="logout"
   className={`logout-button ${className}`}

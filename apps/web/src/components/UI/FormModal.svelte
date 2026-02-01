@@ -140,43 +140,80 @@
   >
     <h2 id="form-modal-title">{title}</h2>
 
-    {#each fields as f}
+    {#each fields as f, i}
+  {#if f.key === "date" && fields[i + 1]?.key === "time"}
+    <div class="field-row">
       <label class="field">
         <span>{f.label}</span>
 
-        {#if f.type === "textarea"}
-          <textarea
-            rows="4"
-            data-key={f.key}
-            placeholder={f.placeholder}
-            bind:value={localValues[f.key]}
-          ></textarea>
-        {:else if f.type === "file"}
-          <input
-            data-key={f.key}
-            type="file"
-            accept=".pdf,.doc,.docx,.txt,.jpg,.png"
-            on:change={(e) => handleFileChange(f.key, e)}
-          />
-          {#if fileInputs[f.key]}
-            <small class="file-info"
-              >Seçilen dosya: {fileInputs[f.key]?.name}</small
-            >
-          {/if}
-        {:else}
-          <input
-            data-key={f.key}
-            type={f.type ?? "text"}
-            placeholder={f.placeholder}
-            bind:value={localValues[f.key]}
-          />
-        {/if}
+        <input
+          data-key={f.key}
+          type={f.type ?? "text"}
+          placeholder={f.placeholder}
+          bind:value={localValues[f.key]}
+          step={f.type === "time" ? "60" : undefined}
+        />
 
         {#if showErrors && errors[f.key]}
           <p class="error-text">{errors[f.key]}</p>
         {/if}
       </label>
-    {/each}
+
+      <label class="field">
+        <span>{fields[i + 1].label}</span>
+
+        <input
+          data-key={fields[i + 1].key}
+          type={fields[i + 1].type ?? "text"}
+          placeholder={fields[i + 1].placeholder}
+          bind:value={localValues[fields[i + 1].key]}
+          step={fields[i + 1].type === "time" ? "60" : undefined}
+        />
+
+        {#if showErrors && errors[fields[i + 1].key]}
+          <p class="error-text">{errors[fields[i + 1].key]}</p>
+        {/if}
+      </label>
+    </div>
+  {:else if f.key === "time" && fields[i - 1]?.key === "date"}
+  {:else}
+    <label class="field">
+      <span>{f.label}</span>
+
+      {#if f.type === "textarea"}
+        <textarea
+          rows="4"
+          data-key={f.key}
+          placeholder={f.placeholder}
+          bind:value={localValues[f.key]}
+        ></textarea>
+      {:else if f.type === "file"}
+        <input
+          data-key={f.key}
+          type="file"
+          accept=".pdf,.doc,.docx,.txt,.jpg,.png"
+          on:change={(e) => handleFileChange(f.key, e)}
+        />
+        {#if fileInputs[f.key]}
+          <small class="file-info">Seçilen dosya: {fileInputs[f.key]?.name}</small>
+        {/if}
+      {:else}
+        <input
+          data-key={f.key}
+          type={f.type ?? "text"}
+          placeholder={f.placeholder}
+          bind:value={localValues[f.key]}
+          step={f.type === "time" ? "60" : undefined}
+        />
+      {/if}
+
+      {#if showErrors && errors[f.key]}
+        <p class="error-text">{errors[f.key]}</p>
+      {/if}
+    </label>
+  {/if}
+{/each}
+
 
     <div class="actions">
       <button

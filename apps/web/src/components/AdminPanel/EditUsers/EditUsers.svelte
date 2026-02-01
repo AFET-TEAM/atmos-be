@@ -17,6 +17,18 @@
   let departments: any[] = [];
   let directorates: any[] = [];
 
+  let drafts: Record<
+    number,
+    {
+      team: string;
+      user_department: string;
+      directorate: string;
+      role: string;
+      dirty: boolean;
+      saving: boolean;
+    }
+  > = {};
+
   let showConfirm = false;
   let userToDelete: any = null;
 
@@ -37,6 +49,20 @@
       userTeams = await getUsersTeams();
       departments = await getUsersDepartments();
       directorates = await getUsersDirectorates();
+
+      drafts = Object.fromEntries(
+        users.map((u) => [
+          u.id,
+          {
+            team: String(u.team ?? ""),
+            user_department: String(u.user_department ?? ""),
+            directorate: String(u.directorate ?? ""),
+            role: String(u.role ?? ""),
+            dirty: false,
+            saving: false,
+          },
+        ]),
+      );
     } catch (err) {
       console.error("Load error:", err);
     }
@@ -44,68 +70,81 @@
 
   onMount(load);
 
-  async function handleTeamChange(userId: number, teamId: string) {
-    const user = users.find((u) => u.id === userId);
-    const selectedTeam = userTeams.find((t) => t.id === Number(teamId));
+  function setDraft(
+    userId: number,
+    patch: Partial<{
+      team: string;
+      user_department: string;
+      directorate: string;
+      role: string;
+    }>,
+  ) {
+    const current = drafts[userId];
+    if (!current) return;
 
-    if (user && selectedTeam) {
-      const updated = await updateUser(userId, {
-        team: teamId,
-        team_label: selectedTeam.name,
-      });
-
-      if (updated) {
-        user.team = teamId;
-        user.team_label = selectedTeam.name;
-      }
-    }
+    drafts = {
+      ...drafts,
+      [userId]: {
+        ...current,
+        ...patch,
+        dirty: true,
+      },
+    };
   }
 
-  async function handleDepartmentChange(userId: number, deptId: string) {
+  async function saveUser(userId: number) {
     const user = users.find((u) => u.id === userId);
-    const selectedDept = departments.find((d) => d.id === Number(deptId));
+    const d = drafts[userId];
+    if (!user || !d) return;
 
-    if (user && selectedDept) {
-      const updated = await updateUser(userId, {
-        user_department: Number(deptId),
-        department_label: selectedDept.name,
-      });
+    const selectedTeam = userTeams.find((t) => t.id === Number(d.team));
+    const selectedDept = departments.find((x) => x.id === Number(d.user_department));
+    const selectedDir = directorates.find((x) => x.id === Number(d.directorate));
+
+    drafts = { ...drafts, [userId]: { ...d, saving: true } };
+
+    try {
+     const userDepartmentValue =
+  d.user_department ? Number(d.user_department) : undefined;
+
+const directorateValue =
+  d.directorate ? Number(d.directorate) : undefined;
+
+const updated = await updateUser(userId, {
+  team: d.team || "",
+  team_label: selectedTeam?.name ?? "",
+
+  user_department: userDepartmentValue,
+  department_label: selectedDept?.name ?? "",
+
+  directorate: directorateValue,
+  directorate_label: selectedDir?.name ?? "",
+
+  role: d.role || "",
+});
 
       if (updated) {
-        user.user_department = Number(deptId);
-        user.department_label = selectedDept.name;
+        user.team = d.team;
+        user.team_label = selectedTeam?.name ?? "";
+
+        user.user_department = d.user_department ? Number(d.user_department) : null;
+        user.department_label = selectedDept?.name ?? "";
+
+        user.directorate = d.directorate ? Number(d.directorate) : null;
+        user.directorate_label = selectedDir?.name ?? "";
+
+        user.role = d.role;
+
+        drafts = {
+          ...drafts,
+          [userId]: { ...drafts[userId], dirty: false, saving: false },
+        };
+      } else {
+        drafts = { ...drafts, [userId]: { ...drafts[userId], saving: false } };
       }
-    }
-  }
-
-  async function handleDirectorateChange(userId: number, dirId: string) {
-    const user = users.find((u) => u.id === userId);
-    const selectedDir = directorates.find((d) => d.id === Number(dirId));
-
-    if (user && selectedDir) {
-      const updated = await updateUser(userId, {
-        directorate: Number(dirId),
-        directorate_label: selectedDir.name,
-      });
-
-      if (updated) {
-        user.directorate = Number(dirId);
-        user.directorate_label = selectedDir.name;
-      }
-    }
-  }
-
-  async function handleRoleChange(userId: number, newRole: string) {
-    const user = users.find((u) => u.id === userId);
-
-    if (user) {
-      const updated = await updateUser(userId, {
-        role: newRole,
-      });
-
-      if (updated) {
-        user.role = newRole;
-      }
+    } catch (e) {
+      console.error("saveUser error:", e);
+      drafts = { ...drafts, [userId]: { ...drafts[userId], saving: false } };
     }
   }
 
@@ -119,6 +158,10 @@
       deleteUser(userToDelete.id).then((result) => {
         if (result) {
           users = users.filter((u) => u.id !== userToDelete.id);
+
+          const next = { ...drafts };
+          delete next[userToDelete.id];
+          drafts = next;
         }
       });
     }
@@ -133,10 +176,6 @@
 </script>
 
 <section>
-  <!-- <div class="header-row">
-    <button class="btn btn-blue" on:click={openCreate}> + Add User </button>
-  </div> -->
-
   {#if users.length}
     {#each users as user}
       <DynamicCard
@@ -158,13 +197,14 @@
           },
         ]}
       />
+
       <div class="user-dropdowns">
         <div class="dropdown-field">
           <span class="dropdown-title">Team</span>
           <select
-            value={String(user.team || "")}
+            value={drafts[user.id]?.team ?? ""}
             on:change={(e) =>
-              handleTeamChange(user.id, (e.target as HTMLSelectElement).value)}
+              setDraft(user.id, { team: (e.target as HTMLSelectElement).value })}
           >
             <option value="">Select Team</option>
             {#each userTeams as team}
@@ -176,12 +216,11 @@
         <div class="dropdown-field">
           <span class="dropdown-title">Department</span>
           <select
-            value={String(user.userDepartment || "")}
+            value={drafts[user.id]?.user_department ?? ""}
             on:change={(e) =>
-              handleDepartmentChange(
-                user.id,
-                (e.target as HTMLSelectElement).value,
-              )}
+              setDraft(user.id, {
+                user_department: (e.target as HTMLSelectElement).value,
+              })}
           >
             <option value="">Select Department</option>
             {#each departments as dept}
@@ -193,12 +232,11 @@
         <div class="dropdown-field">
           <span class="dropdown-title">Directorate</span>
           <select
-            value={String(user.directorate || "")}
+            value={drafts[user.id]?.directorate ?? ""}
             on:change={(e) =>
-              handleDirectorateChange(
-                user.id,
-                (e.target as HTMLSelectElement).value,
-              )}
+              setDraft(user.id, {
+                directorate: (e.target as HTMLSelectElement).value,
+              })}
           >
             <option value="">Select Directorate</option>
             {#each directorates as dir}
@@ -210,15 +248,27 @@
         <div class="dropdown-field">
           <span class="dropdown-title">Role</span>
           <select
-            value={user.role || ""}
+            value={drafts[user.id]?.role ?? ""}
             on:change={(e) =>
-              handleRoleChange(user.id, (e.target as HTMLSelectElement).value)}
+              setDraft(user.id, { role: (e.target as HTMLSelectElement).value })}
           >
             <option value="">Select Role</option>
             <option value="user">User</option>
             <option value="admin">Admin</option>
             <option value="supervisor">Supervisor</option>
           </select>
+        </div>
+
+        <div class="dropdown-field save-field">
+          <span class="dropdown-title">&nbsp;</span>
+          <button
+            type="button"
+            class="btn btn-blue"
+            disabled={!drafts[user.id]?.dirty || drafts[user.id]?.saving}
+            on:click={() => saveUser(user.id)}
+          >
+            {drafts[user.id]?.saving ? "Saving..." : "Save"}
+          </button>
         </div>
       </div>
     {/each}

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Field } from '@/types/DocumentTypes/DocumentTypes';
   import FormModal from "../../UI/FormModal.svelte";
   import type { TechTalk } from "../types/TechTalks";
 
@@ -21,16 +22,6 @@
       };
     };
   }>();
-
-  type Field = {
-    key: string;
-    label: string;
-    type?: "text" | "url" | "textarea" | "number" | "email" | "password";
-    placeholder?: string;
-    required?: boolean;
-    value?: string | number;
-    autoFocus?: boolean;
-  };
 
   type SubmitValues = Record<string, string | number | File | null>;
 
@@ -60,6 +51,20 @@
       value: talkToEdit?.location ?? "",
       placeholder: "Örn: Online",
     },
+     {
+  key: "date",
+  label: "Tarih",
+  required: true,
+  value: (talkToEdit)?.date ?? "",
+  type: "date",
+},
+{
+  key: "time",
+  label: "Saat",
+  required: true,
+  value: (talkToEdit as any)?.time ?? "",
+  type: "time",
+},
     {
       key: "thumbnailUrl",
       label: "Thumbnail URL",
@@ -95,6 +100,8 @@
       thumbnailUrl: String(v.thumbnailUrl ?? ""),
       teamsRoomUrl: String(v.teamsRoomUrl ?? ""),
       videoUrl: String(v.videoUrl ?? ""),
+       date: String(v.date ?? ""),
+time: String(v.time ?? ""),
     };
     dispatch("submit", { id: talkToEdit?.id, payload });
   }

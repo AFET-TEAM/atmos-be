@@ -8,12 +8,28 @@
   export let onUpdate: (talk: TechTalk) => void;
   export let onDelete: (id: number) => void;
 console.log("talk",talk);
+
+  const slugify = (s: string) =>
+    (s || "")
+      .toLowerCase()
+      .trim()
+      .replaceAll("ğ", "g")
+      .replaceAll("ü", "u")
+      .replaceAll("ş", "s")
+      .replaceAll("ı", "i")
+      .replaceAll("ö", "o")
+      .replaceAll("ç", "c")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+      const talkHref = (t: TechTalk) => `/techtalks/${slugify(t.title)}-${t.id}`;
+
 </script>
 
 <DynamicCard
   imgSrc={talk.thumbnailUrl}
   title={talk.title}
-  titleHref={`/techtalks/${talk.id}`}
+  titleHref={talkHref(talk)}
   description={talk.description}
   owner={talk.owner}
   ownerIcon="owner"
