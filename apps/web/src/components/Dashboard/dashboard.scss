@@ -77,6 +77,9 @@
         .top-cards-row {
           grid-template-columns: 1fr;
           gap: 1.5rem;
+          > * {
+            min-width: 0;
+          }
         }
 
         .stats-row {
@@ -93,6 +96,10 @@
     .middle-section {
       grid-template-columns: 1fr;
       gap: 1.5rem;
+      > .card {
+        min-width: 0;
+        overflow: hidden;
+      }
     }
 
     .bottom-section {

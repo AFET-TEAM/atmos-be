@@ -91,21 +91,28 @@ const hasTalks = Array.isArray(techTalks) && techTalks.length > 0;
   <p>Çok yakında yeni konular ile karşınızda....</p>
 )}
 
-<script>
-// @ts-nocheck
+<script is:inline>
+  (() => {
+    const initSlider = () => {
+      const slider = document.getElementById("techtalkSlider");
+      if (!slider) return;
 
-  const slider = document.getElementById("techtalkSlider");
-  if (slider) {
-    const track = slider.querySelector(".techtalks-slider-track");
-    const slides = track ? Array.from(track.children) : [];
-    const prevBtn = slider.querySelector(".techtalk-arrow--prev");
-    const nextBtn = slider.querySelector(".techtalk-arrow--next");
-    const dotsContainer = document.getElementById("techtalkDots");
-    const dots = dotsContainer
-      ? Array.from(dotsContainer.querySelectorAll(".techtalk-dot"))
-      : [];
+      slider.dataset.init = "";
 
-    if (track && slides.length > 0) {
+      if (slider.dataset.init === "1") return;
+      slider.dataset.init = "1";
+
+      const track = slider.querySelector(".techtalks-slider-track");
+      const slides = track ? Array.from(track.children) : [];
+      const prevBtn = slider.querySelector(".techtalk-arrow--prev");
+      const nextBtn = slider.querySelector(".techtalk-arrow--next");
+      const dotsContainer = document.getElementById("techtalkDots");
+      const dots = dotsContainer
+        ? Array.from(dotsContainer.querySelectorAll(".techtalk-dot"))
+        : [];
+
+      if (!track || slides.length === 0) return;
+
       let index = 0;
 
       const updatePosition = () => {
@@ -114,13 +121,7 @@ const hasTalks = Array.isArray(techTalks) && techTalks.length > 0;
       };
 
       const updateDots = () => {
-        dots.forEach((dot, i) => {
-          if (i === index) {
-            dot.classList.add("is-active");
-          } else {
-            dot.classList.remove("is-active");
-          }
-        });
+        dots.forEach((dot, i) => dot.classList.toggle("is-active", i === index));
       };
 
       const goTo = (newIndex) => {
@@ -132,34 +133,17 @@ const hasTalks = Array.isArray(techTalks) && techTalks.length > 0;
 
       updatePosition();
       updateDots();
+
+      prevBtn?.addEventListener("click", () => goTo(index - 1));
+      nextBtn?.addEventListener("click", () => goTo(index + 1));
+      dots.forEach((dot, i) => dot.addEventListener("click", () => goTo(i)));
+
       window.addEventListener("resize", updatePosition);
+    };
 
-      let timer = setInterval(() => {
-        goTo(index + 1);
-      }, 3000);
-
-      const restartTimer = () => {
-        clearInterval(timer);
-        timer = setInterval(() => goTo(index + 1), 4000);
-      };
-
-      prevBtn?.addEventListener("click", () => {
-        goTo(index - 1);
-        restartTimer();
-      });
-
-      nextBtn?.addEventListener("click", () => {
-        goTo(index + 1);
-        restartTimer();
-      });
-
-      dots.forEach((dot, i) => {
-        dot.addEventListener("click", () => {
-          goTo(i);
-          restartTimer();
-        });
-      });
-    }
-  }
+    initSlider();
+    document.addEventListener("astro:page-load", initSlider);
+  })();
 </script>
+
 

@@ -134,20 +134,22 @@
 
 <div class="documents-header">
   <div class="header-buttons">
-    <CustomLink
-      text="Doküman Oluştur"
-      href="/createdocument"
-      iconName="download"
-      size={12}
-      border={true}
-    />
+    <span class="btn">
+      <CustomLink
+        text="Doküman Oluştur"
+        href="/createdocument"
+        iconName="download"
+        size={12}
+        border={true}
+      />
+    </span>
 
     <IconButton
       text="Doküman Yükle"
       iconName="download"
       buttonType="secondary"
-      className="customLink"
-      color="blue"
+      className="btn"
+      color="white"
       border={true}
       on:click={handleClick}
     />
