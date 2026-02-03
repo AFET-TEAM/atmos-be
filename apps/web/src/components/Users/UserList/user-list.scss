@@ -46,16 +46,16 @@
 
     .badge {
       @include badges(
-          absolute,
-          0,
-          0,
-          $secondary,
-          $white,
-          12px,
-          5px 10px,
-          bold,
-          12px,
-          12px
+        absolute,
+        0,
+        0,
+        $secondary,
+        $white,
+        12px,
+        5px 10px,
+        bold,
+        12px,
+        12px
       );
     }
   }
@@ -71,18 +71,19 @@
 
   button {
     @include buttons(
-        120px,
-        0.5rem,
-        $primary,
-        0.75rem,
-        $primary,
-        $white,
-        null,
-        null,
-        null,
-        null
+      120px,
+      0.5rem,
+      $primary,
+      0.75rem,
+      $primary,
+      $white,
+      null,
+      null,
+      null,
+      null
     );
     @include flexible(flex, row-reverse, center, center, null);
+    gap: 8px;
     &.connected {
       background-color: $primary;
       border-color: $primary;
@@ -102,6 +103,9 @@
       border-color: $lightGrey;
       color: $darkGrey;
       cursor: not-allowed;
+    }
+    .icon {
+      margin-right: 8px;
     }
   }
 

@@ -19,7 +19,7 @@ const toSlug = (s: string) =>
     .trim()
     .toLowerCase()
     .replace(/\u00A0/g, " ")
-    .replace(/\s+/g, "-"); // boşlukları - yap
+    .replace(/\s+/g, "-");
 
 const slugFromUrl = decodeURIComponent(slugParam).trim().toLowerCase();
 

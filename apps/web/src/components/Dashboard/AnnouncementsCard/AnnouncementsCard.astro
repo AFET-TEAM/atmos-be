@@ -52,25 +52,34 @@ const visible: AnnouncumnetItem[] = announcements.slice(0, 5);
   </ul>
 
   <script is:inline>
-    (() => {
-      const root = document.querySelector('[data-notif-card]');
-      if (!root) return;
+  (() => {
+    const initAnnouncements = () => {
+      document.querySelectorAll("[data-notif-card]").forEach((root) => {
+        if (root.dataset.bound === "1") return;
+        root.dataset.bound = "1";
 
-      root.querySelectorAll('[data-notif-open]').forEach((btn) => {
-        btn.addEventListener('click', () => {
+        root.addEventListener("click", (e) => {
+          const btn = e.target.closest("[data-notif-open]");
+          if (!btn) return;
+
           const detail = {
-            id: btn.getAttribute('data-id'),
-            title: btn.getAttribute('data-title'),
-            date: btn.getAttribute('data-date'),
-            content: btn.getAttribute('data-content'),
-            authorName: btn.getAttribute('data-author-name'),
-            authorRole: btn.getAttribute('data-author-role'),
+            id: btn.getAttribute("data-id"),
+            title: btn.getAttribute("data-title"),
+            date: btn.getAttribute("data-date"),
+            content: btn.getAttribute("data-content"),
+            authorName: btn.getAttribute("data-author-name"),
+            authorRole: btn.getAttribute("data-author-role"),
           };
 
-          window.dispatchEvent(new CustomEvent('notification:open', { detail }));
+          window.dispatchEvent(new CustomEvent("notification:open", { detail }));
         });
       });
-    })();
-  </script>
+    };
+    initAnnouncements();
+
+    document.addEventListener("astro:page-load", initAnnouncements);
+  })();
+</script>
+
 
 </div>

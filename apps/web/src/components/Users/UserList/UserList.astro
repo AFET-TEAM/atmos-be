@@ -34,6 +34,7 @@ if (selectedDirectorate) {
 
 const lowerSearch = search.toLowerCase();
 const filteredUsers = users.filter((user: any) => {
+  console.log("FIRST USER", users);
   if (!lowerSearch) return true;
 
   const fullName =
@@ -86,7 +87,7 @@ let isDropdownVisible = false;
             </div>
 
             <div class="content">
-              <div class="badge">{user.jobvalue}</div>
+              <div class="badge">{user.profession}</div>
               <h3>{user.fullName ?? user.full_name}</h3>
 
               <div class="info">
