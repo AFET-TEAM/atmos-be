@@ -56,8 +56,7 @@ pipeline {
         stage('4. Deploy API (Backend)') {
             steps {
                 script {
-                    def bt = '\u0060'
-                    def traefikRule = "Host(${bt}${env.API_DOMAIN}${bt})"
+                    def traefikRule = "Host(\"${env.APP_DOMAIN}\")"
 
                     sh "docker stop ${env.API_CONTAINER} || true"
                     sh "docker rm ${env.API_CONTAINER} || true"
@@ -84,8 +83,7 @@ pipeline {
         stage('5. Deploy Web (Frontend)') {
             steps {
                 script {
-                    def bt = '\u0060'
-                    def traefikRule = "Host(${bt}${env.WEB_DOMAIN}${bt})"
+                    def traefikRule = "Host(\"${env.APP_DOMAIN}\")"
 
                     sh "docker stop ${env.WEB_CONTAINER} || true"
                     sh "docker rm ${env.WEB_CONTAINER} || true"
