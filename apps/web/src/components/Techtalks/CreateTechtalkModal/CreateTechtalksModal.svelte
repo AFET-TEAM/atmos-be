@@ -47,21 +47,21 @@
     {
       key: "location",
       label: "Lokasyon",
-      required: true,
+      required: false,
       value: talkToEdit?.location ?? "",
       placeholder: "Örn: Online",
     },
      {
   key: "date",
   label: "Tarih",
-  required: true,
+  required: false,
   value: (talkToEdit)?.date ?? "",
   type: "date",
 },
 {
   key: "time",
   label: "Saat",
-  required: true,
+  required: false,
   value: (talkToEdit as any)?.time ?? "",
   type: "time",
 },
@@ -84,7 +84,7 @@
     {
       key: "videoUrl",
       label: "Video URL",
-      required: true,
+      required: false,
       value: (talkToEdit?.video_url || talkToEdit?.videoUrl) ?? "",
       type: "url",
       placeholder: "https://youtu.be/...",

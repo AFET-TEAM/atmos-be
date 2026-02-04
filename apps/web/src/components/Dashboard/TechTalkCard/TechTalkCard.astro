@@ -6,6 +6,7 @@ import "./techtalk-card.scss";
 
 const techTalks = await fetchLastTechTalk();
 const hasTalks = Array.isArray(techTalks) && techTalks.length > 0;
+console.log("TechTalks raw =>", techTalks);
 ---
 
 {hasTalks ? (
@@ -51,6 +52,16 @@ const hasTalks = Array.isArray(techTalks) && techTalks.length > 0;
                     <Icon name={"date"} width={8} height={14} />
                     <span class="info-text">{techTalkDate}</span>
                   </div>
+                  {talk.teams_room_url ? (
+                    <a
+                      class="join-btn"
+                      href={talk.teams_room_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Katıl
+                    </a>
+                  ) : null}
                 </div>
               </article>
             );
