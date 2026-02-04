@@ -27,7 +27,7 @@ pipeline {
                         env.API_DOMAIN = "api-atos-dev.afet.team"
                         env.WEB_DOMAIN = "atos-dev.afet.team"
                         
-                        echo ">>> GELİŞTİRME ORTAMI (DEV) - Web: ${env.WEB_DOMAIN}"
+                        echo ">>> GELİŞTİRME ORTAMI (DEV) - Web: ${env.WEB_DOMAIN} / API: ${env.API_DOMAIN}"
                     }
                 }
             }
@@ -36,6 +36,7 @@ pipeline {
         stage('2. SonarQube Analizi') {
             steps {
                 withSonarQubeEnv('sonarqube-server') {
+                    // Önceki hatayı engellemek için kaynak dizini nokta olarak ezdik
                     sh "${SCANNER_HOME}/bin/sonar-scanner -Dsonar.sources=."
                 }
             }
@@ -44,10 +45,7 @@ pipeline {
         stage('3. Build Images') {
             steps {
                 script {
-                    echo "--- API Image Derleniyor (Bun) ---"
                     sh "docker build --no-cache -f Dockerfile.api -t ${APP_NAME_API}:${env.BRANCH_NAME} ."
-
-                    echo "--- Web Image Derleniyor (Node/Astro) ---"
                     sh "docker build --no-cache -f Dockerfile.web -t ${APP_NAME_WEB}:${env.BRANCH_NAME} ."
                 }
             }
@@ -56,24 +54,26 @@ pipeline {
         stage('4. Deploy API (Backend)') {
             steps {
                 script {
-                    def traefikRule = "Host(\"${env.APP_DOMAIN}\")"
+                    // Host kuralını çalışan referanstaki gibi oluşturuyoruz
+                    def traefikRuleApi = "Host(\"${env.API_DOMAIN}\")"
 
                     sh "docker stop ${env.API_CONTAINER} || true"
                     sh "docker rm ${env.API_CONTAINER} || true"
 
                     sh """
-                        docker run -d \
-                        --name ${env.API_CONTAINER} \
-                        --network ${NETWORK_NAME} \
-                        --restart always \
-                        --env-file /var/jenkins_home/atos.env \
-                        \
-                        --label "traefik.enable=true" \
-                        --label "traefik.http.routers.${env.API_CONTAINER}.rule=${traefikRule}" \
-                        --label "traefik.http.routers.${env.API_CONTAINER}.entrypoints=websecure" \
-                        --label "traefik.http.routers.${env.API_CONTAINER}.tls.certresolver=myresolver" \
-                        --label "traefik.http.services.${env.API_CONTAINER}.loadbalancer.server.port=3000" \
-                        \
+                        docker run -d \\
+                        --name ${env.API_CONTAINER} \\
+                        --network ${NETWORK_NAME} \\
+                        --restart always \\
+                        --env-file /var/jenkins_home/atos.env \\
+                        \\
+                        --label "traefik.enable=true" \\
+                        --label "traefik.docker.network=${NETWORK_NAME}" \\
+                        --label 'traefik.http.routers.${env.API_CONTAINER}.rule=${traefikRuleApi}' \\
+                        --label "traefik.http.routers.${env.API_CONTAINER}.entrypoints=websecure" \\
+                        --label "traefik.http.routers.${env.API_CONTAINER}.tls.certresolver=myresolver" \\
+                        --label "traefik.http.services.${env.API_CONTAINER}.loadbalancer.server.port=3000" \\
+                        \\
                         ${APP_NAME_API}:${env.BRANCH_NAME}
                     """
                 }
@@ -83,24 +83,25 @@ pipeline {
         stage('5. Deploy Web (Frontend)') {
             steps {
                 script {
-                    def traefikRule = "Host(\"${env.APP_DOMAIN}\")"
+                    def traefikRuleWeb = "Host(\"${env.WEB_DOMAIN}\")"
 
                     sh "docker stop ${env.WEB_CONTAINER} || true"
                     sh "docker rm ${env.WEB_CONTAINER} || true"
 
                     sh """
-                        docker run -d \
-                        --name ${env.WEB_CONTAINER} \
-                        --network ${NETWORK_NAME} \
-                        --restart always \
-                        -e PUBLIC_API_URL=https://${env.API_DOMAIN} \
-                        \
-                        --label "traefik.enable=true" \
-                        --label "traefik.http.routers.${env.WEB_CONTAINER}.rule=${traefikRule}" \
-                        --label "traefik.http.routers.${env.WEB_CONTAINER}.entrypoints=websecure" \
-                        --label "traefik.http.routers.${env.WEB_CONTAINER}.tls.certresolver=myresolver" \
-                        --label "traefik.http.services.${env.WEB_CONTAINER}.loadbalancer.server.port=4321" \
-                        \
+                        docker run -d \\
+                        --name ${env.WEB_CONTAINER} \\
+                        --network ${NETWORK_NAME} \\
+                        --restart always \\
+                        -e PUBLIC_API_URL=https://${env.API_DOMAIN} \\
+                        \\
+                        --label "traefik.enable=true" \\
+                        --label "traefik.docker.network=${NETWORK_NAME}" \\
+                        --label 'traefik.http.routers.${env.WEB_CONTAINER}.rule=${traefikRuleWeb}' \\
+                        --label "traefik.http.routers.${env.WEB_CONTAINER}.entrypoints=websecure" \\
+                        --label "traefik.http.routers.${env.WEB_CONTAINER}.tls.certresolver=myresolver" \\
+                        --label "traefik.http.services.${env.WEB_CONTAINER}.loadbalancer.server.port=4321" \\
+                        \\
                         ${APP_NAME_WEB}:${env.BRANCH_NAME}
                     """
                     
