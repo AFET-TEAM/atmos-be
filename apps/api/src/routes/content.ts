@@ -80,7 +80,7 @@ export const contentRoutes = () => {
       "/lastTechTalks",
       async () => {
         const res = await query(`
-        SELECT id, title, description, date, video_url, thumbnail_url, location, duration_min, status
+        SELECT id, title, description, date, video_url, thumbnail_url, teams_room_url, location, duration_min, status
         FROM techtalks
         WHERE deleted_at IS NULL AND date IS NOT NULL
         ORDER BY ABS(EXTRACT(EPOCH FROM (date::TIMESTAMPTZ - NOW())))

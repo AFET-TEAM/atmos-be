@@ -81,11 +81,12 @@
     align-items: stretch;
 
     .sort-select,
-    .search-input {
+    .search-wrapper {
       max-width: 100%;
+      width: 100%;
     }
 
-    .search-input {
+    .search-wrapper {
       margin-top: 10px;
     }
   }

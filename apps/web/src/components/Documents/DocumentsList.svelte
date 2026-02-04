@@ -217,7 +217,6 @@
         title={document.title}
         description={document.description || ""}
         owner={document.userId?.toString() || ""}
-        titleHref={`/documents/${document.id}`}
         {isAdmin}
         actions={getActions(document)}
       />
