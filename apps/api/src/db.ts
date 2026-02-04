@@ -11,18 +11,18 @@ const SLOW_MS = Number(process.env.SQL_SLOW_MS ?? 200);
 
 /** pg bağlantı ayarları (prod için opsiyonel SSL, statement_timeout vb.) */
 const config = {
-  host: process.env.PGHOST,
-  port: process.env.PGPORT ? Number(process.env.PGPORT) : 5430,
-  database: process.env.PGDATABASE,
-  user: process.env.PGUSER,
-  password: process.env.PGPASSWORD,
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432,
+  database: process.env.DB_DATABASE,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
   max: 10,
   idleTimeoutMillis: 10_000,
-  application_name: process.env.PGAPPNAME ?? "app",
-  statement_timeout: process.env.PG_STATEMENT_TIMEOUT
-    ? Number(process.env.PG_STATEMENT_TIMEOUT)
+  application_name: process.env.DB_APPNAME ?? "app",
+  statement_timeout: process.env.DB_STATEMENT_TIMEOUT
+    ? Number(process.env.DB_STATEMENT_TIMEOUT)
     : undefined,
-  ssl: process.env.PGSSL === "true" ? { rejectUnauthorized: false } : false,
+  ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false,
 } as const;
 
 declare global {
