@@ -36,7 +36,7 @@ pipeline {
         stage('2. SonarQube Analizi') {
             steps {
                 withSonarQubeEnv('sonarqube-server') {
-                    sh "${SCANNER_HOME}/bin/sonar-scanner"
+                    sh "${SCANNER_HOME}/bin/sonar-scanner -Dsonar.sources=."
                 }
             }
         }
