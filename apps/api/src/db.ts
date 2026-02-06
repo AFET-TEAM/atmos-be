@@ -13,7 +13,7 @@ const SLOW_MS = Number(process.env.SQL_SLOW_MS ?? 200);
 const config = {
   host: process.env.DB_HOST,
   port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432,
-  database: process.env.DB_DATABASE,
+  database: process.env.DB_NAME,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   max: 10,
