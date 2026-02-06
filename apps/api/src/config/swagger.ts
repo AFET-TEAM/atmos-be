@@ -1,6 +1,10 @@
+// config/swagger.ts
 import { swagger } from "@elysiajs/swagger";
 
-const BASE_URL = process.env.API_BASE_URL ?? "http://localhost:3000";
+const servers = [
+  { url: "https://api-atos-dev.afet.team", description: "Production" },
+  { url: "http://localhost:3000", description: "Local Development" },
+];
 
 export const swaggerPlugin = swagger({
   path: "/swagger",
@@ -10,7 +14,8 @@ export const swaggerPlugin = swagger({
       version: "1.0.0",
       description: "CRUD endpoints over PostgreSQL. Versioned under /v1.",
     },
-    servers: [{ url: BASE_URL }],
+    // BASE_URL yerine doğrudan listeyi verelim
+    servers: servers,
     components: {
       securitySchemes: { bearerAuth: { type: "http", scheme: "bearer" } },
     },
