@@ -87,7 +87,7 @@ let isDropdownVisible = false;
             </div>
 
             <div class="content">
-              <div class="badge">{user.profession}</div>
+              {user.profession && <div class="badge">{user.profession}</div>}
               <h3>{user.fullName ?? user.full_name}</h3>
 
               <div class="info">

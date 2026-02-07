@@ -80,12 +80,24 @@ export const contentRoutes = () => {
       "/lastTechTalks",
       async () => {
         const res = await query(`
-        SELECT id, title, description, date, video_url, thumbnail_url, teams_room_url, location, duration_min, status
-        FROM techtalks
-        WHERE deleted_at IS NULL AND date IS NOT NULL
-        ORDER BY ABS(EXTRACT(EPOCH FROM (date::TIMESTAMPTZ - NOW())))
-        LIMIT 3
-      `);
+    SELECT
+      t.id,
+      u.full_name AS owner,
+      t.title,
+      t.description,
+      t.date,
+      t.video_url,
+      t.thumbnail_url,
+      t.teams_room_url,
+      t.location,
+      t.duration_min,
+      t.status
+    FROM techtalks t
+    LEFT JOIN users u ON u.id = t.user_id
+    WHERE t.deleted_at IS NULL AND t.date IS NOT NULL
+    ORDER BY ABS(EXTRACT(EPOCH FROM (t.date::TIMESTAMPTZ - NOW())))
+    LIMIT 3
+  `);
         return { data: res.rows };
       },
       {
