@@ -27,30 +27,37 @@ const CORS_ORIGINS = [
   "https://atos-dev.afet.team",
 ];
 
+const getAllowedOrigin = (origin?: string | null) => {
+  if (!origin) return null;
+  return CORS_ORIGINS.includes(origin) ? origin : null;
+};
+
 const app = new Elysia()
   .state("version", "1.0.0")
-  .options("*", ({ set }) => {
-    set.headers["Access-Control-Allow-Origin"] = "http://localhost:4321";
-    CORS_ORIGINS.join(", ");
+  .options("*", ({ request, set }) => {
+    const origin = getAllowedOrigin(request.headers.get("origin"));
+    if (origin) {
+      set.headers["Access-Control-Allow-Origin"] = origin;
+      set.headers["Vary"] = "Origin";
+    }
     set.headers["Access-Control-Allow-Credentials"] = "true";
     set.headers["Access-Control-Allow-Methods"] =
       "GET, POST, PUT, DELETE, PATCH, OPTIONS";
     set.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization";
     set.headers["Access-Control-Max-Age"] = "3600";
-    return null;
+    return new Response(null, { status: 204 });
   })
   .onBeforeHandle(({ request, set }) => {
-    const origin = request.headers.get("origin") || "http://localhost:4321";
+    const origin = getAllowedOrigin(request.headers.get("origin"));
 
-    set.headers["Access-Control-Allow-Origin"] = origin;
+    if (origin) {
+      set.headers["Access-Control-Allow-Origin"] = origin;
+      set.headers["Vary"] = "Origin";
+    }
     set.headers["Access-Control-Allow-Credentials"] = "true";
     set.headers["Access-Control-Allow-Methods"] =
       "GET, POST, PUT, DELETE, PATCH, OPTIONS";
     set.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization";
-
-    if (request.method === "OPTIONS") {
-      return new Response(null, { status: 204 });
-    }
   })
   .use(swaggerPlugin)
   .use(authPlugin)
