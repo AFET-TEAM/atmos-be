@@ -239,7 +239,7 @@
       </div> -->
       <div class="owner">
         <div class="owner-name">
-          {talk.userId || talk.user_id || "Bilinmeyen"}
+          {talk.owner || "Bilinmeyen"}
         </div>
 
         <div class="date-group">
