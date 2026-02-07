@@ -72,3 +72,8 @@
     color: $awayColor;
   }
 }
+@media (max-width: 768px) {
+  .stat-card {
+    align-items: center;
+  }
+}

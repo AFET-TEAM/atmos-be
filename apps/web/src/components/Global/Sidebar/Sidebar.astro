@@ -1,5 +1,6 @@
 ---
 import CustomLink from "@/components/UI/CustomLink.astro";
+import RoleGate from '@/components/UI/RoleGate.astro';
 import LogoutButton from "../LogoutButton.svelte";
 import "./sidebar.scss";
 ---
@@ -43,11 +44,10 @@ import "./sidebar.scss";
 <CustomLink text="Edit Users" href="/edit-users" iconName="users" />
       <CustomLink text="Announcements" href="/add-announcements" iconName="notification" />
 
-    <!-- SUNUCULAR DÜZELDİĞİ ZAMAN AÇILACAK -->
-    <!-- <RoleGate roles={["admin"]}>
+    <RoleGate roles={["admin"]}>
       <CustomLink text="Edit Users" href="/edit-users" iconName="users" />
       <CustomLink text="Announcements" href="/add-announcements" iconName="notification" />
-    </RoleGate> -->
+    </RoleGate>
 
     <LogoutButton client:load className="customLink logout-sidebar" />
 
