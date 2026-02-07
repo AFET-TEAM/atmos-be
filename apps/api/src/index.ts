@@ -24,16 +24,14 @@ import { initializeSchedulers } from "./scheduler";
 const CORS_ORIGINS = [
   "http://localhost:4321",
   "http://localhost:4322",
-  "http://localhost:3000",
-  "http://127.0.0.1:4321",
-  "http://127.0.0.1:4322",
-  "https://atos-api.afet.space",
+  "https://atos-dev.afet.team",
 ];
 
 const app = new Elysia()
   .state("version", "1.0.0")
   .options("*", ({ set }) => {
     set.headers["Access-Control-Allow-Origin"] = "http://localhost:4321";
+    CORS_ORIGINS.join(", ");
     set.headers["Access-Control-Allow-Credentials"] = "true";
     set.headers["Access-Control-Allow-Methods"] =
       "GET, POST, PUT, DELETE, PATCH, OPTIONS";
