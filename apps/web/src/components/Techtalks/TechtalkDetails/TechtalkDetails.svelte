@@ -7,6 +7,7 @@
     updateComment,
   } from "@/api/CommentsApi";
   import { fetchLikes, toggleLike } from "@/api/LikesApi";
+  import { getUserById } from '@/api/UsersApi';
   import { userAtom } from "@/stores/userStore";
   import moment from "moment";
   import Icon from "../../UI/Icon.svelte";
@@ -166,10 +167,16 @@
   }
   console.log("currentUser:", currentUser);
   console.log("talk", talk);
-  function canEditDelete(comment: Comment): boolean {
-    if (!currentUser) return false;
-    return isAdmin || comment.user_id === currentUser.id;
-  }
+  function canEditDelete(comment: any): boolean {
+  if (!currentUser) return false;
+
+  const commentUserId = Number(comment.user_id ?? comment.userId);
+  const currentUserId = Number(currentUser.id);
+
+  return Boolean(isAdmin) || (commentUserId > 0 && commentUserId === currentUserId);
+}
+const getCreatedAt = (c: Comment | any) => (c as any).createdAt ?? (c as any).created_at;
+$: console.log("comments changed:", comments);
 </script>
 
 <div class="page">
@@ -210,7 +217,7 @@
           <span>{likesCount}</span>
         </button>
 
-        <div class="stat" title="Yorum sayısı">
+        <div class="stat" title="Comment count">
           <Icon name="comment" />
           <span>{comments.length}</span>
         </div>
@@ -218,41 +225,43 @@
     </div>
 
     <div class="meta">
-      <img class="avatar" src="/avatar-placeholder.png" alt="" />
-      <!-- CURRENT USER GELDİĞİNDE AÇILACAK -->
-      <!-- <div class="owner">
-        {#await getUserById(talk.userId || talk.user_id)}
-          <div class="owner-name">Yükleniyor...</div>
-        {:then user}
-          <div class="owner-name">{user?.fullName || "Bilinmeyen"}</div>
-        {/await}
-        <div class="date-group">
-          <span class="date-icon">
-            <Icon name="clock" width={14} height={14} />
-          </span>
-          <span class="date">
-            {talk.date && talk.date !== ""
-              ? new Date(talk.date).toLocaleDateString("tr-TR")
-              : "-"}
-          </span>
+      {#await getUserById(talk.userId || talk.user_id)}
+        <img class="avatar sidebar-logo" src="/img/logo.png" alt="Logo" />
+        <div class="owner">
+          <div class="owner-name">Loading...</div>
+          <div class="date-group">
+            <span class="date-icon">
+              <Icon name="clock" width={14} height={14} />
+            </span>
+            <span class="date">
+              {talk.date && talk.date !== ""
+                ? new Date(talk.date).toLocaleDateString("tr-TR")
+                : "-"}
+            </span>
+          </div>
         </div>
-      </div> -->
-      <div class="owner">
-        <div class="owner-name">
-          {talk.owner || "Bilinmeyen"}
-        </div>
+      {:then user}
+        {#if user?.profilePicture}
+          <img class="avatar" src={user.profilePicture} alt={user?.fullName || ""} />
+        {:else}
+          <img class="avatar logo" src="/img/logo.png" alt="Logo" />
+        {/if}
 
-        <div class="date-group">
-          <span class="date-icon">
-            <Icon name="clock" width={14} height={14} />
-          </span>
-          <span class="date">
-            {talk.date && talk.date !== ""
-              ? new Date(talk.date).toLocaleDateString("tr-TR")
-              : "-"}
-          </span>
+        <div class="owner">
+          <div class="owner-name">{user?.fullName || "Bilinmeyen"}</div>
+
+          <div class="date-group">
+            <span class="date-icon">
+              <Icon name="clock" width={14} height={14} />
+            </span>
+            <span class="date">
+              {talk.date && talk.date !== ""
+                ? new Date(talk.date).toLocaleDateString("tr-TR")
+                : "-"}
+            </span>
+          </div>
         </div>
-      </div>
+      {/await}
     </div>
 
     <div class="comment-input">
@@ -261,7 +270,7 @@
       </span>
 
       <input
-        placeholder="Yorum yaz..."
+        placeholder="Write a comment..."
         bind:value={commentText}
         disabled={sending}
         on:keydown={(e) => {
@@ -285,7 +294,7 @@
 
     <div class="comments">
       {#if loading}
-        <div class="empty-player">Yorumlar yükleniyor...</div>
+        <div class="empty-player">Loading comments...</div>
       {:else if comments.length > 0}
         {#each comments as c (c.id)}
           <div class="comment">
@@ -294,9 +303,9 @@
                 <input class="comment-edit-input" bind:value={editingText} />
                 <div class="comment-edit-actions">
                   <button type="button" on:click={() => saveEdit(c.id)}
-                    >Kaydet</button
+                    >Submit</button
                   >
-                  <button type="button" on:click={cancelEdit}>Vazgeç</button>
+                  <button type="button" on:click={cancelEdit}>Cancel</button>
                 </div>
               {:else}
                 <p>{c.text}</p>
@@ -311,7 +320,7 @@
               <div class="comment-date">
                 <Icon name="clock" />
                 <span>
-                  {moment(c.created_at).format("DD MMM YYYY, HH:mm")}
+                  {getCreatedAt(c) ? moment(getCreatedAt(c)).format("DD MMM YYYY, HH:mm") : ""}
                 </span>
               </div>
 
@@ -337,7 +346,7 @@
           </div>
         {/each}
       {:else}
-        <div class="empty-player">Henüz yorum yok</div>
+        <div class="empty-player">No comments yet</div>
       {/if}
     </div>
   </section>

@@ -69,46 +69,39 @@
   type SubmitPayload = {
     title: string;
     description: string;
-    thumbnailUrl: string;
-    teamsRoomUrl: string;
-    videoUrl: string;
     location: string;
+    duration_min: number;
+    video_url: string;
+    thumbnail_url: string;
+    teams_room_url: string;
+    date: string;
+    status: boolean;
   };
 
   type SubmitDetail = { id?: number; payload: SubmitPayload };
 
   async function handleSubmit(e: CustomEvent<SubmitDetail>) {
-    const { id, payload } = e.detail;
-    saving = true;
+  const { id, payload } = e.detail;
+  saving = true;
 
-    try {
-      const base = {
-        title: payload.title,
-        description: payload.description,
-        location: payload.location,
-        video_url: payload.videoUrl,
-        thumbnail_url: payload.thumbnailUrl,
-        teams_room_url: payload.teamsRoomUrl,
-        date: new Date().toISOString(),
-      };
-
-      if (id) {
-        const updated = await updateTechTalk(id, base);
-        talks = talks.map((t) => (t.id === id ? updated : t));
-      } else {
-        const newTalk = await createTechTalk(base);
-        talks = [...talks, newTalk];
-      }
-
-      showModal = false;
-      talkToEdit = null;
-    } catch (error) {
-      console.error("TechTalk kaydedilirken hata oluştu:", error);
-      alert("TechTalk kaydedilemedi");
-    } finally {
-      saving = false;
+  try {
+    if (id) {
+      const updated = await updateTechTalk(id, payload);
+      talks = talks.map((t) => (t.id === id ? updated : t));
+    } else {
+      const newTalk = await createTechTalk(payload);
+      talks = [...talks, newTalk];
     }
+
+    showModal = false;
+    talkToEdit = null;
+  } catch (error) {
+    console.error("TechTalk kaydedilirken hata oluştu:", error);
+    alert("TechTalk kaydedilemedi");
+  } finally {
+    saving = false;
   }
+}
 
   function openCreate() {
     talkToEdit = null;
@@ -120,21 +113,15 @@
       currentUserId === talk.userId || currentUserId === talk.user_id;
 
     return [
-      // {
-      //   label: "Görüntüle",
-      //   onClick: () => (window.location.href = `/techtalks/${talk.id}`),
-      //   variant: "blue" as const,
-      //   icon: "download" as const,
-      // },
       {
-        label: "Güncelle",
+        label: "Update",
         onClick: () => handleUpdate(talk),
         variant: "green" as const,
         icon: "update" as const,
         adminOnly: !isOwner,
       },
       {
-        label: "Sil",
+        label: "Delete",
         onClick: () => handleDeleteRequest(talk.id),
         variant: "red" as const,
         icon: "delete" as const,
@@ -163,7 +150,6 @@
         <TechTalksCards
           {talk}
           {isAdmin}
-          onDownload={() => {}}
           onUpdate={handleUpdate}
           onDelete={handleDeleteRequest}
         />

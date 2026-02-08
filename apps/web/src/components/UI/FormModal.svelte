@@ -1,14 +1,14 @@
 <script lang="ts">
   import type { Field } from "@/types/DocumentTypes/DocumentTypes";
-  import { createEventDispatcher, onMount } from "svelte";
+  import { createEventDispatcher, tick } from "svelte";
   import "./FormModal.scss";
 
   export let open = false;
   export let saving = false;
   export let title = "Form";
   export let fields: Field[] = [];
-  export let submitLabel = "Kaydet";
-  export let cancelLabel = "İptal";
+  export let submitLabel = "Submit";
+  export let cancelLabel = "Cancel";
 
   const dispatch = createEventDispatcher<{
     close: void;
@@ -103,22 +103,23 @@
     if (e.key === "Escape") close();
   }
 
-  onMount(() => {
-    const obs = new MutationObserver(() => {
-      if (!open || !modalEl) return;
-      const idx = fields.findIndex((f) => f.autoFocus);
-      const selector =
-        idx >= 0
-          ? `[data-key="${fields[idx].key}"]`
-          : `[data-key="${fields[0]?.key}"]`;
-      const el = modalEl.querySelector<HTMLInputElement | HTMLTextAreaElement>(
-        selector,
-      );
-      el?.focus();
-    });
-    obs.observe(document.body, { childList: true, subtree: true });
-    return () => obs.disconnect();
-  });
+  let didFocus = false;
+
+$: if (open) {
+  (async () => {
+    await tick();
+    if (!modalEl || didFocus) return;
+
+    const idx = fields.findIndex((f) => f.autoFocus);
+    const selector =
+      idx >= 0 ? `[data-key="${fields[idx].key}"]` : `[data-key="${fields[0]?.key}"]`;
+
+    modalEl.querySelector<HTMLInputElement | HTMLTextAreaElement>(selector)?.focus();
+    didFocus = true;
+  })();
+} else {
+  didFocus = false;
+}
 </script>
 
 <svelte:window on:keydown={onWindowKeydown} />
