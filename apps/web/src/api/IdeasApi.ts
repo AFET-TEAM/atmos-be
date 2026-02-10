@@ -22,8 +22,7 @@ export async function fetchIdeas(): Promise<RawIdeaFromApi[]> {
 }
 
 export async function createIdea(payload: CreateIdeaPayload): Promise<Idea> {
-  const body: CreateIdeaPayload = { approvedBy: [], ...payload };
-  const { data } = await instance.post<Idea>("/ideas", body);
+  const { data } = await instance.post<Idea>("/ideas", payload);
   return data;
 }
 
@@ -31,7 +30,7 @@ export async function updateIdea(
   id: number,
   payload: UpdateIdeaPayload,
 ): Promise<Idea> {
-  const { data } = await instance.put<Idea>(`/ideas/${id}`, payload);
+  const { data } = await instance.patch<Idea>(`/ideas/${id}`, payload);
   return data;
 }
 
@@ -47,7 +46,7 @@ export async function approveIdea(
   const approved = new Set(ensureArray(idea.approvedBy));
   approved.add(currentUser);
   const updated = { ...idea, approvedBy: Array.from(approved) };
-  const { data } = await instance.put<Idea>(`/ideas/${id}`, updated);
+  const { data } = await instance.patch<Idea>(`/ideas/${id}`, updated);
   return data;
 }
 
@@ -61,7 +60,7 @@ export async function joinFrontend(id: number, userId: string): Promise<Idea> {
   const list = ensureArray(idea.frontendParticipants);
   if (max > 0 && list.length >= max) return idea;
   if (!list.includes(userId)) list.push(userId);
-  const { data } = await instance.put<Idea>(`/ideas/${id}`, {
+  const { data } = await instance.patch<Idea>(`/ideas/${id}`, {
     ...idea,
     frontendParticipants: list,
   });
@@ -74,7 +73,7 @@ export async function joinBackend(id: number, userId: string): Promise<Idea> {
   const list = ensureArray(idea.backendParticipants);
   if (max > 0 && list.length >= max) return idea;
   if (!list.includes(userId)) list.push(userId);
-  const { data } = await instance.put<Idea>(`/ideas/${id}`, {
+  const { data } = await instance.patch<Idea>(`/ideas/${id}`, {
     ...idea,
     backendParticipants: list,
   });

@@ -15,11 +15,18 @@ export interface Idea {
   backendParticipants?: string[];
 }
 
-export type CreateIdeaPayload = Omit<Idea, "id" | "approvedBy"> & {
-  approvedBy?: string[];
-};
+export interface CreateIdeaPayload {
+  user_id: number;
+  title: string;
+  description?: string;
+  date?: string;
+  frontend_count?: number;
+  backend_count?: number;
+  file_url?: string;
+  approvedBy?: string[]; 
+}
 
-export type UpdateIdeaPayload = Partial<Idea>;
+export type UpdateIdeaPayload = Partial<CreateIdeaPayload>;
 
 export type CurrentUser = {
   id: string;

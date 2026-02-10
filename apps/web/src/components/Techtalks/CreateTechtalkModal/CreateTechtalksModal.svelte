@@ -66,7 +66,7 @@ function toTimestamptz(dateStr: string, timeStr: string) {
       label: "Location",
       required: true,
       value: (talkToEdit as any)?.location ?? "",
-      placeholder: "E.g. Online",
+      placeholder: "Online",
     },
     {
       key: "duration_min",

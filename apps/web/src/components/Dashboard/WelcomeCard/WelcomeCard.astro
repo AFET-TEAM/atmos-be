@@ -5,22 +5,36 @@ import "./welcome-card.scss";
 const user = getUser();
 
 console.log("WelcomeCard user:", user);
+type Gender = "male" | "female";
 
+const rawGender = user?.gender;
+const gender: Gender = rawGender === "female" ? "female" : "male";
+
+const avatarSrc = gender === "female" ? "/img/woman.png" : "/img/man.png";
+console.log("gender", gender)
 ---
-<div class="profile-card">
+<div class="welcome-card">
+  <div class="welcome-card__left">
     <h2>Welcome again {user?.full_name || "User"}.</h2>
-    <div class="info-row">
-        <Icon name={"adjustmentIcon"} width={10} height={10}/>
-        <p>{user?.department_label || "N/A"}</p>
-    </div>
-    <div class="info-row">
-        <Icon name="users" width={10} height={10}/>
-        <p>{user?.team_label || "N/A"}</p>
-    </div>
-    <div class="info-row">
-        <Icon name="mail" width={10} height={10} />
-        <p>{user?.email || "N/A"}</p>
-    </div>
-</div>
 
+    <div class="info-row">
+      <Icon name={"adjustmentIcon"} width={10} height={10} />
+      <p>{user?.department_label || "N/A"}</p>
+    </div>
+
+    <div class="info-row">
+      <Icon name="users" width={10} height={10} />
+      <p>{user?.team_label || "N/A"}</p>
+    </div>
+
+    <div class="info-row">
+      <Icon name="mail" width={10} height={10} />
+      <p>{user?.email || "N/A"}</p>
+    </div>
+  </div>
+
+  <div class="welcome-card__right" aria-hidden="true">
+    <img src={avatarSrc} alt="" loading="lazy" />
+  </div>
+</div>
 
