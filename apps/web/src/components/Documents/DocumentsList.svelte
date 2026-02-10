@@ -26,6 +26,7 @@
     try {
       loading = true;
       documents = await getAllDocuments();
+      console.log("documentsss:", documents); 
     } catch (error) {
       console.error("Error loading documents:", error);
       alert("Dokümanlar yüklenirken hata oluştu");
@@ -209,7 +210,9 @@
 </script>
 
 {#if loading}
-  <div class="loading">Yükleniyor...</div>
+  <div class="loading">Loading...</div>
+{:else if !documents || documents.length === 0}
+  <div class="empty">No documents have been uploaded yet</div>
 {:else}
   <div class="documents-list">
     {#each documents as document (document.id)}
@@ -223,6 +226,7 @@
     {/each}
   </div>
 {/if}
+
 
 <FormModal
   open={openEditModal}

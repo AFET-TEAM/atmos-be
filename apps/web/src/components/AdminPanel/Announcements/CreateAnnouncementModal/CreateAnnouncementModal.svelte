@@ -30,26 +30,24 @@
 
   type SubmitValues = Record<string, string | number>;
 
-  $: modalTitle = selectedAnnouncement
-    ? "TechTalk Güncelle"
-    : "Yeni Duyuru Ekle";
-  $: submitLabel = selectedAnnouncement ? "Güncelle" : "Kaydet";
+  $: modalTitle = selectedAnnouncement ? "Update Announcement" : "Add New Announcement";
+  $: submitLabel = selectedAnnouncement ? "Update" : "Save";
 
   $: fields = [
     {
       key: "title",
-      label: "Başlık",
+      label: "Title",
       required: true,
       value: selectedAnnouncement?.title ?? "",
       autoFocus: true,
     },
     {
       key: "content",
-      label: "İçerik",
+      label: "Content",
       required: true,
       value: selectedAnnouncement?.content ?? "",
       type: "textarea",
-      placeholder: "Duyuru içeriği...",
+      placeholder: "Announcement content...",
     },
   ] satisfies Field[];
 
@@ -69,7 +67,7 @@
   title={modalTitle}
   {fields}
   {submitLabel}
-  cancelLabel="İptal"
+  cancelLabel="Cancel"
   on:close={() => dispatch("close")}
   on:submit={handleInnerSubmit}
 />
