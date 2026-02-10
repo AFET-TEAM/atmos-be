@@ -63,7 +63,7 @@
     {#if Array.isArray(tabContent)}
       <SearchInput
         bind:value={searchValue}
-        placeholder="İçeriklerde ara..."
+        placeholder="Search content..."
         width="100%"
         data={tabContent}
         searchFields={getSearchFields(activeTab)}
@@ -99,18 +99,18 @@
         </ul>
       {:else if searchValue.length > 0}
         <div class="no-results">
-          <p>Arama kriterlerinize uygun sonuç bulunamadı.</p>
-          <p class="search-suggestion">Farklı anahtar kelimeler deneyin.</p>
+          <p>No results match your search criteria.</p>
+          <p class="search-suggestion">Try different keywords.</p>
         </div>
       {:else}
         <div class="no-content">
-          <p>Bu bölümde henüz içerik bulunmuyor.</p>
+          <p>No content available in this section yet.</p>
         </div>
       {/if}
     {/if}
   </div>
 {:else}
   <div class="no-content">
-    <p>İçerik yükleniyor...</p>
+    <p>Loading content...</p>
   </div>
 {/if}

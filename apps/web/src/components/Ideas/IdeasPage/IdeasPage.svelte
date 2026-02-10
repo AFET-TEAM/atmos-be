@@ -25,6 +25,7 @@
   import ConfirmModal from "@/components/UI/ConfirmModal.svelte";
   import { checkAuth, currentUser as getCurrentUser } from "@/utils/user";
   import type { CurrentUser, RawIdeaFromApi } from "../types/IdeasTypes";
+  import { getUserById } from "@/api/UsersApi";
 
   function isCompleted(date: string) {
     return !!date && dayjs(date).isSameOrBefore(dayjs(), "day");
@@ -140,6 +141,7 @@
   async function reloadIdeas() {
     try {
       const raw = await svcFetchIdeas();
+       console.log("raw ideas:", raw); 
       ideas = raw.map(mapIdea);
     } catch (err) {
       console.error("Fetch ideas error:", err);
@@ -190,18 +192,26 @@
     ownerName = currentUser?.name ?? "";
   }
 
-  function editIdea(idea: Idea) {
-    selectedIdea = idea;
-    isEditMode = true;
-    isModalOpen = true;
-    ideaTitle = idea.title;
-    ownerName = idea.owner;
-date = idea.date?.split("T")[0] ?? "";
+  async function editIdea(idea: Idea) {
+  selectedIdea = idea;
+  isEditMode = true;
+  isModalOpen = true;
 
-    description = idea.description;
-    frontendCount = idea.frontendCount;
-    backendCount = idea.backendCount;
+  ideaTitle = idea.title;
+  date = idea.date?.split("T")[0] ?? "";
+  description = idea.description;
+  frontendCount = idea.frontendCount;
+  backendCount = idea.backendCount;
+
+  ownerName = ""; 
+  try {
+    const user = await getUserById(Number(idea.ownerId)); 
+    ownerName = user?.fullName || user?.full_name || "";
+  } catch {
+    ownerName = "";
   }
+}
+
 
   async function submitIdea() {
   if (!currentUser) return;

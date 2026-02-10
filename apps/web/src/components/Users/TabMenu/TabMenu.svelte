@@ -102,13 +102,13 @@
 
     <div class="tab-content">
       {#if loading}
-        <div class="loading">Yükleniyor...</div>
+        <div class="loading">Loading...</div>
       {:else if error}
         <div class="error">{error}</div>
       {:else if tabContent}
         {@render children({ tabContent, activeTab })}
       {:else}
-        <div class="no-content">İçerik bulunmuyor</div>
+        <div class="no-content">No content available</div>
       {/if}
     </div>
   </div>

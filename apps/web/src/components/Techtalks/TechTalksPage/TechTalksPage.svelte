@@ -138,11 +138,11 @@
 
   {#if loading}
     <div class="loading-container">
-      <p>Yükleniyor...</p>
+      <p>Loading...</p>
     </div>
   {:else if talks.length === 0}
     <div class="empty-state">
-      <p>Henüz TechTalk kaydı bulunmuyor.</p>
+      <p>No TechTalk records available yet.</p>
     </div>
   {:else}
     <div class="tt-list">
