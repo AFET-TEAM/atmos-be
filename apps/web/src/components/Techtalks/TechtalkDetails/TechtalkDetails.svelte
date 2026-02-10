@@ -64,7 +64,9 @@
       console.log("❤️ Likes:", likes);
 
       if (currentUser) {
-        hasLiked = likes.some((like) => like.user_id === currentUser.id);
+        hasLiked = (likes as Array<{ user_id?: number | string; userId?: number | string }>).some(
+          (like) => Number(like.user_id ?? like.userId) === Number(currentUser.id)
+        );
         console.log("✓ hasLiked:", hasLiked, "currentUser.id:", currentUser.id);
       }
     } catch (error) {

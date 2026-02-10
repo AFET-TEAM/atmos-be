@@ -1,19 +1,51 @@
-.profile-card {
+.welcome-card {
   min-height: 232px;
-  @include flexible(flex, column, center, null, null);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 
-  .info-row {
-    display: flex;
+  &__left {
+    flex: 1 1 auto;
+    min-width: 0;
 
-    p {
-      font-size: 12px;
-      line-height: 1.2;
-      color: $greyTextColor;
+    h2 {
+      color: $primary;
+      margin-bottom: 10px;
+    }
+
+    .info-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+
+      p {
+        margin: 0;
+        font-size: 12px;
+        line-height: 1.2;
+        color: $greyTextColor;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
     }
   }
-  h2 {
-    color: $primary;
-    margin-bottom: 10px;
-  }
 
+  &__right {
+    flex: 0 0 auto;
+    width: 140px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+      pointer-events: none;
+      user-select: none;
+    }
+  }
 }

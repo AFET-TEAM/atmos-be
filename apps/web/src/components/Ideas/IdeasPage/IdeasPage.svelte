@@ -50,11 +50,6 @@
   let backendCount: number | undefined;
   let ownerName = "";
 
-  let confirmOpen = false;
-  let confirmMode: "approve" | "reject" | "delete" | null = null;
-  let confirmIdeaId: number | null = null;
-  let confirmBusy = false;
-
   const isApproved = (idea: Idea) => (idea.approvedBy?.length ?? 0) >= 1;
   const isPending = (idea: Idea) => (idea.approvedBy?.length ?? 0) === 0;
 
@@ -135,15 +130,6 @@
     }
   }
 
-  $: confirmTitle =
-    confirmMode === "approve"
-      ? "Are you sure you want to approve this idea?"
-      : confirmMode === "reject"
-      ? "Are you sure you want to reject this idea?"
-      : confirmMode === "delete"
-      ? "Are you sure you want to delete this idea?"
-      : "Are you sure?";
-
   function showMorePending() {
     if (pendingPage < totalPendingPages) pendingPage++;
   }
@@ -210,45 +196,35 @@
     isModalOpen = true;
     ideaTitle = idea.title;
     ownerName = idea.owner;
-    date = idea.date;
+date = idea.date?.split("T")[0] ?? "";
+
     description = idea.description;
     frontendCount = idea.frontendCount;
     backendCount = idea.backendCount;
   }
 
   async function submitIdea() {
-    try {
-      if (!currentUser) return;
+  if (!currentUser) return;
 
-      const base = {
-        title: ideaTitle,
-        owner: ownerName || currentUser.name,
-        ownerId: currentUser.id,
-        date,
-        description,
-        presentationFileName,
-        frontendCount,
-        backendCount
-      };
+  const payload = {
+    user_id: Number(currentUser.id),  
+    title: ideaTitle,                
+    description,                      
+    date,                            
+    frontend_count: frontendCount,     
+    backend_count: backendCount,       
+    file_url: presentationFileName   
+  };
 
-      if (!isEditMode) {
-        await svcCreateIdea({
-          ...base,
-          approvedBy: []
-        });
-      } else if (selectedIdea) {
-        await svcUpdateIdea(selectedIdea.id, {
-          ...base
-        });
-      }
-
-      await reloadIdeas();
-      isModalOpen = false;
-      pendingPage = 1;
-    } catch (err) {
-      console.error("Submit error:", err);
-    }
+  if (!isEditMode) {
+    await svcCreateIdea(payload);
+  } else if (selectedIdea) {
+    await svcUpdateIdea(selectedIdea.id, payload);
   }
+
+  await reloadIdeas();
+  isModalOpen = false;
+}
 
   async function doApprove(id: number) {
     if (!currentUser) return;
@@ -284,54 +260,6 @@
     }
   }
 
-  function requestApprove(id: number) {
-    confirmIdeaId = id;
-    confirmMode = "approve";
-    confirmOpen = true;
-  }
-
-  function requestReject(id: number) {
-    confirmIdeaId = id;
-    confirmMode = "reject";
-    confirmOpen = true;
-  }
-
-  function requestDelete(id: number) {
-    confirmIdeaId = id;
-    confirmMode = "delete";
-    confirmOpen = true;
-  }
-
-  function resetConfirm() {
-    confirmOpen = false;
-    confirmMode = null;
-    confirmIdeaId = null;
-    confirmBusy = false;
-  }
-
-  async function handleConfirm() {
-    if (confirmIdeaId == null || !confirmMode) {
-      resetConfirm();
-      return;
-    }
-
-    confirmBusy = true;
-    try {
-      if (confirmMode === "approve") {
-        await doApprove(confirmIdeaId);
-      } else if (confirmMode === "reject") {
-        await doReject(confirmIdeaId);
-      } else if (confirmMode === "delete") {
-        await doDelete(confirmIdeaId);
-      }
-    } finally {
-      resetConfirm();
-    }
-  }
-
-  function handleCancelConfirm() {
-    resetConfirm();
-  }
 
   async function onJoinFrontend(id: number) {
     try {
@@ -393,21 +321,9 @@
         }
       }}
       onSubmitIdea={submitIdea}
-      onApproveIdea={requestApprove}
-      onRejectIdea={requestReject}
-      onDeleteIdea={requestDelete}
-    />
-
-    <ConfirmModal
-      open={confirmOpen}
-      title={confirmTitle}
-      message=""
-      confirmText="Yes"
-      cancelText="No"
-      disabled={confirmBusy}
-      on:confirm={handleConfirm}
-      on:cancel={handleCancelConfirm}
-      on:close={handleCancelConfirm}
+      onApproveIdea={doApprove}
+      onRejectIdea={doReject}
+      onDeleteIdea={doDelete}
     />
 
 </section>
