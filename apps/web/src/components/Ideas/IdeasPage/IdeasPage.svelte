@@ -19,13 +19,12 @@
     joinFrontend as svcJoinFrontend,
     rejectIdea as svcRejectIdea,
     updateIdea as svcUpdateIdea,
-    type Idea
+    type Idea,
   } from "../../../api/IdeasApi";
 
-  import ConfirmModal from "@/components/UI/ConfirmModal.svelte";
+  import { getUserById } from "@/api/UsersApi";
   import { checkAuth, currentUser as getCurrentUser } from "@/utils/user";
   import type { CurrentUser, RawIdeaFromApi } from "../types/IdeasTypes";
-  import { getUserById } from "@/api/UsersApi";
 
   function isCompleted(date: string) {
     return !!date && dayjs(date).isSameOrBefore(dayjs(), "day");
@@ -47,6 +46,7 @@
   let date = "";
   let description = "";
   let presentationFileName: string | undefined;
+  let selectedFile: File | null = null;
   let frontendCount: number | undefined;
   let backendCount: number | undefined;
   let ownerName = "";
@@ -74,45 +74,43 @@
       backendCount: item.backendCount,
       approvedBy: item.approvedBy ?? [],
       frontendParticipants: item.frontendParticipants ?? [],
-      backendParticipants: item.backendParticipants ?? []
+      backendParticipants: item.backendParticipants ?? [],
     };
   }
 
   $: sortedApproved = ideas
     .filter(isApproved)
     .filter((i) =>
-      i.title.toLowerCase().includes(searchTerm.trim().toLowerCase())
+      i.title.toLowerCase().includes(searchTerm.trim().toLowerCase()),
     )
     .sort((a, b) =>
       sortOrder === "az"
         ? a.title.localeCompare(b.title)
-        : b.title.localeCompare(a.title)
+        : b.title.localeCompare(a.title),
     );
 
   $: allPending = ideas
     .filter(isPending)
     .filter((i) =>
-      i.title.toLowerCase().includes(searchTerm.trim().toLowerCase())
+      i.title.toLowerCase().includes(searchTerm.trim().toLowerCase()),
     )
     .sort((a, b) =>
       sortOrder === "az"
         ? a.title.localeCompare(b.title)
-        : b.title.localeCompare(a.title)
+        : b.title.localeCompare(a.title),
     );
 
   $: myId = currentUser?.id ?? "";
 
   $: pendingForAdmin = allPending;
 
-  $: pendingForUser = allPending.filter(
-    (i) => i.ownerId && i.ownerId === myId
-  );
+  $: pendingForUser = allPending.filter((i) => i.ownerId && i.ownerId === myId);
 
   $: activePending = isAdmin
     ? pendingForAdmin
     : currentUser
-    ? pendingForUser
-    : allPending;
+      ? pendingForUser
+      : allPending;
 
   $: totalPendingPages = Math.ceil(activePending.length / PAGE_SIZE);
   $: displayedPending = activePending.slice(0, pendingPage * PAGE_SIZE);
@@ -156,7 +154,7 @@
         currentUser = {
           id: String(rawUser.id),
           name: rawUser.full_name ?? rawUser.email ?? "",
-          role: rawUser.role ?? "user"
+          role: rawUser.role ?? "user",
         } as CurrentUser;
 
         isAdmin = currentUser.role === "admin";
@@ -192,48 +190,73 @@
   }
 
   async function editIdea(idea: Idea) {
-  selectedIdea = idea;
-  isEditMode = true;
-  isModalOpen = true;
+    selectedIdea = idea;
+    isEditMode = true;
+    isModalOpen = true;
 
-  ideaTitle = idea.title;
-  date = idea.date?.split("T")[0] ?? "";
-  description = idea.description;
-  frontendCount = idea.frontendCount;
-  backendCount = idea.backendCount;
+    ideaTitle = idea.title;
+    date = idea.date?.split("T")[0] ?? "";
+    description = idea.description;
+    frontendCount = idea.frontendCount;
+    backendCount = idea.backendCount;
 
-  ownerName = ""; 
-  try {
-    const user = await getUserById(Number(idea.ownerId)); 
-    ownerName = user?.fullName || user?.full_name || "";
-  } catch {
     ownerName = "";
+    try {
+      const user = await getUserById(Number(idea.ownerId));
+      ownerName = user?.fullName || user?.full_name || "";
+    } catch {
+      ownerName = "";
+    }
   }
-}
-
 
   async function submitIdea() {
-  if (!currentUser) return;
+    if (!currentUser) return;
 
-  const payload = {
-    user_id: Number(currentUser.id),  
-    title: ideaTitle,                
-    description,                      
-    date,                            
-    frontend_count: frontendCount,     
-    backend_count: backendCount,       
-    file_url: presentationFileName   
-  };
+    let fileBase64: string | undefined = undefined;
+    let fileName: string | undefined = undefined;
 
-  if (!isEditMode) {
-    await svcCreateIdea(payload);
-  } else if (selectedIdea) {
-    await svcUpdateIdea(selectedIdea.id, payload);
+    if (selectedFile) {
+      fileName = selectedFile.name;
+      const file = selectedFile; // null-safe reference
+
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          const base64Data = result.split(",")[1];
+          resolve(base64Data);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      fileBase64 = base64;
+    }
+
+    const payload: any = {
+      user_id: Number(currentUser.id),
+      title: ideaTitle,
+      description,
+      date,
+      frontend_count: frontendCount,
+      backend_count: backendCount,
+      file_url: presentationFileName,
+    };
+
+    if (fileBase64) {
+      payload.file_data = fileBase64;
+      payload.file_name = fileName;
+    }
+
+    if (!isEditMode) {
+      await svcCreateIdea(payload);
+    } else if (selectedIdea) {
+      await svcUpdateIdea(selectedIdea.id, payload);
+    }
+
+    await reloadIdeas();
+    isModalOpen = false;
   }
-
-  await reloadIdeas();
-  isModalOpen = false;
-}
 
   async function doApprove(id: number) {
     if (!currentUser) return;
@@ -269,7 +292,6 @@
     }
   }
 
-
   async function onJoinFrontend(id: number) {
     try {
       if (!currentUser) return;
@@ -293,46 +315,46 @@
 
 <section>
   <IdeasControls bind:sortOrder bind:searchTerm />
-    <IdeasCard
-      {isAdmin}
-      {displayedPending}
-      {totalPendingPages}
-      {pendingPage}
-      onShowMorePending={showMorePending}
-      onShowLessPending={showLessPending}
-      onEditIdea={editIdea}
-      {sortedApproved}
-      onOpenModal={openModal}
-      {isCompleted}
-      {isUpcoming}
-      onJoinFrontend={onJoinFrontend}
-      onJoinBackend={onJoinBackend}
-      currentUserId={currentUser?.id}
-    />
+  <IdeasCard
+    {isAdmin}
+    {displayedPending}
+    {totalPendingPages}
+    {pendingPage}
+    onShowMorePending={showMorePending}
+    onShowLessPending={showLessPending}
+    onEditIdea={editIdea}
+    {sortedApproved}
+    onOpenModal={openModal}
+    {isCompleted}
+    {isUpcoming}
+    {onJoinFrontend}
+    {onJoinBackend}
+    currentUserId={currentUser?.id}
+  />
 
-    <IdeasModal
-      bind:isModalOpen
-      {isEditMode}
-      {selectedIdea}
-      readOnly={modalReadOnly}
-      {isAdmin}
-      bind:ownerName
-      bind:ideaTitle
-      bind:date
-      bind:description
-      {presentationFileName}
-      bind:frontendCount
-      bind:backendCount
-      onChangeFile={(e) => {
-        const target = e.target as HTMLInputElement;
-        if (target?.files?.[0]) {
-          presentationFileName = target.files[0].name;
-        }
-      }}
-      onSubmitIdea={submitIdea}
-      onApproveIdea={doApprove}
-      onRejectIdea={doReject}
-      onDeleteIdea={doDelete}
-    />
-
+  <IdeasModal
+    bind:isModalOpen
+    {isEditMode}
+    {selectedIdea}
+    readOnly={modalReadOnly}
+    {isAdmin}
+    bind:ownerName
+    bind:ideaTitle
+    bind:date
+    bind:description
+    {presentationFileName}
+    bind:frontendCount
+    bind:backendCount
+    onChangeFile={(e) => {
+      const target = e.target as HTMLInputElement;
+      if (target?.files?.[0]) {
+        selectedFile = target.files[0];
+        presentationFileName = target.files[0].name;
+      }
+    }}
+    onSubmitIdea={submitIdea}
+    onApproveIdea={doApprove}
+    onRejectIdea={doReject}
+    onDeleteIdea={doDelete}
+  />
 </section>

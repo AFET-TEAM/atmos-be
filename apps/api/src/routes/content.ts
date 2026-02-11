@@ -339,6 +339,8 @@ export const contentRoutes = () => {
         title: t.String(),
         description: t.Optional(t.String()),
         file_url: t.Optional(t.String()),
+        file_data: t.Optional(t.String()),
+        file_name: t.Optional(t.String()),
         frontend_count: t.Optional(t.Numeric()),
         backend_count: t.Optional(t.Numeric()),
         idea_assignee_id: t.Optional(t.Numeric()),
@@ -349,6 +351,8 @@ export const contentRoutes = () => {
         "title",
         "description",
         "file_url",
+        "file_data",
+        "file_name",
         "frontend_count",
         "backend_count",
         "idea_assignee_id",
@@ -362,6 +366,8 @@ export const contentRoutes = () => {
           title: t.String(),
           description: t.Optional(t.String()),
           file_url: t.Optional(t.String()),
+          file_data: t.Optional(t.String()),
+          file_name: t.Optional(t.String()),
           frontend_count: t.Optional(t.Numeric()),
           backend_count: t.Optional(t.Numeric()),
           idea_assignee_id: t.Optional(t.Numeric()),
@@ -373,6 +379,8 @@ export const contentRoutes = () => {
         "title",
         "description",
         "file_url",
+        "file_data",
+        "file_name",
         "frontend_count",
         "backend_count",
         "idea_assignee_id",
@@ -384,6 +392,22 @@ export const contentRoutes = () => {
       getUserId: ({ body }) => (body as any)?.user_id ?? 0,
     },
     rbac: { can: async () => true },
+    before: {
+      create: async (ctx) => {
+        const body = ctx.body as any;
+        if (body.file_data) {
+          const buffer = Buffer.from(body.file_data, "base64");
+          body.file_data = buffer;
+        }
+      },
+      update: async (ctx) => {
+        const body = ctx.body as any;
+        if (body.file_data) {
+          const buffer = Buffer.from(body.file_data, "base64");
+          body.file_data = buffer;
+        }
+      },
+    },
   }).get(
     "/ideas/:id",
     async ({ params }) => {
