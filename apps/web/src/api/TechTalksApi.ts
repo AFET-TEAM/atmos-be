@@ -3,67 +3,81 @@ import type {
   TechTalk,
   TechTalkComment,
 } from "@/components/Techtalks/types/TechTalks";
+import { apiCall } from "@/utils/errorHandler";
 import instance from "../axios/axiosInstance";
 import { fetchCurrentUser } from "./IdeasApi";
 
 export async function fetchTechTalks(): Promise<TechTalk[]> {
-  const { data } = await instance.get<TechTalk[]>("/techtalks");
-
-  console.log("Fetched TechTalks:", data);
-  return data;
+  return apiCall(async () => {
+    const { data } = await instance.get<TechTalk[]>("/techtalks");
+    return data;
+  }, "fetchTechTalks");
 }
 
 export async function fetchTechTalk(id: number): Promise<TechTalk> {
-  const { data } = await instance.get<FetchTechTalkResponse>(
-    `/techtalks/${id}`,
-  );
+  return apiCall(async () => {
+    const { data } = await instance.get<FetchTechTalkResponse>(
+      `/techtalks/${id}`,
+    );
 
-  if (Array.isArray(data.data) && data.data.length > 0) {
-    return data.data[0];
-  }
+    if (Array.isArray(data.data) && data.data.length > 0) {
+      return data.data[0];
+    }
 
-  const all = await fetchTechTalks();
-  const found = all.find((t) => t.id === id);
+    const all = await fetchTechTalks();
+    const found = all.find((t) => t.id === id);
 
-  if (!found) {
-    throw new Error("TechTalk bulunamadı");
-  }
+    if (!found) {
+      throw new Error("TechTalk bulunamadı");
+    }
 
-  return found;
+    return found;
+  }, "fetchTechTalk");
 }
 
 export async function deleteTechTalk(id: number): Promise<void> {
-  await instance.delete(`/techtalks/${id}`);
+  return apiCall(async () => {
+    await instance.delete(`/techtalks/${id}`);
+  }, "deleteTechTalk");
 }
 
 export async function updateTechTalk(
   id: number,
   payload: Partial<TechTalk>,
 ): Promise<TechTalk> {
-  const { data } = await instance.patch<TechTalk>(`/techtalks/${id}`, payload);
-  return data;
+  return apiCall(async () => {
+    const { data } = await instance.patch<TechTalk>(
+      `/techtalks/${id}`,
+      payload,
+    );
+    return data;
+  }, "updateTechTalk");
 }
 
 export async function createTechTalk(
   payload: Omit<TechTalk, "id">,
 ): Promise<TechTalk> {
-  const { data } = await instance.post<TechTalk>("/techtalks", payload);
-  return data;
+  return apiCall(async () => {
+    const { data } = await instance.post<TechTalk>("/techtalks", payload);
+    return data;
+  }, "createTechTalk");
 }
 
 export async function putTechTalk(
   id: number,
   payload: Partial<TechTalk>,
 ): Promise<TechTalk> {
-  const { data } = await instance.put<TechTalk>(`/techtalks/${id}`, payload);
-  return data;
+  return apiCall(async () => {
+    const { data } = await instance.put<TechTalk>(`/techtalks/${id}`, payload);
+    return data;
+  }, "putTechTalk");
 }
 
 export async function fetchLastTechTalk(): Promise<TechTalk[]> {
-  const { data } = await instance.get<{ data: TechTalk[] }>("/lastTechTalks");
-
-  console.log("Fetched last TechTalks:", data);
-  return data.data;
+  return apiCall(async () => {
+    const { data } = await instance.get<{ data: TechTalk[] }>("/lastTechTalks");
+    return data.data;
+  }, "fetchLastTechTalk");
 }
 
 export async function addTechTalkComment(

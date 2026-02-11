@@ -1,4 +1,5 @@
 import instance from "@/axios/axiosInstance";
+import { apiCall } from "@/utils/errorHandler";
 
 export interface DocumentItem {
   id: number;
@@ -22,13 +23,17 @@ export interface CreateDocumentPayload {
 }
 
 export async function getAllDocuments(): Promise<any[]> {
-  const response = await instance.get<DocumentItem[]>("/documents");
-  return response.data;
+  return apiCall(async () => {
+    const response = await instance.get<DocumentItem[]>("/documents");
+    return response.data;
+  }, "getAllDocuments");
 }
 
 export async function getDocumentById(id: number): Promise<DocumentItem> {
-  const response = await instance.get<DocumentItem>(`/documents/${id}`);
-  return response.data;
+  return apiCall(async () => {
+    const response = await instance.get<DocumentItem>(`/documents/${id}`);
+    return response.data;
+  }, "getDocumentById");
 }
 
 export async function getDocumentBySlug(slug: string): Promise<DocumentItem> {
@@ -39,23 +44,29 @@ export async function getDocumentBySlug(slug: string): Promise<DocumentItem> {
 export async function createDocument(
   payload: CreateDocumentPayload,
 ): Promise<DocumentItem> {
-  const response = await instance.post<DocumentItem>("/documents", payload);
-  return response.data;
+  return apiCall(async () => {
+    const response = await instance.post<DocumentItem>("/documents", payload);
+    return response.data;
+  }, "createDocument");
 }
 
 export async function updateDocument(
   id: number,
   payload: Partial<CreateDocumentPayload>,
 ): Promise<DocumentItem> {
-  const response = await instance.patch<DocumentItem>(
-    `/documents/${id}`,
-    payload,
-  );
-  return response.data;
+  return apiCall(async () => {
+    const response = await instance.patch<DocumentItem>(
+      `/documents/${id}`,
+      payload,
+    );
+    return response.data;
+  }, "updateDocument");
 }
 
 export async function deleteDocument(id: number): Promise<void> {
-  await instance.delete(`/documents/${id}`);
+  return apiCall(async () => {
+    await instance.delete(`/documents/${id}`);
+  }, "deleteDocument");
 }
 
 export async function downloadDocument(id: number): Promise<Blob> {

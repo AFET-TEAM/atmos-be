@@ -1,3 +1,4 @@
+import { apiCall } from "@/utils/errorHandler";
 import instance from "../axios/axiosInstance";
 
 export interface Comment {
@@ -20,13 +21,15 @@ export async function fetchComments(
   targetType: string,
   targetId: number,
 ): Promise<Comment[]> {
-  const { data } = await instance.get<Comment[]>("/comments", {
-    params: {
-      target_type: targetType,
-      target_id: targetId,
-    },
-  });
-  return data;
+  return apiCall(async () => {
+    const { data } = await instance.get<Comment[]>("/comments", {
+      params: {
+        target_type: targetType,
+        target_id: targetId,
+      },
+    });
+    return data;
+  }, "fetchComments");
 }
 
 export async function createComment(payload: {
@@ -35,18 +38,24 @@ export async function createComment(payload: {
   text: string;
   parent_id?: number;
 }): Promise<Comment> {
-  const { data } = await instance.post<Comment>("/comments", payload);
-  return data;
+  return apiCall(async () => {
+    const { data } = await instance.post<Comment>("/comments", payload);
+    return data;
+  }, "createComment");
 }
 
 export async function updateComment(
   id: number,
   text: string,
 ): Promise<Comment> {
-  const { data } = await instance.patch<Comment>(`/comments/${id}`, { text });
-  return data;
+  return apiCall(async () => {
+    const { data } = await instance.patch<Comment>(`/comments/${id}`, { text });
+    return data;
+  }, "updateComment");
 }
 
 export async function deleteComment(id: number): Promise<void> {
-  await instance.delete(`/comments/${id}`);
+  return apiCall(async () => {
+    await instance.delete(`/comments/${id}`);
+  }, "deleteComment");
 }

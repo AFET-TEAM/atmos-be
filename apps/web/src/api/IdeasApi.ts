@@ -1,3 +1,4 @@
+import { apiCall } from "@/utils/errorHandler";
 import instance from "../axios/axiosInstance";
 import type {
   CreateIdeaPayload,
@@ -11,31 +12,40 @@ export type { Idea } from "../components/Ideas/types/IdeasTypes";
 const ensureArray = (arr?: string[]) => (Array.isArray(arr) ? arr : []);
 
 export async function fetchCurrentUser(): Promise<CurrentUser> {
-  const { data } = await instance.get<CurrentUser>("/currentUser");
-  return data;
+  return apiCall(async () => {
+    const { data } = await instance.get<CurrentUser>("/currentUser");
+    return data;
+  }, "fetchCurrentUser");
 }
 
 export async function fetchIdeas(): Promise<RawIdeaFromApi[]> {
-  const { data } = await instance.get<RawIdeaFromApi[]>("/ideas");
-  console.log(data);
-  return data;
+  return apiCall(async () => {
+    const { data } = await instance.get<RawIdeaFromApi[]>("/ideas");
+    return data;
+  }, "fetchIdeas");
 }
 
 export async function createIdea(payload: CreateIdeaPayload): Promise<Idea> {
-  const { data } = await instance.post<Idea>("/ideas", payload);
-  return data;
+  return apiCall(async () => {
+    const { data } = await instance.post<Idea>("/ideas", payload);
+    return data;
+  }, "createIdea");
 }
 
 export async function updateIdea(
   id: number,
   payload: UpdateIdeaPayload,
 ): Promise<Idea> {
-  const { data } = await instance.patch<Idea>(`/ideas/${id}`, payload);
-  return data;
+  return apiCall(async () => {
+    const { data } = await instance.patch<Idea>(`/ideas/${id}`, payload);
+    return data;
+  }, "updateIdea");
 }
 
 export async function deleteIdea(id: number): Promise<void> {
-  await instance.delete(`/ideas/${id}`);
+  return apiCall(async () => {
+    await instance.delete(`/ideas/${id}`);
+  }, "deleteIdea");
 }
 
 export async function approveIdea(

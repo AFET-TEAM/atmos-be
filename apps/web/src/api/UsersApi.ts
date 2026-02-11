@@ -1,7 +1,8 @@
 import instance from "@/axios/axiosInstance";
+import { apiCall } from "@/utils/errorHandler";
 
 export const getUsers = async () => {
-  try {
+  return apiCall(async () => {
     const response = await instance.get("/users", {
       params: {
         limit: 100,
@@ -10,136 +11,99 @@ export const getUsers = async () => {
       },
     });
     return response.data;
-  } catch (error) {
-    console.error("Error fetching users:", error);
-    return [];
-  }
+  }, "getUsers");
 };
 
 export const getUserById = async (id: number | string | undefined) => {
-  try {
+  return apiCall(async () => {
     const response = await instance.get(`/users/${id}`);
     return response.data;
-  } catch (error) {
-    console.error(`Error fetching user ${id}:`, error);
-    return null;
-  }
+  }, "getUserById");
 };
 
 export const getUsersTeams = async () => {
-  try {
+  return apiCall(async () => {
     const response = await instance.get("/teams");
     return Array.isArray(response.data)
       ? response.data
       : response.data.data || [];
-  } catch (error) {
-    console.error("Error fetching teams:", error);
-    return [];
-  }
+  }, "getUsersTeams");
 };
 
 export const getUsersDepartments = async () => {
-  try {
+  return apiCall(async () => {
     const response = await instance.get("/departments");
     return Array.isArray(response.data)
       ? response.data
       : response.data.data || [];
-  } catch (error) {
-    console.error("Error fetching departments:", error);
-    return [];
-  }
+  }, "getUsersDepartments");
 };
 
 export const getUsersDirectorates = async () => {
-  try {
+  return apiCall(async () => {
     const response = await instance.get("/directorates");
     return Array.isArray(response.data)
       ? response.data
       : response.data.data || [];
-  } catch (error) {
-    console.error("Error fetching directorates:", error);
-    return [];
-  }
+  }, "getUsersDirectorates");
 };
 
 export const getUserByProfession = async () => {
-  try {
+  return apiCall(async () => {
     const response = await instance.get("/lookups/professions");
     return response.data;
-  } catch (error) {
-    console.error("Error fetching professions:", error);
-    return [];
-  }
+  }, "getUserByProfession");
 };
 
 export const getSortOptions = async () => {
-  try {
+  return apiCall(async () => {
     const response = await instance.get("/sortOptions");
     return Array.isArray(response.data)
       ? response.data
       : response.data.data || [];
-  } catch (error) {
-    console.error("Error fetching sort options:", error);
-    return [];
-  }
+  }, "getSortOptions");
 };
 
 export const getImportantLinks = async () => {
-  try {
+  return apiCall(async () => {
     const response = await instance.get("/importantLinks");
     return Array.isArray(response.data)
       ? response.data
       : response.data.data || [];
-  } catch (error) {
-    console.error("Error fetching important links:", error);
-    return [];
-  }
+  }, "getImportantLinks");
 };
 
 export const getTabNameForUserDetails = async () => {
-  try {
+  return apiCall(async () => {
     const response = await instance.get("/tab_headers");
     return Array.isArray(response.data)
       ? response.data
       : response.data.data || [];
-  } catch (error) {
-    console.error("Error fetching tab names for user details:", error);
-    return [];
-  }
+  }, "getTabNameForUserDetails");
 };
 
 export const getUserTabDetails = async (
   tabName: string | undefined,
-  userId: string | undefined
+  userId: string | undefined,
 ) => {
-  console.log("Fetching tab details for:", tabName, "and userId:", userId);
-  try {
+  return apiCall(async () => {
     const response = await instance.get(`/${tabName}/${userId}`);
     return response.data;
-  } catch (error) {
-    console.error(`Error fetching tab details for ${tabName}:`, error);
-    return null;
-  }
+  }, "getUserTabDetails");
 };
 
 export const getUserTeamMembers = async (userId: string | undefined) => {
-  try {
+  return apiCall(async () => {
     const response = await instance.get(`/teams/${userId}/colleagues`);
     return response.data;
-  } catch (error) {
-    console.error(`Error fetching team members for team ${userId}:`, error);
-    return [];
-  }
+  }, "getUserTeamMembers");
 };
 
 export const getUserMeetings = async (userId: number | string | undefined) => {
-  try {
+  return apiCall(async () => {
     const response = await instance.get(`/users/${userId}/meetings`);
     return response.data;
-  } catch (error) {
-    console.error(`Error fetching user ${userId} meetings:`, error);
-    return [];
-  }
+  }, "getUserMeetings");
 };
 
 export const createMeeting = async (meetingData: {
@@ -148,23 +112,17 @@ export const createMeeting = async (meetingData: {
   ends_at: string;
   created_by?: number;
 }) => {
-  try {
+  return apiCall(async () => {
     const response = await instance.post(`/meetings`, meetingData);
     return response.data;
-  } catch (error) {
-    console.error("Error creating meeting:", error);
-    return null;
-  }
+  }, "createMeeting");
 };
 
 export const filterUsersByFields = async (field: any) => {
-  try {
+  return apiCall(async () => {
     const response = await instance.post("/filter/users-by-fields", field);
     return response.data;
-  } catch (error) {
-    console.error("Error filtering users:", error);
-    return [];
-  }
+  }, "filterUsersByFields");
 };
 export const updateUser = async (
   id: number,
@@ -183,25 +141,19 @@ export const updateUser = async (
     connection?: boolean;
     user_status_id?: number;
     role?: string;
-  }
+  },
 ) => {
-  try {
+  return apiCall(async () => {
     const response = await instance.patch(`/users/${id}`, userData);
     return response.data;
-  } catch (error) {
-    console.error(`Error updating user ${id}:`, error);
-    return null;
-  }
+  }, "updateUser");
 };
 
 export const deleteUser = async (id: number) => {
-  try {
+  return apiCall(async () => {
     const response = await instance.delete(`/users/${id}`);
     return response.data;
-  } catch (error) {
-    console.error(`Error deleting user ${id}:`, error);
-    return null;
-  }
+  }, "deleteUser");
 };
 
 export const createUser = async (userData: {
@@ -218,11 +170,8 @@ export const createUser = async (userData: {
   team_label?: string;
   role?: string;
 }) => {
-  try {
+  return apiCall(async () => {
     const response = await instance.post("/users", userData);
     return response.data;
-  } catch (error) {
-    console.error("Error creating user:", error);
-    return null;
-  }
+  }, "createUser");
 };

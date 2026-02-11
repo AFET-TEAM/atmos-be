@@ -1,5 +1,6 @@
 import instance from "@/axios/axiosInstance";
 import { login, logout as logoutStore } from "@/stores/userStore";
+import { apiCall } from "@/utils/errorHandler";
 
 export async function registerUser(
   email: string,
@@ -10,7 +11,7 @@ export async function registerUser(
   team: string | undefined,
   directorate: number,
   gender: string | undefined,
-  job: number | undefined
+  job: number | undefined,
 ) {
   const response = await instance.post("/auth/register", {
     email,
@@ -45,18 +46,24 @@ export async function logoutUser() {
 }
 
 export async function getDepartments() {
-  const response = await instance.get("/departments");
-  return response.data;
+  return apiCall(async () => {
+    const response = await instance.get("/departments");
+    return response.data;
+  }, "getDepartments");
 }
 
 export async function getTeams() {
-  const response = await instance.get("/teams");
-  return response.data;
+  return apiCall(async () => {
+    const response = await instance.get("/teams");
+    return response.data;
+  }, "getTeams");
 }
 
 export async function getCities() {
-  const response = await instance.get("/cities");
-  return response.data;
+  return apiCall(async () => {
+    const response = await instance.get("/cities");
+    return response.data;
+  }, "getCities");
 }
 
 export async function getUserInfoCount(userId: number | undefined) {
@@ -65,11 +72,15 @@ export async function getUserInfoCount(userId: number | undefined) {
 }
 
 export async function getDirectorates() {
-  const response = await instance.get("/directorates");
-  return Array.isArray(response.data) ? response.data : [];
+  return apiCall(async () => {
+    const response = await instance.get("/directorates");
+    return Array.isArray(response.data) ? response.data : [];
+  }, "getDirectorates");
 }
 
 export async function getJobs() {
-  const response = await instance.get("/jobs");
-  return Array.isArray(response.data) ? response.data : [];
+  return apiCall(async () => {
+    const response = await instance.get("/jobs");
+    return Array.isArray(response.data) ? response.data : [];
+  }, "getJobs");
 }

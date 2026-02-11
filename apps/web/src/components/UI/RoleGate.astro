@@ -1,6 +1,6 @@
 ---
 import { hasPermission, hasRole, type PermissionKey, type UserRole } from "@/utils/rbac";
-import { currentUser } from "@/utils/user";
+import { getServerUser } from "@/utils/serverAuth";
 
 interface Props {
 
@@ -16,7 +16,7 @@ interface Props {
 const { permission, roles, showFallback = false } = Astro.props;
 
 
-const user = currentUser();
+const user = getServerUser(Astro.cookies);
 const userRole = user?.role as UserRole | undefined;
 
 

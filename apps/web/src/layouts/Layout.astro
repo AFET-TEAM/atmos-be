@@ -2,10 +2,9 @@
 import Header from "@/components/Global/Header/Header.astro";
 import Sidebar from "@/components/Global/Sidebar/Sidebar.astro";
 import NotificationModal from "@/components/UI/NotificationModal.svelte";
-import { currentUser } from "@/utils/user";
+import ErrorToast from "@/components/UI/ErrorToast.svelte";
 import { ClientRouter } from "astro:transitions";
 
-const user = currentUser();
 const { title } = Astro.props;
 ---
 
@@ -26,11 +25,12 @@ const { title } = Astro.props;
       </aside>
         <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
       <main>
-       <Header user={user} />
+       <Header />
         <slot />
       </main>
     </div>
      <NotificationModal client:load />
+     <ErrorToast client:load />
 
       <script is:inline>
       const initSidebarToggle = () => {

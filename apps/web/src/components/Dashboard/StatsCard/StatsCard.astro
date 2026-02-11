@@ -1,10 +1,10 @@
 ---
 import { getUserInfoCount } from "@/api/AuthApi";
-import { currentUser } from "@/utils/user";
+import { getServerUser } from "@/utils/serverAuth";
 import Icon from "../../../../public/icons/icon.astro";
 import "./stats-card.scss";
 
-const userData = currentUser()
+const userData = getServerUser(Astro.cookies);
 
 try {
   var userInfoCount = await getUserInfoCount(userData?.id ?? 0);
@@ -12,7 +12,6 @@ try {
   console.error("Error fetching user info count:", error);
 
 }
-console.log("User Info Count:", userInfoCount);
 ---
 <>
     <div class="stat-card stat-purple">

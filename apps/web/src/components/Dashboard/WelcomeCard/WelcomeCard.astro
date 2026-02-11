@@ -1,17 +1,16 @@
 ---
-import { getUser } from '@/stores/userStore';
+import { getServerUser } from '@/utils/serverAuth';
 import Icon from "../../../../public/icons/icon.astro";
 import "./welcome-card.scss";
-const user = getUser();
 
-console.log("WelcomeCard user:", user);
+const user = getServerUser(Astro.cookies);
+
 type Gender = "male" | "female";
 
 const rawGender = user?.gender;
 const gender: Gender = rawGender === "female" ? "female" : "male";
 
 const avatarSrc = gender === "female" ? "/img/woman.png" : "/img/man.png";
-console.log("gender", gender)
 ---
 <div class="welcome-card">
   <div class="welcome-card__left">

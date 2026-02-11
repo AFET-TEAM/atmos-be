@@ -1,11 +1,11 @@
 ---
-import { getUser } from '@/stores/userStore';
+import { getServerUser } from '@/utils/serverAuth';
 import LogoutButton from "../LogoutButton.svelte";
 import NotificationHeader from "../NotificationHeader/NotificationHeader.astro";
 import "./Header.scss";
 
 
-const user = getUser();
+const user = getServerUser(Astro.cookies);
 ---
 
 <header class="header">
