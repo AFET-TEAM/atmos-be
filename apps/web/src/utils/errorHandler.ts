@@ -99,7 +99,7 @@ class ErrorHandler {
     const timestamp = new Date();
 
     if (this.isAxiosError(error)) {
-      return this.parseAxiosError(error, context, timestamp);
+      return this.parseAxiosError(error, timestamp, context);
     }
 
     if (error instanceof Error) {
@@ -125,8 +125,8 @@ class ErrorHandler {
 
   private parseAxiosError(
     error: AxiosError,
-    context?: string,
     timestamp: Date,
+    context?: string,
   ): AppError {
     const status = error.response?.status;
     const serverMessage =
