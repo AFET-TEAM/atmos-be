@@ -41,6 +41,7 @@ export type CrudFactoryOptions = {
     selectCols?: string[];
     where?: string[];
     orderBy?: string;
+    fromClause?: string; // Custom FROM clause with JOINs
     querySchema?: any; // Elysia query schema
     buildFilters?: (q: Record<string, unknown>) => {
       whereFragments: string[];
@@ -191,15 +192,17 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
 
       const whereParts = [...(listCfg.where ?? []), ...dynamic.whereFragments];
       if (soft.enabled && !includeDeleted)
-        whereParts.push(`${soft.column} IS NULL`);
+        whereParts.push(`${table}.${soft.column} IS NULL`);
 
       const whereSql = whereParts.length
         ? `WHERE ${whereParts.join(" AND ")}`
         : "";
       const params = [...dynamic.paramsHead, limit, offset];
 
+      const fromClause = listCfg.fromClause ?? table;
+
       const sql = `SELECT ${ql(listCfg.selectCols!)}
-                   FROM ${table}
+                   FROM ${fromClause}
                    ${whereSql}
                    ORDER BY ${listCfg.orderBy}
                    LIMIT $${params.length - 1} OFFSET $${params.length}`;

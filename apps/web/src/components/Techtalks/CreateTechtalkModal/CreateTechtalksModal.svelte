@@ -124,7 +124,6 @@ function toTimestamptz(dateStr: string, timeStr: string) {
       placeholder: "https://youtu.be/...",
     },
   ] satisfies Field[];
-console.log(currentUser)
   function handleInnerSubmit(e: CustomEvent<SubmitValues>) {
   if (!currentUser?.id) {
     alert("TechTalk oluşturmak için giriş yapmalısınız.");

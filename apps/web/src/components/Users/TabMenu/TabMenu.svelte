@@ -33,28 +33,19 @@
   });
 
   $effect(() => {
-    console.log("tabsHeader güncellendi:", tabsHeader);
 
     if (tabsHeader?.length > 0 && !isInitialized) {
       isInitialized = true;
       const firstTab = tabsHeader[0];
       activeTab = firstTab.value || "documents";
-      console.log("İlk tab yükleniyor:", activeTab);
       handleTabClick(firstTab);
     }
   });
 
   async function handleTabClick(tab: TabHeader) {
     const tabValue = tab?.value;
-    console.log(
-      "handleTabClick çağrıldı, tab:",
-      tabValue,
-      "activeTab:",
-      activeTab,
-    );
 
     if (tabValue && activeTab === tabValue) {
-      console.log("Aynı tab'a tıklandı, işlem yapılmıyor");
       return;
     }
 

@@ -6,7 +6,6 @@ import "./techtalk-card.scss";
 
 const techTalks = await fetchLastTechTalk();
 const hasTalks = Array.isArray(techTalks) && techTalks.length > 0;
-console.log("TechTalks raw =>", techTalks);
 ---
 
 {hasTalks ? (

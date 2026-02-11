@@ -34,7 +34,6 @@ if (selectedDirectorate) {
 
 const lowerSearch = search.toLowerCase();
 const filteredUsers = users.filter((user: any) => {
-  console.log("FIRST USER", users);
   if (!lowerSearch) return true;
 
   const fullName =

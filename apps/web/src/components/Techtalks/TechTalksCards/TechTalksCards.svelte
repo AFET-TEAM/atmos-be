@@ -6,7 +6,6 @@
   export let isAdmin: boolean = false;
   export let onUpdate: (talk: TechTalk) => void;
   export let onDelete: (id: number) => void;
-console.log("talk",talk);
 
   const slugify = (s: string) =>
     (s || "")

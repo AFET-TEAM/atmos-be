@@ -35,16 +35,7 @@
   async function load() {
     try {
       users = await getUsers();
-      console.log(users, "users");
 
-      console.log(
-        "user_department values:",
-        users.map((u) => ({
-          id: u.id,
-          user_department: u.user_department,
-          type: typeof u.user_department,
-        })),
-      );
 
       userTeams = await getUsersTeams();
       departments = await getUsersDepartments();

@@ -132,7 +132,15 @@ export const contentRoutes = () => {
     table: "documents",
     tag: "content",
     softDelete: { enabled: true, column: "deleted_at" },
-    list: { orderBy: "date DESC" },
+    list: {
+      selectCols: [
+        "documents.*",
+        "users.full_name as owner_name",
+        "users.email as owner_email",
+      ],
+      fromClause: "documents LEFT JOIN users ON users.id = documents.user_id",
+      orderBy: "documents.date DESC",
+    },
     create: {
       bodySchema: t.Object({
         title: t.String(),

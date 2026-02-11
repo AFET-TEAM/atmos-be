@@ -44,7 +44,6 @@
       try {
         range.surroundContents(span);
       } catch (e) {
-        console.log("Could not apply thin formatting");
       }
     }
     editorElement.focus();
@@ -65,15 +64,12 @@
   }
 
   function handleUploadFile() {
-    console.log("Upload File clicked");
   }
 
   function handleSaveDraft() {
-    console.log("Saving draft...", editorElement.innerHTML);
   }
 
   function handlePublish() {
-    console.log("Publishing document...", editorElement.innerHTML);
   }
 
   function handleInput() {

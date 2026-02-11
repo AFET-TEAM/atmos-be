@@ -26,7 +26,6 @@
     try {
       loading = true;
       documents = await getAllDocuments();
-      console.log("documentsss:", documents); 
     } catch (error) {
       console.error("Error loading documents:", error);
       alert("Dokümanlar yüklenirken hata oluştu");
@@ -219,14 +218,13 @@
       <DynamicCard
         title={document.title}
         description={document.description || ""}
-        owner={document.userId?.toString() || ""}
+        ownerName={(document as any).owner_name || ""}
         {isAdmin}
         actions={getActions(document)}
       />
     {/each}
   </div>
 {/if}
-
 
 <FormModal
   open={openEditModal}

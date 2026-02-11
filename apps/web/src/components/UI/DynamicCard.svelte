@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { getUserById } from "@/api/UsersApi";
   import type { IconName } from "../../types/IconTypes/Icontypes";
   import Icon from "../UI/Icon.svelte";
   import "./DynamicCard.scss";
@@ -8,7 +7,7 @@
   export let title: string = "";
   export let titleHref: string = "";
   export let description: string = "";
-  export let owner: string = "";
+  export let ownerName: string = "";
   export let isAdmin: boolean = false;
   export let ownerIcon: IconName = "users";
 
@@ -22,7 +21,6 @@
   };
 
   export let actions: CardAction[] = [];
-  $: createdUser = getUserById(owner);
   $: visibleActions = actions.filter((a) => !a.adminOnly || isAdmin);
 </script>
 
@@ -31,23 +29,19 @@
 
   <div class="tt-body">
     {#if titleHref}
-  <a class="tt-title" href={titleHref}>{title}</a>
-{:else}
-  <div class="tt-title tt-title--plain">{title}</div>
-{/if}
+      <a class="tt-title" href={titleHref}>{title}</a>
+    {:else}
+      <div class="tt-title tt-title--plain">{title}</div>
+    {/if}
 
     <div class="tt-name">{description}</div>
 
-    {#if owner}
-  <div class="tt-owner">
-    <Icon name={ownerIcon} width={14} height={14} />
-    {#await createdUser}
-      <span>Loading...</span>
-    {:then user}
-      <span>{user?.fullName}</span>
-    {/await}
-  </div>
-{/if}
+    {#if ownerName}
+      <div class="tt-owner">
+        <Icon name={ownerIcon} width={14} height={14} />
+        <span>{ownerName}</span>
+      </div>
+    {/if}
   </div>
 
   <div class="tt-actions">

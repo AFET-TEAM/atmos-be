@@ -73,7 +73,6 @@ import AnnouncementsCard from "./AnnouncementsCard/AnnouncementsCard.astro";
       ?.split('=')[1];
 
     if (cookieToken && !tokenManager.getToken()) {
-      console.log('📥 Dashboard: Copying token from cookie to localStorage');
       tokenManager.setToken(cookieToken);
 
       if (cookieUser) {
@@ -88,24 +87,17 @@ import AnnouncementsCard from "./AnnouncementsCard/AnnouncementsCard.astro";
 
 
     const token = tokenManager.getToken();
-    console.log('🔍 Dashboard auth check:', {
-      hasToken: !!token,
-      isExpired: token ? tokenManager.isTokenExpired(token) : null
-    });
 
     if (!token) {
-      console.log('❌ No token found, redirecting to login');
       window.location.href = '/auth/login';
       return;
     }
 
     if (tokenManager.isTokenExpired(token)) {
-      console.log('⏰ Token expired, redirecting to login');
       tokenManager.removeToken();
       window.location.href = '/auth/login';
       return;
     }
 
-    console.log('✅ Authentication successful, staying on dashboard');
   });
 </script>

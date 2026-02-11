@@ -42,7 +42,6 @@
     };
 
     filteredUsers = await filterUsersByFields(filterCriteria);
-    console.log("Filtrelenmiş kullanıcılar:", filteredUsers);
   };
 
   // ✅ Filtreleri sıfırla
@@ -51,7 +50,6 @@
     choosedDepartment = "";
     choosedDirectorate = "";
     filteredUsers = [];
-    console.log("Filtreler sıfırlandı");
   };
 
   const handleTeamChange = (value: string) => {
@@ -60,7 +58,6 @@
     } else {
       choosedTeam = value;
     }
-    console.log("Team seçildi:", value);
     applyFilters();
   };
 
@@ -70,7 +67,6 @@
     } else {
       choosedDepartment = value;
     }
-    console.log("Department seçildi:", value);
     applyFilters();
   };
 
@@ -80,12 +76,10 @@
     } else {
       choosedDirectorate = value;
     }
-    console.log("Directorate seçildi:", value);
     applyFilters();
   };
 
   const handleSortChange = (value: string) => {
-    console.log("Sort seçildi:", value);
   };
 </script>
 

@@ -101,7 +101,6 @@
       selectedAnnouncement = null;
     }}
     on:submit={async (e) => {
-      console.log("Submitting announcement:", e.detail);
       saving = true;
       try {
         const { id, payload } = e.detail;

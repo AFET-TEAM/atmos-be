@@ -40,7 +40,6 @@
     comments = [];
     commentText = "";
 
-    console.log("🔄 TechTalk değişti, yeni ID:", talk.id);
     loadCommentsAndLikes(talk.id);
   }
 
@@ -54,20 +53,17 @@
 
   async function loadCommentsAndLikes(talkId: number) {
     loading = true;
-    console.log("📥 Like/Comment yükleniyor, TechTalk ID:", talkId);
     try {
       const fetchedComments = await fetchComments("techtalk", talkId);
       comments = fetchedComments;
 
       const likes = await fetchLikes("techtalk", talkId);
       likesCount = likes.length;
-      console.log("❤️ Likes:", likes);
 
       if (currentUser) {
         hasLiked = (likes as Array<{ user_id?: number | string; userId?: number | string }>).some(
           (like) => Number(like.user_id ?? like.userId) === Number(currentUser.id)
         );
-        console.log("✓ hasLiked:", hasLiked, "currentUser.id:", currentUser.id);
       }
     } catch (error) {
       console.error("Yükleme hatası:", error);
@@ -167,8 +163,6 @@
       liking = false;
     }
   }
-  console.log("currentUser:", currentUser);
-  console.log("talk", talk);
   function canEditDelete(comment: any): boolean {
   if (!currentUser) return false;
 
@@ -178,7 +172,6 @@
   return Boolean(isAdmin) || (commentUserId > 0 && commentUserId === currentUserId);
 }
 const getCreatedAt = (c: Comment | any) => (c as any).createdAt ?? (c as any).created_at;
-$: console.log("comments changed:", comments);
 </script>
 
 <div class="page">

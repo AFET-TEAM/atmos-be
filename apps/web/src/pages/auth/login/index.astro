@@ -137,16 +137,13 @@ import { userAtom } from '@/stores/userStore';
         ?.split('=')[1];
 
       if (cookieToken) {
-        console.log('📥 Copying token from cookie to localStorage:', cookieToken);
         tokenManager.setToken(cookieToken);
 
         if (cookieUser) {
           try {
             const userData = JSON.parse(decodeURIComponent(cookieUser));
-            console.log('📥 Copying user from cookie to localStorage:', userData);
             tokenManager.setUser(userData);
             userAtom.set(userData);
-            console.log('✅ User set to atom:', userData);
           } catch (e) {
             console.error('User cookie parse error:', e);
           }

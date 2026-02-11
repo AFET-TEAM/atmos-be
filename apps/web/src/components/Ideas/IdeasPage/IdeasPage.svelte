@@ -141,7 +141,6 @@
   async function reloadIdeas() {
     try {
       const raw = await svcFetchIdeas();
-       console.log("raw ideas:", raw); 
       ideas = raw.map(mapIdea);
     } catch (err) {
       console.error("Fetch ideas error:", err);
