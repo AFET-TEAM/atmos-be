@@ -126,8 +126,7 @@
       key: "date",
       label: "Tarih",
       required: false,
-      type: "text",
-      placeholder: "YYYY-MM-DD",
+      type: "date",
     },
   ] satisfies Field[];
 </script>

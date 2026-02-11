@@ -72,7 +72,6 @@ export type CrudFactoryOptions = {
     getUserId: (ctx: HookCtx) => number | string;
   };
 
-  /** RBAC kontrolü */
   rbac?: {
     can: (
       ctx: HookCtx,
@@ -83,13 +82,11 @@ export type CrudFactoryOptions = {
     forbidMessage?: string;
   };
 
-  /** Before/After hooks */
   before?: Partial<Record<CrudAction, (ctx: HookCtx) => Promise<void> | void>>;
   after?: Partial<
     Record<CrudAction, (ctx: HookCtx, result: any) => Promise<any> | any>
   >;
 
-  /** Ekstra route eklemek için */
   extend?: (
     plugin: Elysia,
     ctx: { table: string; basePath: string; tag: string },
@@ -259,7 +256,17 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
 
       await opts.before?.create?.(hookCtx);
 
-      const data = pick(body as any, opts.create.bodyKeys);
+      const data = pick(hookCtx.body as any, opts.create.bodyKeys);
+
+      const bodyObj = (hookCtx.body ?? {}) as Record<string, unknown>;
+
+      // before hook'da eklenen ekstra alanları koru (örn: user_id)
+      for (const key in bodyObj) {
+        if (!(key in data) && bodyObj[key] !== undefined) {
+          (data as any)[key] = bodyObj[key];
+        }
+      }
+
       const { keys, params, values } = qp(data);
       const res = await query(
         `INSERT INTO ${table} (${keys.map((k) => `"${k}"`).join(",")})
@@ -298,7 +305,17 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
 
         await opts.before?.update?.(hookCtx);
 
-        const data = pick(body as any, opts.update!.bodyKeys);
+        const data = pick(hookCtx.body as any, opts.update!.bodyKeys);
+
+        const bodyObj = (hookCtx.body ?? {}) as Record<string, unknown>;
+
+        // before hook'da eklenen ekstra alanları koru
+        for (const key in bodyObj) {
+          if (!(key in data) && bodyObj[key] !== undefined) {
+            (data as any)[key] = bodyObj[key];
+          }
+        }
+
         const keys = Object.keys(data);
         if (!keys.length) return badReq("No fields");
 
