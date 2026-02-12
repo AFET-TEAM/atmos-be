@@ -10,6 +10,7 @@ type CustomLinkProps = {
   size?: number;
   border?: boolean;
   className?: string;
+  forceIconColor?: boolean
 };
 
 const {
@@ -20,6 +21,7 @@ const {
   size = 24,
   className = "",
   border = false,
+  forceIconColor = false,
 } = Astro.props as CustomLinkProps;
 
 const isActive =
@@ -29,9 +31,8 @@ const isActive =
 
 { text ? (
   <div class={`${className} customLink ${border ? "bordered" : ""} ${isActive ? "is-active" : ""}`}>
-    <Icon name={iconName} size={size} color={isActive ? color : undefined} />
-
-    <a href={href} class="customLinks" aria-current={isActive ? "page" : undefined}>
+    <Icon name={iconName} size={size} stroke={isActive ? color : "#505050"} />
+    <a href={href} class={`customLinks ${isActive ? "is-active" : ""}`} aria-current={isActive ? "page" : undefined}>
       {text}
     </a>
   </div>
@@ -41,6 +42,6 @@ const isActive =
     class={`${className} customLink ${border ? "bordered" : ""} ${isActive ? "is-active" : ""}`}
     aria-current={isActive ? "page" : undefined}
   >
-    <Icon name={iconName} size={size} color={isActive ? color : undefined} />
+    <Icon name={iconName} size={size} stroke={forceIconColor ? color : (isActive ? color : "#505050")} />
   </a>
 ) }

@@ -144,6 +144,9 @@
           text-decoration: none;
         }
       }
+         .info-join {
+          color: $primary
+        }
     }
   }
 }
@@ -204,16 +207,4 @@
   .techtalk-card {
     border-radius: 12px;
   }
-}
-.join-btn {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 12px;
-  padding: 10px 14px;
-  border-radius: 12px;
-  text-decoration: none;
-  font-weight: 600;
-  background-color: $primary;
-  color: #fff;
 }

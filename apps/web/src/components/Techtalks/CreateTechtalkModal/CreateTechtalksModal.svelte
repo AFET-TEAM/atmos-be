@@ -126,7 +126,6 @@ function toTimestamptz(dateStr: string, timeStr: string) {
   ] satisfies Field[];
   function handleInnerSubmit(e: CustomEvent<SubmitValues>) {
   if (!currentUser?.id) {
-    alert("TechTalk oluşturmak için giriş yapmalısınız.");
     return;
   }
 

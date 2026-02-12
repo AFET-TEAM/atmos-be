@@ -28,7 +28,6 @@
       documents = await getAllDocuments();
     } catch (error) {
       console.error("Error loading documents:", error);
-      alert("Dokümanlar yüklenirken hata oluştu");
     } finally {
       loading = false;
     }

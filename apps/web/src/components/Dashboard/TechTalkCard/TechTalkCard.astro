@@ -14,9 +14,9 @@ const hasTalks = Array.isArray(techTalks) && techTalks.length > 0;
       <div class="techtalks-slider-track">
         {
           techTalks.map((talk: any) => {
-            const techTalkDate = moment(talk.date).format("DD MMM YYYY - HH:mm");
+            const techTalkDate = moment(talk.date).format("DD.MM.YYYY - HH:mm");
             const techTalkDay = moment(talk.date).format("DD");
-            const techTalkMonth = moment(talk.date).format("MMM");
+            const techTalkMonth = moment(talk.date).format("MM");
 
             return (
               <article class="techtalk-card">
@@ -51,14 +51,15 @@ const hasTalks = Array.isArray(techTalks) && techTalks.length > 0;
                     <Icon name={"date"} width={8} height={14} />
                     <span class="info-text">{techTalkDate}</span>
                   </div>
-                  {talk.teams_room_url ? (
+                 {talk.teams_room_url ? (
                     <a
-                      class="join-btn"
+                      class="info-item join"
                       href={talk.teams_room_url}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Join
+                      <Icon name={"locationIcon"} width={8} height={14} />
+                      <span class="info-join" >Join</span>
                     </a>
                   ) : null}
                 </div>

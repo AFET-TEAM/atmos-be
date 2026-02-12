@@ -97,7 +97,6 @@
     talkToEdit = null;
   } catch (error) {
     console.error("TechTalk kaydedilirken hata oluştu:", error);
-    alert("TechTalk kaydedilemedi");
   } finally {
     saving = false;
   }
