@@ -4,13 +4,6 @@
   background-color: $bgGrey;
 }
 
-.sidebar {
-  width: 200px;
-  height: 100vh;
-  @include flexible(flex, column, center, center);
-  gap: 10px;
-}
-
 .navbar {
   position: fixed;
   top: 0;
