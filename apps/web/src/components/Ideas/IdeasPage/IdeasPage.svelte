@@ -118,12 +118,9 @@
   $: {
     if (!isEditMode) {
       modalReadOnly = false;
-    } else if (isAdmin) {
-      modalReadOnly = false;
     } else if (selectedIdea && currentUser) {
       const isMyIdea = selectedIdea.ownerId === currentUser.id;
-      const isPending = (selectedIdea.approvedBy?.length ?? 0) === 0;
-      modalReadOnly = !(isMyIdea && isPending);
+      modalReadOnly = !isMyIdea;
     } else {
       modalReadOnly = true;
     }

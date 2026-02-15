@@ -6,6 +6,7 @@ import "./techtalk-card.scss";
 
 const techTalks = await fetchLastTechTalk();
 const hasTalks = Array.isArray(techTalks) && techTalks.length > 0;
+moment.locale("en-gb");
 ---
 
 {hasTalks ? (
@@ -16,7 +17,7 @@ const hasTalks = Array.isArray(techTalks) && techTalks.length > 0;
           techTalks.map((talk: any) => {
             const techTalkDate = moment(talk.date).format("DD.MM.YYYY - HH:mm");
             const techTalkDay = moment(talk.date).format("DD");
-            const techTalkMonth = moment(talk.date).format("MM");
+            const techTalkMonth = moment(talk.date).format("MMM").toUpperCase();
 
             return (
               <article class="techtalk-card">

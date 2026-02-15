@@ -1,7 +1,7 @@
 <script lang="ts">
   import { userAtom } from "@/stores/userStore";
   import type { Field } from "@/types/DocumentTypes/DocumentTypes";
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onDestroy } from "svelte";
   import FormModal from "../../UI/FormModal.svelte";
   import type { TechTalk } from "../types/TechTalks";
 
@@ -28,6 +28,18 @@
     };
   };
 }>();
+
+function splitIsoToDateTime(iso?: string) {
+  if (!iso) return { date: "", time: "" };
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return {
+    date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
+    time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
+  };
+}
+
+$: dt = splitIsoToDateTime((talkToEdit as any)?.date);
 
 function toTimestamptz(dateStr: string, timeStr: string) {
   const tz = "+03:00";
@@ -72,7 +84,7 @@ function toTimestamptz(dateStr: string, timeStr: string) {
       key: "duration_min",
       label: "Duration (min)",
       required: true,
-      value: (talkToEdit as any)?.duration_min ?? 0,
+      value: (talkToEdit as any)?.durationMin ?? 0,
       type: "number",
       placeholder: "0",
     },
@@ -80,14 +92,14 @@ function toTimestamptz(dateStr: string, timeStr: string) {
       key: "date",
       label: "Date",
       required: true,
-      value: (talkToEdit as any)?.date ?? "",
+      value: (talkToEdit as any)?.date?.includes("T") ? dt.date : ((talkToEdit as any)?.date ?? ""),
       type: "date",
     },
     {
       key: "time",
       label: "Time",
       required: false,
-      value: (talkToEdit as any)?.time ?? "",
+      value: (talkToEdit as any)?.time ?? dt.time,
       type: "time",
     },
     {

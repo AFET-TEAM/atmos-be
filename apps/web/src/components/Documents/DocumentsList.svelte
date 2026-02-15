@@ -228,7 +228,7 @@
 <FormModal
   open={openEditModal}
   {saving}
-  cancelLabel="İptal"
+  cancelLabel="Cancel"
   title={editingDocument ? `Düzenle: ${editingDocument.title}` : "Düzenle"}
   fields={editFields}
   on:close={handleEditClose}
