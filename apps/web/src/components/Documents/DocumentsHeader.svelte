@@ -157,7 +157,7 @@
   <FormModal
     {open}
     {saving}
-    cancelLabel="İptal"
+    cancelLabel="Cancel"
     title={titleText}
     {fields}
     on:close={handleClose}

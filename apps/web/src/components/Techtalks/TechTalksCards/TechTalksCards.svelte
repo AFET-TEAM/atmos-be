@@ -21,7 +21,6 @@
       .replace(/^-+|-+$/g, "");
 
       const talkHref = (t: TechTalk) => `/techtalks/${slugify(t.title)}-${t.id}`;
-
 </script>
 
 <DynamicCard
@@ -29,7 +28,7 @@
   title={talk.title}
   titleHref={talkHref(talk)}
   description={talk.description}
-  owner={talk.owner}
+  ownerName={talk.owner}
   ownerIcon="owner"
   isAdmin={isAdmin}
   actions={[

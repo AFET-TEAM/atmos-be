@@ -9,8 +9,6 @@
   min-width: 23rem;
   height: 220px;
   position: relative;
-
-
     
   .user-profile-img {
     @include flexible(flex, null, center, center);
@@ -93,6 +91,7 @@
     }
 
     .address-info {
+      @include flexible(flex, nulll, center, center);
       @extend h2;
       font-size: 0.75rem;
       font-weight: 400;
