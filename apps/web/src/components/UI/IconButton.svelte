@@ -9,6 +9,7 @@
   export let color: string = "black";
   export let border: boolean = false;
   export let className: string = "";
+  export let iconSize: number = 24;
 </script>
 
 <button
@@ -17,7 +18,7 @@
   style="color: {color}"
 >
   {#if iconName}
-    <Icon name={iconName} size={24} />
+    <Icon name={iconName} size={iconSize} />
   {/if}
   {#if text}
     <span class={`${color}`}>{text}</span>
