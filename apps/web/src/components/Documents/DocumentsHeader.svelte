@@ -98,33 +98,33 @@
   $: fields = [
     {
       key: "title",
-      label: "Başlık",
+      label: "Title",
       required: true,
       autoFocus: true,
     },
     {
       key: "description",
-      label: "Açıklama",
+      label: "Description",
       required: false,
       type: "textarea",
-      placeholder: "Kısa açıklama...",
+      placeholder: "Short description...",
     },
     {
       key: "fileUrl",
-      label: "Dosya URL'si",
+      label: "File URL",
       required: false,
       type: "url",
       placeholder: "https://...",
     },
     {
       key: "uploadFile",
-      label: "Dosya Yükle",
+      label: "Upload File",
       required: false,
       type: "file",
     },
     {
       key: "date",
-      label: "Tarih",
+      label: "Date",
       required: false,
       type: "date",
     },
@@ -135,21 +135,22 @@
   <div class="header-buttons">
     <span class="btn">
       <CustomLink
-        text="Doküman Oluştur"
+        text="Create Document"
         href="/createdocument"
         iconName="download"
-        size={12}
-        border={true}
+        size={14}
+        border={false}
       />
     </span>
 
     <IconButton
-      text="Doküman Yükle"
+      text="Upload Document"
       iconName="download"
       buttonType="secondary"
       className="btn"
       color="white"
       border={true}
+      iconSize={14}
       on:click={handleClick}
     />
   </div>

@@ -61,6 +61,14 @@
   let searchTerm = "";
   let modalReadOnly = false;
 
+  $: isMyIdea =
+  !!selectedIdea && !!currentUser && selectedIdea.ownerId === currentUser.id;
+
+  $: canUpdate = isEditMode && isMyIdea;         
+  $: canModerate = isEditMode && isAdmin;        
+
+  $: modalReadOnly = isEditMode ? !canUpdate : false;
+
   function mapIdea(item: RawIdeaFromApi): Idea {
     return {
       id: item.id,
@@ -70,6 +78,9 @@
       owner: "",
       ownerId: String(item.userId),
       presentationFileName: item.fileUrl,
+      fileUrl: item.fileUrl ?? null,
+      fileName: item.fileName ?? null,
+      fileData: item.fileData ?? null,
       frontendCount: item.frontendCount,
       backendCount: item.backendCount,
       approvedBy: item.approvedBy ?? [],
@@ -114,17 +125,6 @@
 
   $: totalPendingPages = Math.ceil(activePending.length / PAGE_SIZE);
   $: displayedPending = activePending.slice(0, pendingPage * PAGE_SIZE);
-
-  $: {
-    if (!isEditMode) {
-      modalReadOnly = false;
-    } else if (selectedIdea && currentUser) {
-      const isMyIdea = selectedIdea.ownerId === currentUser.id;
-      modalReadOnly = !isMyIdea;
-    } else {
-      modalReadOnly = true;
-    }
-  }
 
   function showMorePending() {
     if (pendingPage < totalPendingPages) pendingPage++;
@@ -335,6 +335,8 @@
     {selectedIdea}
     readOnly={modalReadOnly}
     {isAdmin}
+    canUpdate={canUpdate}
+    canModerate={canModerate}
     bind:ownerName
     bind:ideaTitle
     bind:date

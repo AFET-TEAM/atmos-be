@@ -6,9 +6,9 @@
       display: inline-flex;
       justify-content: center;
       align-items: center;
-      gap: 4px;
+      gap: 0.5rem;
       border: none;
-      padding: 6px 16px;
+      padding: 0.7rem 2rem;
       border-radius: 12px;
       font-size: 14px;
       cursor: pointer;
@@ -17,6 +17,12 @@
       background: #18a0fb;
       color: #fff !important;
       text-decoration: none;
+        .customLink {
+          gap: 0.5rem;
+          a {
+            color: #fff;
+          }
+        }
     }
   }
 }

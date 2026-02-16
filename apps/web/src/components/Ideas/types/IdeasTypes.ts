@@ -8,6 +8,9 @@ export interface Idea {
   date: string;
   description: string;
   presentationFileName?: string;
+  fileName?: string | null;
+  fileData?: { type: "Buffer"; data: number[] } | null;
+  fileUrl?: string | null;
   frontendCount?: number;
   backendCount?: number;
   approvedBy: string[];
@@ -40,6 +43,8 @@ export type RawIdeaFromApi = {
   title: string;
   description: string;
   fileUrl: string;
+  fileName?: string | null;
+  fileData?: { type: "Buffer"; data: number[] } | null;
   frontendCount: number;
   backendCount: number;
   ideaAssigneeId: number;
