@@ -7,30 +7,19 @@ export const filterRoutes = () => {
     .post(
       "/users-by-fields",
       async ({ body }) => {
-        const { department, team, directorate } = body as any; // ✅ Alan adlarını değiştir
+        const { department, team, directorate } = body as any;
 
         let queryStr = `
       SELECT
-        u.id,
-        u.email,
-        u.full_name,
-        u.team,
-        u.profession,
-        u.profile_picture,
-        u.address,
-        u.connection,
-        u.user_department,
-        u.user_status_id,
-        u.role,
-        u.directorate,
-        d.id as departmentValue,
-        d.name as departmentLabel,
-        dir.id as directorateValue,
-        dir.name as directorateLabel
+        u.*,
+        d.id AS department_value,
+        d.name AS department_label,
+        dir.id AS directorate_value,
+        dir.name AS directorate_label
       FROM users u
       LEFT JOIN departments d ON u.user_department = d.id::character varying
       LEFT JOIN directorates dir ON u.directorate = dir.id::character varying
-      WHERE u.deleted_at IS NULL
+      WHERE u.deleted_at IS NULL AND u.is_active IS TRUE AND (u.role IS NULL OR u.role != 'supervisor')
     `;
         const queryParams: any[] = [];
         let paramIndex = 1;
@@ -54,27 +43,22 @@ export const filterRoutes = () => {
         }
 
         const result = await query(queryStr, queryParams);
-        return result.rows.map((row) => ({
-          id: Number(row.id),
-          email: String(row.email),
-          full_name: String(row.full_name),
-          team: row.team,
-          profession: row.profession,
-          profile_picture: row.profile_picture,
-          address: row.address,
-          connection: row.connection,
-          user_department: row.user_department,
-          departmentValue: row.departmentValue
-            ? Number(row.departmentValue)
-            : undefined,
-          departmentLabel: row.departmentLabel || undefined,
-          directorateValue: row.directorateValue
-            ? Number(row.directorateValue)
-            : undefined,
-          directorateLabel: row.directorateLabel || undefined,
-          user_status_id: row.user_status_id,
-          role: row.role,
-        }));
+        const { mapRows } = await import("@/utils");
+        const rows = mapRows(result.rows as any) as any[];
+
+        // Convert Date objects to ISO strings for validation/serialization
+        for (const r of rows) {
+          if (r.createdAt instanceof Date)
+            r.createdAt = r.createdAt.toISOString();
+          if (r.updatedAt instanceof Date)
+            r.updatedAt = r.updatedAt.toISOString();
+          if (r.deletedAt instanceof Date)
+            r.deletedAt = r.deletedAt.toISOString();
+          // ensure missing optional fields remain undefined (not null)
+          if (r.profilePicture === undefined) r.profilePicture = undefined;
+        }
+
+        return rows;
       },
       {
         body: t.Object({
@@ -86,32 +70,41 @@ export const filterRoutes = () => {
           t.Object({
             id: t.Number(),
             email: t.String(),
-            full_name: t.String(),
+            fullName: t.Optional(t.String()),
             team: t.Optional(t.String()),
-            profession: t.Nullable(t.String()), // ✅ Nullable yap
-            profile_picture: t.Nullable(t.String()), // ✅ Nullable yap
-            address: t.Nullable(t.String()), // ✅ Nullable yap
+            profession: t.Optional(t.Nullable(t.String())),
+            profilePicture: t.Optional(t.Nullable(t.String())),
+            address: t.Nullable(t.String()),
             connection: t.Optional(t.Boolean()),
-            user_department: t.Optional(t.String()), // ✅ Ekle
+            userDepartment: t.Optional(t.String()),
             departmentValue: t.Optional(t.Number()),
             departmentLabel: t.Optional(t.String()),
             directorateValue: t.Optional(t.Number()),
             directorateLabel: t.Optional(t.String()),
-            user_status_id: t.Optional(t.Number()),
-            role: t.String(),
-          })
+            userStatusId: t.Optional(t.Number()),
+            role: t.Optional(t.String()),
+            createdAt: t.Optional(t.String()),
+            updatedAt: t.Optional(t.String()),
+            deletedAt: t.Nullable(t.String()),
+            password: t.Optional(t.String()),
+            directorate: t.Optional(t.String()),
+            gender: t.Optional(t.Nullable(t.String())),
+            job: t.Optional(t.String()),
+            jobvalue: t.Optional(t.String()),
+            isActive: t.Optional(t.Boolean()),
+          }),
         ),
         detail: {
           summary: "Get users filtered by department, team, and/or directorate",
           tags: ["filters"],
         },
-      }
+      },
     )
     .get(
       "/departments",
       async () => {
         const result = await query(
-          "SELECT id, name FROM departments WHERE deleted_at IS NULL ORDER BY name"
+          "SELECT id, name FROM departments WHERE deleted_at IS NULL ORDER BY name",
         );
         return result.rows.map((row) => ({
           id: Number(row.id),
@@ -123,16 +116,16 @@ export const filterRoutes = () => {
           t.Object({
             id: t.Number(),
             name: t.String(),
-          })
+          }),
         ),
         detail: { summary: "Get all departments", tags: ["filters"] },
-      }
+      },
     )
     .get(
       "/teams",
       async () => {
         const result = await query(
-          "SELECT DISTINCT team FROM users WHERE team IS NOT NULL AND deleted_at IS NULL ORDER BY team"
+          "SELECT DISTINCT team FROM users WHERE team IS NOT NULL AND deleted_at IS NULL ORDER BY team",
         );
         return result.rows.map((row) => ({
           team: String(row.team),
@@ -142,16 +135,16 @@ export const filterRoutes = () => {
         response: t.Array(
           t.Object({
             team: t.String(),
-          })
+          }),
         ),
         detail: { summary: "Get all teams", tags: ["filters"] },
-      }
+      },
     )
     .get(
       "/directorates",
       async () => {
         const result = await query(
-          "SELECT id, name FROM directorates WHERE deleted_at IS NULL ORDER BY name"
+          "SELECT id, name FROM directorates WHERE deleted_at IS NULL ORDER BY name",
         );
         return result.rows.map((row) => ({
           id: Number(row.id),
@@ -163,9 +156,9 @@ export const filterRoutes = () => {
           t.Object({
             id: t.Number(),
             name: t.String(),
-          })
+          }),
         ),
         detail: { summary: "Get all directorates", tags: ["filters"] },
-      }
+      },
     );
 };
