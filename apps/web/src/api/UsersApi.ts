@@ -10,7 +10,17 @@ export const getUsers = async () => {
         include_deleted: false,
       },
     });
-    return response.data;
+    const data = response.data;
+    if (Array.isArray(data)) {
+      return data.filter((u: any) => u.role !== "supervisor");
+    }
+    if (data && Array.isArray((data as any).data)) {
+      (data as any).data = (data as any).data.filter(
+        (u: any) => u.role !== "supervisor",
+      );
+      return data;
+    }
+    return data;
   }, "getUsers");
 };
 

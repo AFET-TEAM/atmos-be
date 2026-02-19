@@ -98,7 +98,19 @@ export const usersRoutes = () => {
       getUserId: ({ params }: { params: any }) =>
         Number((params as any)?.id ?? 0),
     },
-    rbac: { can: async () => true },
+    rbac: {
+      can: async (ctx, action) => {
+        const body = (ctx.body ?? {}) as any;
+        if (
+          (action === "create" || action === "update") &&
+          body?.role === "supervisor"
+        ) {
+          if ((ctx.user as any)?.role === "admin") return false;
+        }
+        return true;
+      },
+      forbidMessage: "Not allowed to assign supervisor role",
+    },
   });
 
   const plugin = new Elysia({ name: "routes:users:about" })
