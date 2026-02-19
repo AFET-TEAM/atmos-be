@@ -28,7 +28,6 @@
       documents = await getAllDocuments();
     } catch (error) {
       console.error("Error loading documents:", error);
-      alert("Dokümanlar yüklenirken hata oluştu");
     } finally {
       loading = false;
     }
@@ -229,7 +228,7 @@
 <FormModal
   open={openEditModal}
   {saving}
-  cancelLabel="İptal"
+  cancelLabel="Cancel"
   title={editingDocument ? `Düzenle: ${editingDocument.title}` : "Düzenle"}
   fields={editFields}
   on:close={handleEditClose}

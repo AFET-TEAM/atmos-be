@@ -8,16 +8,16 @@
   padding: 2rem;
 }
 
-.header {
+.meet-header {
   text-align: right;
 }
 
-.header span {
+.meet-header span {
   position: absolute;
   top: 0;
   right: 0;
   background-color: $primary;
-  padding: 0.2rem 3rem;
+  padding: 0.1rem 1rem;
   color: $white;
   border-top-right-radius: 12px;
   border-bottom-left-radius: 12px;

@@ -50,8 +50,8 @@ const meets = userMeetings?.map((meet: any) => ({
     <UserMembers user={user} />
   </header>
 
-  <main class="page-content">
+  <section class="page-content">
     <MeetList meets={meets} />
     <TabsWrapper userId={String(userId)} client:load />
-  </main>
+  </section>
 </Layout>

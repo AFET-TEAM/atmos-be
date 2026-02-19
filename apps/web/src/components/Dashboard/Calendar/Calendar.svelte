@@ -85,10 +85,10 @@
         const dateObj = new Date(cell.year, cell.month, cell.date);
         selectedDate.set(dateObj);
 
-        if (cell.isCurrentMonth) {
-            tempNote = "";
-            showPopup = true;
-        }
+        // if (cell.isCurrentMonth) {
+        //     tempNote = "";
+        //     showPopup = true;
+        // }
     }
 
     function isSelected(cell: CalendarCell) {
