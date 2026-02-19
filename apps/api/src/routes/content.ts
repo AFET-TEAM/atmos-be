@@ -345,6 +345,7 @@ export const contentRoutes = () => {
         backend_count: t.Optional(t.Numeric()),
         idea_assignee_id: t.Optional(t.Numeric()),
         date: t.Optional(t.String()),
+        status: t.Optional(t.String()),
       }),
       bodyKeys: [
         "user_id",
@@ -357,6 +358,7 @@ export const contentRoutes = () => {
         "backend_count",
         "idea_assignee_id",
         "date",
+        "status",
       ] as const,
     },
     update: {
@@ -372,6 +374,7 @@ export const contentRoutes = () => {
           backend_count: t.Optional(t.Numeric()),
           idea_assignee_id: t.Optional(t.Numeric()),
           date: t.Optional(t.String()),
+          status: t.Optional(t.String()),
         }),
       ),
       bodyKeys: [
@@ -385,16 +388,32 @@ export const contentRoutes = () => {
         "backend_count",
         "idea_assignee_id",
         "date",
+        "status",
       ] as const,
     },
     ownerCheck: {
       ownerField: "user_id",
       getUserId: ({ body }) => (body as any)?.user_id ?? 0,
     },
-    rbac: { can: async () => true },
+    rbac: {
+      can: async (ctx, action) => {
+        const body = (ctx.body ?? {}) as any;
+        if (action === "create") return true;
+        if (
+          action === "update" &&
+          (body?.status === "approved" || body?.status === "rejected")
+        ) {
+          return (ctx.user as any)?.role === "admin";
+        }
+        return true;
+      },
+      forbidMessage: "Only admins can change idea status",
+    },
     before: {
       create: async (ctx) => {
         const body = ctx.body as any;
+
+        if (!body.status) body.status = "pending";
         if (body.file_data) {
           const buffer = Buffer.from(body.file_data, "base64");
           body.file_data = buffer;

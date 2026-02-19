@@ -52,16 +52,18 @@ export async function approveIdea(
   id: number,
   currentUser: string,
 ): Promise<Idea> {
-  const idea = await getIdeaById(id);
-  const approved = new Set(ensureArray(idea.approvedBy));
-  approved.add(currentUser);
-  const updated = { ...idea, approvedBy: Array.from(approved) };
-  const { data } = await instance.patch<Idea>(`/ideas/${id}`, updated);
+  const { data } = await instance.patch<Idea>(`/ideas/${id}`, {
+    status: "approved",
+
+    approvedBy: [...((await getIdeaById(id)).approvedBy ?? []), currentUser],
+  });
   return data;
 }
 
 export async function rejectIdea(id: number): Promise<void> {
-  await deleteIdea(id);
+  await apiCall(async () => {
+    await instance.patch(`/ideas/${id}`, { status: "rejected" });
+  }, "rejectIdea");
 }
 
 export async function joinFrontend(id: number, userId: string): Promise<Idea> {
