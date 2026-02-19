@@ -8,7 +8,7 @@ export const usersRoutes = () => {
     table: "users",
     tag: "users",
     softDelete: { enabled: true, column: "deleted_at" },
-    list: { orderBy: "id DESC" },
+    list: { orderBy: "id DESC", where: ["users.is_active IS TRUE"] },
     create: {
       bodySchema: t.Object({
         email: t.String(),
@@ -69,7 +69,7 @@ export const usersRoutes = () => {
           gender: t.Optional(t.String()),
           job: t.Optional(t.String()),
           jobValue: t.Optional(t.String()),
-        })
+        }),
       ),
       bodyKeys: [
         "email",
@@ -86,6 +86,7 @@ export const usersRoutes = () => {
         "directorate",
         "directorate_label",
         "role",
+        "is_active",
         "gender",
         "job",
         "jobValue",
@@ -114,7 +115,7 @@ export const usersRoutes = () => {
       {
         params: t.Object({ id: t.Numeric() }),
         detail: { summary: "Get about_me by user id", tags: ["about_me"] },
-      }
+      },
     )
     .put(
       "/users/:id/about",
@@ -127,7 +128,7 @@ export const usersRoutes = () => {
           `INSERT INTO about_me (${keys.map((k) => `"${k}"`).join(",")})
            VALUES (${ps.join(",")})
            ON CONFLICT (user_id) DO UPDATE SET ${conflict} RETURNING *`,
-          values
+          values,
         );
         return mapRows(res.rows)[0];
       },
@@ -138,7 +139,7 @@ export const usersRoutes = () => {
           description: t.Optional(t.String()),
         }),
         detail: { summary: "Upsert about_me for user", tags: ["about_me"] },
-      }
+      },
     );
 
   return new Elysia({ name: "routes:users:all" }).use(users).use(plugin);

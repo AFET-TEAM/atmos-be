@@ -366,8 +366,9 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
       await opts.before?.delete?.(hookCtx);
 
       if (soft.enabled) {
+        const extraSet = table === "users" ? ", is_active = false" : "";
         const res = await query(
-          `UPDATE ${table} SET ${soft.column} = now() WHERE id=$1 AND ${soft.column} IS NULL RETURNING id`,
+          `UPDATE ${table} SET ${soft.column} = now()${extraSet} WHERE id=$1 AND ${soft.column} IS NULL RETURNING id`,
           [id],
         );
         if (!res.rows[0]) return notFound();
