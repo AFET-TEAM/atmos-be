@@ -47,6 +47,16 @@
 .page-top {
   @include flexible(flex, row, flex-start);
   gap: 1rem;
+  width: 100%;
+}
+
+.page-top > :first-child {
+  flex: 0 0 auto;
+}
+
+.page-top > :last-child {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .page-content {

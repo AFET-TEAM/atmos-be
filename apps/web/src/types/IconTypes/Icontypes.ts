@@ -12,4 +12,5 @@ export type IconName =
   | "pencil"
   | "like"
   | "comment"
-  | "logout";
+  | "logout"
+  | "close";

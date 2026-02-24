@@ -51,8 +51,8 @@
   let backendCount: number | undefined;
   let ownerName = "";
 
-  const isApproved = (idea: Idea) => (idea.approvedBy?.length ?? 0) >= 1;
-  const isPending = (idea: Idea) => (idea.approvedBy?.length ?? 0) === 0;
+  const isApproved = (idea: Idea) => idea.status === "approved";
+  const isPendingOrRejected = (idea: Idea) => idea.status === "pending" || idea.status === "rejected";
 
   const PAGE_SIZE = 4;
   let pendingPage = 1;
@@ -64,8 +64,10 @@
   $: isMyIdea =
   !!selectedIdea && !!currentUser && selectedIdea.ownerId === currentUser.id;
 
-  $: canUpdate = isEditMode && isMyIdea;         
-  $: canModerate = isEditMode && isAdmin;        
+  $: isPendingIdea = !!selectedIdea && selectedIdea.status === "pending";
+  $: canUpdate = isEditMode && isMyIdea && isPendingIdea;
+  $: canModerate = isEditMode && isAdmin;
+  $: canDelete = isEditMode && !!selectedIdea && (!!isAdmin || isMyIdea);
 
   $: modalReadOnly = isEditMode ? !canUpdate : false;
 
@@ -83,6 +85,7 @@
       fileData: item.fileData ?? null,
       frontendCount: item.frontendCount,
       backendCount: item.backendCount,
+      status: item.status,
       approvedBy: item.approvedBy ?? [],
       frontendParticipants: item.frontendParticipants ?? [],
       backendParticipants: item.backendParticipants ?? [],
@@ -101,7 +104,7 @@
     );
 
   $: allPending = ideas
-    .filter(isPending)
+    .filter(isPendingOrRejected)
     .filter((i) =>
       i.title.toLowerCase().includes(searchTerm.trim().toLowerCase()),
     )
@@ -337,6 +340,7 @@
     {isAdmin}
     canUpdate={canUpdate}
     canModerate={canModerate}
+    canDelete={canDelete}
     bind:ownerName
     bind:ideaTitle
     bind:date

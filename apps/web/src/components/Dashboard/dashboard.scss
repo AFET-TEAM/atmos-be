@@ -39,18 +39,24 @@
   }
 
   .middle-section {
-    @include grid(
-      grid,
-      repeat(auto-fit, minmax(200px, 1fr)),
-      null,
-      null,
-      null,
-      10px
-    );
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
     margin-bottom: 2rem;
+
+    .techtalk {
+      height: 100%;
+    }
+
+    .right-column {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      gap: 1.5rem;
+    }
 
     .card {
       @include cards();
+      min-width: 0;
     }
   }
 

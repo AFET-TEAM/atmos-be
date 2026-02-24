@@ -143,6 +143,13 @@
         @include border(1px, solid, #18a0fb, 8px);
         cursor: pointer;
       }
+      .delete-button {
+        padding: 8px 20px;
+        background: #fff;
+        color: red;
+        @include border(1px, solid, red, 8px);
+        cursor: pointer;
+      }
     }
 
     @media (max-width: 560px) {
@@ -168,7 +175,9 @@
     @include flexible(flex, row, center, center);
 
     cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition:
+      background 0.15s ease,
+      color 0.15s ease;
 
     &:hover {
       background: rgba(0, 0, 0, 0.05);

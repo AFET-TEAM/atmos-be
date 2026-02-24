@@ -56,6 +56,10 @@ import type { IconName } from "../../types/IconTypes/Icontypes";
       <path d="M8.75 7H12.25M12.25 7L10.75 5.5M12.25 7L10.75 8.5"
         stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     `,
+    close: `
+      <path d="M12 4L4 12" stroke="currentColor" stroke-opacity="0.8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M4 4L12 12" stroke="currentColor" stroke-opacity="0.8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    `,
     };
 
   const viewBoxes: Record<IconName, string> = {
@@ -73,6 +77,7 @@ import type { IconName } from "../../types/IconTypes/Icontypes";
     like: "0 0 14 14",
     comment: "0 0 14 14",
     logout: "0 0 14 14",
+    close: "0 0 16 16",
   };
 </script>
 

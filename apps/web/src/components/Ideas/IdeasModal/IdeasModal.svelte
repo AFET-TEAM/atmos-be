@@ -24,8 +24,9 @@
   export let isAdmin: boolean = false;
   export let canUpdate: boolean = false;
   export let canModerate: boolean = false;
+  export let canDelete: boolean = false;
 
-  $: isPendingIdea = !!selectedIdea && (selectedIdea.approvedBy?.length ?? 0) === 0;
+  $: isPendingIdea = !!selectedIdea && selectedIdea.status === "pending";
 
   $: isAdminPending = canModerate && isPendingIdea;
 
@@ -169,13 +170,20 @@
               Reject
             </button>
           {/if}
-          
+
           {#if isUserEdit}
             <button class="send-button" on:click={onSubmitIdea}>
               Update
             </button>
           {/if}
-        {/if}   
+          {#if canDelete}
+            <button
+              class="delete-button"
+              on:click={() => {onDeleteIdea(selectedIdea.id)}}>
+              Delete
+            </button>
+          {/if}
+        {/if}
       </div>
     </div>
   </div>
