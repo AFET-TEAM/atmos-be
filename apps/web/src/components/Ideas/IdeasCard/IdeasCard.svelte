@@ -77,8 +77,9 @@ const isMine = (ownerId?: string | number, meId?: string) =>
 
       <hr style="border:1px solid #18a0fb; margin:20px 0;" />
     {/if}
-
-    {#if isAdmin}<h3>Existing Ideas</h3>{/if}
+        <div class="idea-section" >
+          <h3 >Existing Ideas</h3>
+        </div>
 
       <div class="cards-container">
         <button
