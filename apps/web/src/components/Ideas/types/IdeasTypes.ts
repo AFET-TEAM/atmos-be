@@ -1,5 +1,7 @@
 export type Role = "admin" | "user";
 
+export type IdeaStatus = "pending" | "approved" | "rejected";
+
 export interface Idea {
   id: number;
   title: string;
@@ -14,6 +16,7 @@ export interface Idea {
   frontendCount?: number;
   backendCount?: number;
   approvedBy: string[];
+  status: IdeaStatus;
   frontendParticipants?: string[];
   backendParticipants?: string[];
 }
@@ -26,7 +29,7 @@ export interface CreateIdeaPayload {
   frontend_count?: number;
   backend_count?: number;
   file_url?: string;
-  approvedBy?: string[]; 
+  approvedBy?: string[];
 }
 
 export type UpdateIdeaPayload = Partial<CreateIdeaPayload>;
@@ -50,6 +53,7 @@ export type RawIdeaFromApi = {
   ideaAssigneeId: number;
   date: string;
   approvedBy?: string[];
+  status: "pending" | "approved" | "rejected";
   frontendParticipants?: string[];
   backendParticipants?: string[];
 };

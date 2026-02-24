@@ -1,6 +1,6 @@
 .links-card-container {
-  @include flexible(flex, column, center, center, null);
   position: relative;
+  min-width: 100%;
   padding-top: 20px;
   min-height: 100%;
 }
@@ -8,17 +8,20 @@
 .badge-area {
   .links-badge {
     @include badges(
-            $position: absolute,
-            $background-color: $danger,
-            $color: $white,
-            $padding: 5px 10px,
-            $font-weight: normal
+      $position: absolute,
+      $background-color: $danger,
+      $color: $white,
+      $padding: 5px 10px,
+      $font-weight: normal
     );
     font-size: 12px;
   }
 }
 
 .content-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 20px;
 }
 

@@ -1,15 +1,18 @@
 ---
 const { meets } = Astro.props;
 import "./meet-list.scss";
+
+const hasMeets = Array.isArray(meets) && meets.length > 0;
 ---
 
 <section class="meetings-container">
   <div class="meet-header">
     <span>Meeting Schedule</span>
   </div>
-  <div class="meet-list">
-    {
-      meets?.map((meet: any) => (
+
+  {hasMeets ? (
+    <div class="meet-list">
+      {meets.map((meet: any) => (
         <div class="meet-item">
           <div class="timeline" />
           <div class="meet-content">
@@ -17,7 +20,9 @@ import "./meet-list.scss";
             <p class="meet-time">{meet.time}</p>
           </div>
         </div>
-      ))
-    }
-  </div>
+      ))}
+    </div>
+  ) : (
+    <div class="meet-empty">No scheduled meetings.</div>
+  )}
 </section>

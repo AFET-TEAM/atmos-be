@@ -35,26 +35,28 @@ import AnnouncementsCard from "./AnnouncementsCard/AnnouncementsCard.astro";
       <Calendar client:load/>
     </div>
   </div>
-  <div class="middle-section">
-    <!--<div class="card">
-      <TotalTaskCard/>
-    </div>-->
-    <div class="card">
-      <TechTalkCard/>
-    </div>
-    <div class="card">
-      <LinksCard/>
-    </div>
+ <div class="middle-section">
+  <div class="card techtalk">
+    <TechTalkCard/>
   </div>
 
-  <div class="bottom-section">
-    <div class="card">
+  <div class="right-column">
+    <div class="card links">
+      <LinksCard/>
+    </div>
+
+    <div class="card idea">
       <IdeaCard/>
     </div>
+  </div>
+</div>
+
+  <!-- <div class="bottom-section">
+
     <div class="card">
       <MapCard/>
     </div>
-  </div>
+  </div> -->
 </div>
 
 <script>

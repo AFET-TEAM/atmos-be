@@ -41,10 +41,16 @@ const isMine = (ownerId?: string | number, meId?: string) =>
           {#each displayedPending as idea (idea.id)}
             <button
               type="button"
-              class="idea-item pending"
+              class="idea-item pending {idea.status === 'rejected' ? 'is-rejected' : ''}"
               on:click={() => onEditIdea(idea)}
               aria-label={`Open ${idea.title} for review`}>
               <p>{idea.title}</p>
+
+              <div class="top-right" aria-hidden="true">
+                {#if idea.status === 'rejected'}
+                  <Icon name="close" width={16} height={16} color="red" />
+                {/if}
+              </div>
             </button>
           {/each}
         </div>
