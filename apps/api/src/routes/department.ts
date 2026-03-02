@@ -29,7 +29,7 @@ export const departmentsRoutes = () => {
 
         const res = await query(
           `
-          INSERT INTO departments (name, created_at)
+          INSERT INTO departments (name, created_at, updated_at)
           VALUES ($1, NOW(), NOW())
           RETURNING id, name, created_at
         `,
