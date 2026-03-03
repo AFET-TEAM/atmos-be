@@ -187,7 +187,7 @@
 
   onMount(init);
 
-  function openModal() {
+  async function openModal() {
     isModalOpen = true;
     isEditMode = false;
     selectedIdea = null;
@@ -197,7 +197,19 @@
     presentationFileName = undefined;
     frontendCount = undefined;
     backendCount = undefined;
-    ownerName = currentUser?.name ?? "";
+    
+    // Always fetch fresh user data when opening create modal
+    try {
+      const freshUser = await fetchCurrentUser();
+      if (freshUser) {
+        ownerName = freshUser.name;
+        currentUser = freshUser;
+      } else {
+        ownerName = currentUser?.name ?? "Unknown User";
+      }
+    } catch {
+      ownerName = currentUser?.name ?? "Unknown User";
+    }
   }
 
   async function editIdea(idea: Idea) {

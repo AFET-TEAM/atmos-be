@@ -470,6 +470,66 @@ export const contentRoutes = () => {
         tags: ["content"],
       },
     },
+  ).patch(
+    "/ideas/:id/join-frontend",
+    async ({ params, body }) => {
+      const ideaId = parseInt((params as any).id);
+      const userId = (body as any).user_id;
+      
+      if (!ideaId || !userId) {
+        return new Response("Missing ideaId or userId", { status: 400 });
+      }
+
+      const res = await query(
+        `UPDATE ideas 
+         SET frontend_participants = COALESCE(frontend_participants, '[]'::jsonb) || $1
+         WHERE id = $2 AND deleted_at IS NULL
+         RETURNING *`,
+        [JSON.stringify([String(userId)]), ideaId],
+      );
+
+      if (!res.rows[0]) return new Response("Idea not found", { status: 404 });
+      
+      const idea = mapRows(res.rows)[0];
+      return idea;
+    },
+    {
+      body: t.Object({ user_id: t.String() }),
+      detail: {
+        summary: "Join idea as frontend developer (no auth required)",
+        tags: ["content"],
+      },
+    },
+  ).patch(
+    "/ideas/:id/join-backend",
+    async ({ params, body }) => {
+      const ideaId = parseInt((params as any).id);
+      const userId = (body as any).user_id;
+      
+      if (!ideaId || !userId) {
+        return new Response("Missing ideaId or userId", { status: 400 });
+      }
+
+      const res = await query(
+        `UPDATE ideas 
+         SET backend_participants = COALESCE(backend_participants, '[]'::jsonb) || $1
+         WHERE id = $2 AND deleted_at IS NULL
+         RETURNING *`,
+        [JSON.stringify([String(userId)]), ideaId],
+      );
+
+      if (!res.rows[0]) return new Response("Idea not found", { status: 404 });
+      
+      const idea = mapRows(res.rows)[0];
+      return idea;
+    },
+    {
+      body: t.Object({ user_id: t.String() }),
+      detail: {
+        summary: "Join idea as backend developer (no auth required)",
+        tags: ["content"],
+      },
+    },
   );
 
   return app.use(techtalks).use(documents).use(reports).use(ideas);

@@ -73,14 +73,18 @@ export async function joinFrontend(id: number, userId: string): Promise<Idea> {
     const idea = await getIdeaById(id);
     const max = idea.frontendCount ?? 0;
     const list = ensureArray(idea.frontendParticipants);
+    
     if (max > 0 && list.length >= max) {
       throw new Error("Frontend developer quota reached");
     }
-    if (!list.includes(userId)) list.push(userId);
-    const { data } = await instance.patch<Idea>(`/ideas/${id}`, {
-      frontend_participants: list,
-    });
-    return data;
+    
+    if (!list.includes(userId)) {
+      const { data } = await instance.patch<Idea>(`/ideas/${id}/join-frontend`, {
+        user_id: userId,
+      });
+      return data;
+    }
+    return idea;
   }, "joinFrontend");
 }
 
@@ -89,14 +93,18 @@ export async function joinBackend(id: number, userId: string): Promise<Idea> {
     const idea = await getIdeaById(id);
     const max = idea.backendCount ?? 0;
     const list = ensureArray(idea.backendParticipants);
+    
     if (max > 0 && list.length >= max) {
       throw new Error("Backend developer quota reached");
     }
-    if (!list.includes(userId)) list.push(userId);
-    const { data } = await instance.patch<Idea>(`/ideas/${id}`, {
-      backend_participants: list,
-    });
-    return data;
+    
+    if (!list.includes(userId)) {
+      const { data } = await instance.patch<Idea>(`/ideas/${id}/join-backend`, {
+        user_id: userId,
+      });
+      return data;
+    }
+    return idea;
   }, "joinBackend");
 }
 
