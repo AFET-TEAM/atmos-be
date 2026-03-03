@@ -405,7 +405,7 @@ export const contentRoutes = () => {
     },
     ownerCheck: {
       ownerField: "user_id",
-      getUserId: ({ body }) => (body as any)?.user_id ?? 0,
+      getUserId: ({ user }) => user?.id ?? 0,
     },
     rbac: {
       can: async (ctx, action) => {
