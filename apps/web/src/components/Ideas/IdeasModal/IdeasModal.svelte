@@ -26,12 +26,6 @@
   export let canModerate: boolean = false;
   export let canDelete: boolean = false;
 
-  $: isPendingIdea = !!selectedIdea && selectedIdea.status === "pending";
-
-  $: isAdminPending = canModerate && isPendingIdea;
-
-  $: isUserEdit = canUpdate;
-
   function downloadIdeaFile() {
   if (!selectedIdea) return;
 
@@ -158,7 +152,7 @@
           <button class="send-button" on:click={onSubmitIdea}>Send</button>
         {/if}
         {#if isEditMode && selectedIdea}
-          {#if isAdminPending}
+          {#if canModerate}
             <button
               class="send-button"
               on:click={() => onApproveIdea(selectedIdea.id)}>
@@ -171,7 +165,7 @@
             </button>
           {/if}
 
-          {#if isUserEdit}
+          {#if canUpdate}
             <button class="send-button" on:click={onSubmitIdea}>
               Update
             </button>

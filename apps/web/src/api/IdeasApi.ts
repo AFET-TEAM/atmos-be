@@ -52,44 +52,52 @@ export async function approveIdea(
   id: number,
   currentUser: string,
 ): Promise<Idea> {
-  const { data } = await instance.patch<Idea>(`/ideas/${id}`, {
-    status: "approved",
-
-    approvedBy: [...((await getIdeaById(id)).approvedBy ?? []), currentUser],
-  });
-  return data;
+  return apiCall(async () => {
+    const idea = await getIdeaById(id);
+    const { data } = await instance.patch<Idea>(`/ideas/${id}`, {
+      status: "approved",
+      approved_by: [...((idea.approvedBy ?? []) as string[]), currentUser],
+    });
+    return data;
+  }, "approveIdea");
 }
 
 export async function rejectIdea(id: number): Promise<void> {
-  await apiCall(async () => {
+  return apiCall(async () => {
     await instance.patch(`/ideas/${id}`, { status: "rejected" });
   }, "rejectIdea");
 }
 
 export async function joinFrontend(id: number, userId: string): Promise<Idea> {
-  const idea = await getIdeaById(id);
-  const max = idea.frontendCount ?? 0;
-  const list = ensureArray(idea.frontendParticipants);
-  if (max > 0 && list.length >= max) return idea;
-  if (!list.includes(userId)) list.push(userId);
-  const { data } = await instance.patch<Idea>(`/ideas/${id}`, {
-    ...idea,
-    frontendParticipants: list,
-  });
-  return data;
+  return apiCall(async () => {
+    const idea = await getIdeaById(id);
+    const max = idea.frontendCount ?? 0;
+    const list = ensureArray(idea.frontendParticipants);
+    if (max > 0 && list.length >= max) {
+      throw new Error("Frontend developer quota reached");
+    }
+    if (!list.includes(userId)) list.push(userId);
+    const { data } = await instance.patch<Idea>(`/ideas/${id}`, {
+      frontend_participants: list,
+    });
+    return data;
+  }, "joinFrontend");
 }
 
 export async function joinBackend(id: number, userId: string): Promise<Idea> {
-  const idea = await getIdeaById(id);
-  const max = idea.backendCount ?? 0;
-  const list = ensureArray(idea.backendParticipants);
-  if (max > 0 && list.length >= max) return idea;
-  if (!list.includes(userId)) list.push(userId);
-  const { data } = await instance.patch<Idea>(`/ideas/${id}`, {
-    ...idea,
-    backendParticipants: list,
-  });
-  return data;
+  return apiCall(async () => {
+    const idea = await getIdeaById(id);
+    const max = idea.backendCount ?? 0;
+    const list = ensureArray(idea.backendParticipants);
+    if (max > 0 && list.length >= max) {
+      throw new Error("Backend developer quota reached");
+    }
+    if (!list.includes(userId)) list.push(userId);
+    const { data } = await instance.patch<Idea>(`/ideas/${id}`, {
+      backend_participants: list,
+    });
+    return data;
+  }, "joinBackend");
 }
 
 export async function getIdeaById(id: number): Promise<Idea> {

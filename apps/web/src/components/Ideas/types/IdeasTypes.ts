@@ -1,4 +1,4 @@
-export type Role = "admin" | "user";
+export type Role = "admin" | "supervisor" | "user";
 
 export type IdeaStatus = "pending" | "approved" | "rejected";
 

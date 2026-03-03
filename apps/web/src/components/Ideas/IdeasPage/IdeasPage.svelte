@@ -35,6 +35,7 @@
 
   let currentUser: CurrentUser | null = null;
   let isAdmin = false;
+  let isSupervisor = false;
   let isUser = false;
 
   let ideas: Idea[] = [];
@@ -52,7 +53,8 @@
   let ownerName = "";
 
   const isApproved = (idea: Idea) => idea.status === "approved";
-  const isPendingOrRejected = (idea: Idea) => idea.status === "pending" || idea.status === "rejected";
+  const isPendingOrRejected = (idea: Idea) =>
+    idea.status === "pending" || idea.status === "rejected";
 
   const PAGE_SIZE = 4;
   let pendingPage = 1;
@@ -62,14 +64,21 @@
   let modalReadOnly = false;
 
   $: isMyIdea =
-  !!selectedIdea && !!currentUser && selectedIdea.ownerId === currentUser.id;
+    !!selectedIdea && !!currentUser && selectedIdea.ownerId === currentUser.id;
 
   $: isPendingIdea = !!selectedIdea && selectedIdea.status === "pending";
-  $: canUpdate = isEditMode && isMyIdea && isPendingIdea;
-  $: canModerate = isEditMode && isAdmin;
-  $: canDelete = isEditMode && !!selectedIdea && (!!isAdmin || isMyIdea);
 
-  $: modalReadOnly = isEditMode ? !canUpdate : false;
+  $: isAdminOrSupervisor = isAdmin || isSupervisor;
+
+  $: canUpdate =
+    isEditMode && isPendingIdea && (isMyIdea || isAdminOrSupervisor);
+
+  $: canModerate = isEditMode && isAdminOrSupervisor && isPendingIdea;
+
+  $: canDelete =
+    isEditMode && !!selectedIdea && (isMyIdea || isAdminOrSupervisor);
+
+  $: modalReadOnly = isEditMode && !canUpdate && !canModerate;
 
   function mapIdea(item: RawIdeaFromApi): Idea {
     return {
@@ -158,11 +167,13 @@
         } as CurrentUser;
 
         isAdmin = currentUser.role === "admin";
+        isSupervisor = String(currentUser.role) === "supervisor";
         isUser = currentUser.role === "user";
         ownerName = currentUser.name;
       } else {
         currentUser = null;
         isAdmin = false;
+        isSupervisor = false;
         isUser = false;
         ownerName = "";
       }
@@ -338,9 +349,9 @@
     {selectedIdea}
     readOnly={modalReadOnly}
     {isAdmin}
-    canUpdate={canUpdate}
-    canModerate={canModerate}
-    canDelete={canDelete}
+    {canUpdate}
+    {canModerate}
+    {canDelete}
     bind:ownerName
     bind:ideaTitle
     bind:date

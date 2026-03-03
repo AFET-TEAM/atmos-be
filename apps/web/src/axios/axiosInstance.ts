@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toCamelCase, toSnakeCase } from "@/utils/caseConverters";
 
 const instance = axios.create({
   baseURL: "https://api-atos-dev.afet.team/v1",
@@ -95,9 +96,15 @@ export const tokenManager = {
   },
 };
 
+// Utility function to convert camelCase to snake_case
 instance.interceptors.request.use(
   (config) => {
     const token = tokenManager.getToken();
+
+    // Convert request data to snake_case
+    if (config.data && typeof config.data === "object") {
+      config.data = toSnakeCase(config.data);
+    }
 
     if (token && !tokenManager.isTokenExpired(token)) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -121,6 +128,10 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   (response) => {
+    // Convert snake_case to camelCase in response data
+    if (response.data) {
+      response.data = toCamelCase(response.data);
+    }
     return response;
   },
   (error) => {

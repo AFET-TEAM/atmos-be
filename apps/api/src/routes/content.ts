@@ -346,6 +346,9 @@ export const contentRoutes = () => {
         idea_assignee_id: t.Optional(t.Numeric()),
         date: t.Optional(t.String()),
         status: t.Optional(t.String()),
+        approved_by: t.Optional(t.Array(t.String())),
+        frontend_participants: t.Optional(t.Array(t.String())),
+        backend_participants: t.Optional(t.Array(t.String())),
       }),
       bodyKeys: [
         "user_id",
@@ -359,6 +362,9 @@ export const contentRoutes = () => {
         "idea_assignee_id",
         "date",
         "status",
+        "approved_by",
+        "frontend_participants",
+        "backend_participants",
       ] as const,
     },
     update: {
@@ -375,6 +381,9 @@ export const contentRoutes = () => {
           idea_assignee_id: t.Optional(t.Numeric()),
           date: t.Optional(t.String()),
           status: t.Optional(t.String()),
+          approved_by: t.Optional(t.Array(t.String())),
+          frontend_participants: t.Optional(t.Array(t.String())),
+          backend_participants: t.Optional(t.Array(t.String())),
         }),
       ),
       bodyKeys: [
@@ -389,6 +398,9 @@ export const contentRoutes = () => {
         "idea_assignee_id",
         "date",
         "status",
+        "approved_by",
+        "frontend_participants",
+        "backend_participants",
       ] as const,
     },
     ownerCheck: {
@@ -398,13 +410,25 @@ export const contentRoutes = () => {
     rbac: {
       can: async (ctx, action) => {
         const body = (ctx.body ?? {}) as any;
+        const userRole = (ctx.user as any)?.role;
+        const isAdminOrSupervisor = userRole === "admin" || userRole === "supervisor";
+        
         if (action === "create") return true;
+        
+        // Only admin/supervisor can approve or reject
         if (
           action === "update" &&
           (body?.status === "approved" || body?.status === "rejected")
         ) {
-          return (ctx.user as any)?.role === "admin";
+          return isAdminOrSupervisor;
         }
+        
+        // Only admin/supervisor can delete
+        if (action === "delete") {
+          return isAdminOrSupervisor;
+        }
+        
+        // For other updates, owner check will be enforced
         return true;
       },
       forbidMessage: "Only admins can change idea status",
