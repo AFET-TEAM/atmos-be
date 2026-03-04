@@ -328,7 +328,7 @@ export const createCrudRoutes = (opts: CrudFactoryOptions) => {
           `UPDATE ${table} SET ${sets.join(", ")}
            WHERE id = $${keys.length + 1} ${softGuard}
            RETURNING *`,
-          [...keys.map((k) => (data as any)[k]), id],
+          [...keys.map((k) => { const v = (data as any)[k]; return Array.isArray(v) ? JSON.stringify(v) : v; }), id],
         );
         if (!res.rows[0]) return notFound();
 

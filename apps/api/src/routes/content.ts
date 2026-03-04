@@ -1,6 +1,7 @@
 import { query } from "@/db";
 import { Elysia, t } from "elysia";
 import { createCrudRoutes } from "./_crudFactory";
+import { mapRows } from "@/utils";
 
 export const contentRoutes = () => {
   const app = new Elysia({ name: "routes:content" });

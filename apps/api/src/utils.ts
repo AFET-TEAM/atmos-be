@@ -76,7 +76,7 @@ export const qp = (
 
   const keys = entries.map(([k]) => k);
   const params = entries.map((_, i) => `$${i + 1}`);
-  const values = entries.map(([, v]) => v as any);
+  const values = entries.map(([, v]) => (Array.isArray(v) ? JSON.stringify(v) : v) as any);
   return { keys, params, values };
 };
 
