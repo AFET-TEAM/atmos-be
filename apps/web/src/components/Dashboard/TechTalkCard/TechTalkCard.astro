@@ -24,7 +24,7 @@ moment.locale("en-gb");
                 <div class="card-image-container">
                   <div class="tech-talk-badge">TechTalk of Week</div>
                   <img
-                    src={talk.thumbnail_url ? talk.thumbnail_url : "/TechTalkDefaultImg.png"}
+                    src={talk.thumbnailUrl ? talk.thumbnailUrl : "/TechTalkDefaultImg.png"}
                     alt="TechTalk Görseli"
                     class="card-image"
                   />
@@ -52,10 +52,10 @@ moment.locale("en-gb");
                     <Icon name={"date"} width={8} height={14} />
                     <span class="info-text">{techTalkDate}</span>
                   </div>
-                 {talk.teams_room_url ? (
+                 {talk.teamsRoomUrl ? (
                     <a
                       class="info-item join"
-                      href={talk.teams_room_url}
+                      href={talk.teamsRoomUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
