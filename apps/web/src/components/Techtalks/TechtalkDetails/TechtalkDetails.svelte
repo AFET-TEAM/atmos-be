@@ -163,7 +163,17 @@
       liking = false;
     }
   }
-  function canEditDelete(comment: any): boolean {
+
+  function canEdit(comment: Comment | any): boolean {
+  if (!currentUser) return false;
+
+  const commentUserId = Number(comment.user_id ?? comment.userId);
+  const currentUserId = Number(currentUser.id);
+
+  return commentUserId > 0 && commentUserId === currentUserId;
+}
+
+function canDelete(comment: Comment | any): boolean {
   if (!currentUser) return false;
 
   const commentUserId = Number(comment.user_id ?? comment.userId);
@@ -171,6 +181,7 @@
 
   return Boolean(isAdmin) || (commentUserId > 0 && commentUserId === currentUserId);
 }
+
 const getCreatedAt = (c: Comment | any) => (c as any).createdAt ?? (c as any).created_at;
 </script>
 
@@ -319,22 +330,27 @@ const getCreatedAt = (c: Comment | any) => (c as any).createdAt ?? (c as any).cr
                 </span>
               </div>
 
-              {#if canEditDelete(c)}
+              {#if canEdit(c) || canDelete(c)}
                 <div class="comment-actions">
-                  <button
-                    type="button"
-                    class="icon-btn edit-btn"
-                    on:click={() => startEdit(c)}
-                  >
-                    <Icon name="pencil" width={14} height={14} />
-                  </button>
-                  <button
-                    type="button"
-                    class="icon-btn delete-btn"
-                    on:click={() => handleDelete(c.id)}
-                  >
-                    <Icon name="delete" width={14} height={14} />
-                  </button>
+                  {#if canEdit(c)}
+                    <button
+                      type="button"
+                      class="icon-btn edit-btn"
+                      on:click={() => startEdit(c)}
+                    >
+                      <Icon name="pencil" width={14} height={14} />
+                    </button>
+                  {/if}
+
+                  {#if canDelete(c)}
+                    <button
+                      type="button"
+                      class="icon-btn delete-btn"
+                      on:click={() => handleDelete(c.id)}
+                    >
+                      <Icon name="delete" width={14} height={14} />
+                    </button>
+                  {/if}
                 </div>
               {/if}
             </div>

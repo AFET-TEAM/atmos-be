@@ -46,7 +46,7 @@
           u.id,
           {
             team: String(u.team ?? ""),
-            user_department: String(u.user_department ?? ""),
+            user_department: String(u.userDepartment ?? ""),
             directorate: String(u.directorate ?? ""),
             role: String(u.role ?? ""),
             dirty: false,
@@ -197,7 +197,6 @@ const updated = await updateUser(userId, {
             on:change={(e) =>
               setDraft(user.id, { team: (e.target as HTMLSelectElement).value })}
           >
-            <option value="">Select Team</option>
             {#each userTeams as team}
               <option value={String(team.id)}>{team.name}</option>
             {/each}
@@ -213,7 +212,6 @@ const updated = await updateUser(userId, {
                 user_department: (e.target as HTMLSelectElement).value,
               })}
           >
-            <option value="">Select Department</option>
             {#each departments as dept}
               <option value={String(dept.id)}>{dept.name}</option>
             {/each}
@@ -229,7 +227,6 @@ const updated = await updateUser(userId, {
                 directorate: (e.target as HTMLSelectElement).value,
               })}
           >
-            <option value="">Select Directorate</option>
             {#each directorates as dir}
               <option value={String(dir.id)}>{dir.name}</option>
             {/each}
@@ -243,10 +240,8 @@ const updated = await updateUser(userId, {
             on:change={(e) =>
               setDraft(user.id, { role: (e.target as HTMLSelectElement).value })}
           >
-            <option value="">Select Role</option>
             <option value="user">User</option>
             <option value="admin">Admin</option>
-            <option value="supervisor">Supervisor</option>
           </select>
         </div>
 
