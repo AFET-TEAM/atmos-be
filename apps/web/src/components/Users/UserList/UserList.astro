@@ -75,82 +75,88 @@ let isDropdownVisible = false;
 
 <section class="cards-container">
   {
-    filteredUsers.map((user: any) => {
-      const slug = makeSlug(user);
+    filteredUsers.length === 0 ? (
+      <div class="empty-state">
+        <p>No users found.</p>
+      </div>
+    ) : (
+      filteredUsers.map((user: any) => {
+        const slug = makeSlug(user);
 
-      return (
-        <a href={`/users/${slug}`}>
-          <div class="card">
-            <div class="image-container">
-              <UserAvatar imageSize="user-image-md" user={user} />
+        return (
+          <a href={`/users/${slug}`}>
+            <div class="card">
+              <div class="image-container">
+                <UserAvatar imageSize="user-image-md" user={user} />
+              </div>
+
+              <div class="content">
+                <div class="badge">{user.jobvalue}</div>
+                <h3>{user.fullName ?? user.full_name}</h3>
+
+                <div class="info">
+                  <Icon name={"adjustmentIcon"} width={11} height={11} color={"none"} />
+                  <p>{user.departmentLabel}</p>
+                </div>
+
+                <div class="info">
+                  <Icon name={"adjustmentIcon"} width={11} height={11} color={"none"} />
+                  <p>{user.directorateLabel}</p>
+                </div>
+
+                <div class="info">
+                  <Icon name={"adjustmentIcon"} width={11} height={11} color={"none"} />
+                  <p>{user.teamLabel}</p>
+                </div>
+
+                <div class="info">
+                  <Icon name={"mail"} width={11} height={11} color={"none"} />
+                  <p>{user.email}</p>
+                </div>
+              </div>
+
+              <div class="buttons-container">
+                <div class="user-bubbles">
+                  {user?.teamMembers?.slice(0, 3).map((member: any) => (
+                    <div class="user-bubble">
+                      <img src={member.profilePicture} alt={member.full_name} />
+                    </div>
+                  ))}
+                  {user?.teamMembers?.length > 3 && (
+                    <div
+                      class="user-bubble more-users"
+                      onmouseover="isDropdownVisible = true"
+                      onmouseleave="isDropdownVisible = false"
+                    >
+                      <span>+{user.teamMembers.length - 3}</span>
+                      {isDropdownVisible && (
+                        <div>
+                          {user.teamMembers.map((member: any) => (
+                            <div class="dropdown-item">
+                              <img
+                                src={member.profilePicture}
+                                alt={member.full_name}
+                              />
+                              <span>{member.full_name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <button class={user.connection}>
+                  Connect
+                  {user.connection !== "disable" && (
+                    <Icon name={"send"} size={14} className="icon" color={"none"} />
+                  )}
+                </button>
+              </div>
             </div>
-
-            <div class="content">
-             <div class="badge">{user.jobvalue}</div>
-              <h3>{user.fullName ?? user.full_name}</h3>
-
-              <div class="info">
-                <Icon name={"adjustmentIcon"} width={11} height={11} color={"none"} />
-                <p>{user.departmentLabel}</p>
-              </div>
-
-              <div class="info">
-                <Icon name={"adjustmentIcon"} width={11} height={11} color={"none"} />
-                <p>{user.directorateLabel}</p>
-              </div>
-
-              <div class="info">
-                <Icon name={"adjustmentIcon"} width={11} height={11} color={"none"} />
-                <p>{user.teamLabel}</p>
-              </div>
-
-              <div class="info">
-                <Icon name={"mail"} width={11} height={11} color={"none"} />
-                <p>{user.email}</p>
-              </div>
-            </div>
-
-            <div class="buttons-container">
-              <div class="user-bubbles">
-                {user?.teamMembers?.slice(0, 3).map((member: any) => (
-                  <div class="user-bubble">
-                    <img src={member.profilePicture} alt={member.full_name} />
-                  </div>
-                ))}
-                {user?.teamMembers?.length > 3 && (
-                  <div
-                    class="user-bubble more-users"
-                    onmouseover="isDropdownVisible = true"
-                    onmouseleave="isDropdownVisible = false"
-                  >
-                    <span>+{user.teamMembers.length - 3}</span>
-                    {isDropdownVisible && (
-                      <div>
-                        {user.teamMembers.map((member: any) => (
-                          <div class="dropdown-item">
-                            <img
-                              src={member.profilePicture}
-                              alt={member.full_name}
-                            />
-                            <span>{member.full_name}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <button class={user.connection}>
-                Connect
-                {user.connection !== "disable" && (
-                  <Icon name={"send"} size={14} className="icon" color={"none"} />
-                )}
-              </button>
-            </div>
-          </div>
-        </a>
-      );
-    })
+          </a>
+        );
+      })
+    )
   }
 </section>
