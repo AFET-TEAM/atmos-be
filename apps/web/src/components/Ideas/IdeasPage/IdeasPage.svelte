@@ -62,6 +62,7 @@
   let sortOrder: "az" | "za" = "az";
   let searchTerm = "";
   let modalReadOnly = false;
+  let loading = true;
 
   $: isMyIdea =
     !!selectedIdea && !!currentUser && selectedIdea.ownerId === currentUser.id;
@@ -155,6 +156,7 @@
   }
 
   async function init() {
+    loading = true;
     try {
       const rawUser = getCurrentUser();
       const authenticated = checkAuth();
@@ -183,6 +185,10 @@
     } catch (err) {
       console.error("Init error:", err);
     }
+    finally {
+    loading = false;
+  }
+
   }
 
   onMount(init);
@@ -197,7 +203,7 @@
     presentationFileName = undefined;
     frontendCount = undefined;
     backendCount = undefined;
-    
+
     // Always fetch fresh user data when opening create modal
     try {
       const freshUser = await fetchCurrentUser();
@@ -337,50 +343,56 @@
 </script>
 
 <section>
-  <IdeasControls bind:sortOrder bind:searchTerm />
-  <IdeasCard
-    {isAdmin}
-    {displayedPending}
-    {totalPendingPages}
-    {pendingPage}
-    onShowMorePending={showMorePending}
-    onShowLessPending={showLessPending}
-    onEditIdea={editIdea}
-    {sortedApproved}
-    onOpenModal={openModal}
-    {isCompleted}
-    {isUpcoming}
-    {onJoinFrontend}
-    {onJoinBackend}
-    currentUserId={currentUser?.id}
-  />
+  {#if loading}
+    <div class="loading-container">
+      <p>Loading...</p>
+    </div>
+  {:else}
+    <IdeasControls bind:sortOrder bind:searchTerm />
+    <IdeasCard
+      {isAdmin}
+      {displayedPending}
+      {totalPendingPages}
+      {pendingPage}
+      onShowMorePending={showMorePending}
+      onShowLessPending={showLessPending}
+      onEditIdea={editIdea}
+      {sortedApproved}
+      onOpenModal={openModal}
+      {isCompleted}
+      {isUpcoming}
+      {onJoinFrontend}
+      {onJoinBackend}
+      currentUserId={currentUser?.id}
+    />
 
-  <IdeasModal
-    bind:isModalOpen
-    {isEditMode}
-    {selectedIdea}
-    readOnly={modalReadOnly}
-    {isAdmin}
-    {canUpdate}
-    {canModerate}
-    {canDelete}
-    bind:ownerName
-    bind:ideaTitle
-    bind:date
-    bind:description
-    {presentationFileName}
-    bind:frontendCount
-    bind:backendCount
-    onChangeFile={(e) => {
-      const target = e.target as HTMLInputElement;
-      if (target?.files?.[0]) {
-        selectedFile = target.files[0];
-        presentationFileName = target.files[0].name;
-      }
-    }}
-    onSubmitIdea={submitIdea}
-    onApproveIdea={doApprove}
-    onRejectIdea={doReject}
-    onDeleteIdea={doDelete}
-  />
+    <IdeasModal
+      bind:isModalOpen
+      {isEditMode}
+      {selectedIdea}
+      readOnly={modalReadOnly}
+      {isAdmin}
+      {canUpdate}
+      {canModerate}
+      {canDelete}
+      bind:ownerName
+      bind:ideaTitle
+      bind:date
+      bind:description
+      {presentationFileName}
+      bind:frontendCount
+      bind:backendCount
+      onChangeFile={(e) => {
+        const target = e.target as HTMLInputElement;
+        if (target?.files?.[0]) {
+          selectedFile = target.files[0];
+          presentationFileName = target.files[0].name;
+        }
+      }}
+      onSubmitIdea={submitIdea}
+      onApproveIdea={doApprove}
+      onRejectIdea={doReject}
+      onDeleteIdea={doDelete}
+    />
+  {/if}
 </section>

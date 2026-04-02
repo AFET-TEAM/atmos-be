@@ -59,6 +59,20 @@
       );
     }
   }
+  .empty-state {
+    width: 100%;
+    min-height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    p {
+      font-size: 18px;
+      font-weight: 500;
+      color: #6b7280;
+    }
+  }
 }
 .buttons-container {
   @include flexible(flex, row, center);
