@@ -45,6 +45,16 @@ export async function logoutUser() {
   }
 }
 
+export async function forgotPassword(email: string) {
+  const response = await instance.post("/auth/forgot-password", { email });
+  return response.data;
+}
+
+export async function resetPassword(token: string, password: string) {
+  const response = await instance.post("/auth/reset-password", { token, password });
+  return response.data;
+}
+
 export async function getDepartments() {
   return apiCall(async () => {
     const response = await instance.get("/departments");

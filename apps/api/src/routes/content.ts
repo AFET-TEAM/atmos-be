@@ -135,12 +135,37 @@ export const contentRoutes = () => {
     softDelete: { enabled: true, column: "deleted_at" },
     list: {
       selectCols: [
-        "documents.*",
+        "documents.id",
+        "documents.user_id",
+        "documents.title",
+        "documents.description",
+        "documents.file_url",
+        "documents.file_name",
+        "documents.content",
+        "documents.date",
+        "documents.created_at",
+        "documents.updated_at",
+        "documents.deleted_at",
         "users.full_name as owner_name",
         "users.email as owner_email",
       ],
       fromClause: "documents LEFT JOIN users ON users.id = documents.user_id",
       orderBy: "documents.date DESC",
+    },
+    get: {
+      selectCols: [
+        "id",
+        "user_id",
+        "title",
+        "description",
+        "file_url",
+        "file_name",
+        "content",
+        "date",
+        "created_at",
+        "updated_at",
+        "deleted_at",
+      ],
     },
     create: {
       bodySchema: t.Object({
@@ -236,11 +261,10 @@ export const contentRoutes = () => {
     )
     .get(
       "/documents/:id/download",
-      async ({ params, set }) => {
+      async ({ params }) => {
         const docId = parseInt(params.id);
         if (!docId) {
-          set.status = 400;
-          return { error: "Invalid document ID" };
+          return new Response(JSON.stringify({ error: "Invalid document ID" }), { status: 400 });
         }
 
         const res = await query(
@@ -250,23 +274,23 @@ export const contentRoutes = () => {
 
         const row = res.rows[0];
         if (!row || !row.file_data) {
-          set.status = 404;
-          return { error: "File not found" };
+          return new Response(JSON.stringify({ error: "File not found" }), { status: 404 });
         }
 
-        const file_data = row.file_data;
         const file_name = row.file_name as string | undefined;
         const title = row.title as string;
         const fileName = file_name || `${title}.bin`;
+        const encodedFileName = encodeURIComponent(fileName);
 
-        set.headers["Content-Type"] = "application/octet-stream";
-        set.headers["Content-Disposition"] =
-          `attachment; filename="${fileName}"`;
+        const buffer: Buffer = Buffer.isBuffer(row.file_data)
+          ? row.file_data
+          : Buffer.from(row.file_data);
 
-        return new Response(file_data, {
+        return new Response(buffer, {
           headers: {
             "Content-Type": "application/octet-stream",
-            "Content-Disposition": `attachment; filename="${fileName}"`,
+            "Content-Disposition": `attachment; filename*=UTF-8''${encodedFileName}`,
+            "Content-Length": String(buffer.length),
           },
         });
       },

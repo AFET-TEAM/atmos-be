@@ -1,8 +1,8 @@
-import axios from "axios";
 import { toCamelCase, toSnakeCase } from "@/utils/caseConverters";
+import axios from "axios";
 
 const instance = axios.create({
-  baseURL: "https://api-atos-dev.afet.team/v1",
+  baseURL: "http://localhost:3000/v1",
   timeout: 10000,
   withCredentials: true,
   headers: {
@@ -128,8 +128,8 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   (response) => {
-    // Convert snake_case to camelCase in response data
-    if (response.data) {
+    // Convert snake_case to camelCase in response data (skip blobs)
+    if (response.data && !(response.data instanceof Blob)) {
       response.data = toCamelCase(response.data);
     }
     return response;
