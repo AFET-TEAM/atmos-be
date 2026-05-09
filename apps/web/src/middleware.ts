@@ -1,6 +1,6 @@
 import { defineMiddleware } from "astro/middleware";
 
-const PUBLIC_PATHS = ["/auth/login", "/auth/register", "/", "/favicon.svg"];
+const PUBLIC_PATHS = ["/auth/login", "/auth/register", "/auth/forgot-password", "/auth/reset-password", "/", "/favicon.svg"];
 
 function isPublicPath(pathname: string) {
   return PUBLIC_PATHS.some(
