@@ -6,6 +6,7 @@
 
   export let items: TechTalk[] = [];
   export let activeId: number | undefined;
+  const defaultImage = "/img/logo.png";
 
   const fmt = (d?: string) => {
     if (!d) return null;
@@ -82,10 +83,10 @@
         aria-current={activeId === o.id ? "page" : undefined}
       >
         <div class="tt-side__thumb">
-          {#if o.thumbnailUrl}
-            <img src={o.thumbnailUrl} alt={o.title} />
+          {#if o.thumbnailUrl || o.thumbnail_url}
+            <img src={o.thumbnailUrl || o.thumbnail_url} alt={o.title} />
           {:else}
-            <div class="tt-side__thumb-fallback"></div>
+            <img src={defaultImage} alt={o.title} />
           {/if}
         </div>
 
