@@ -24,7 +24,7 @@
 </script>
 
 <DynamicCard
-  imgSrc={talk.thumbnailUrl}
+  imgSrc={talk.thumbnailUrl || talk.thumbnail_url || "/img/logo.png"}
   title={talk.title}
   titleHref={talkHref(talk)}
   description={talk.description}

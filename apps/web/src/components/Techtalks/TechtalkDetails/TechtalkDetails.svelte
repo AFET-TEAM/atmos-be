@@ -45,6 +45,7 @@
 
   const videoUrl = talk.video_url || talk.videoUrl;
   const thumbnailUrl = talk.thumbnail_url || talk.thumbnailUrl;
+  const defaultImage = "/img/logo.png";
 
   const ytMatch = videoUrl?.match(
     /(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/,
@@ -205,7 +206,12 @@ const getCreatedAt = (c: Comment | any) => (c as any).createdAt ?? (c as any).cr
           </div>
         </div>
       {:else}
-        <div class="empty-player">Video/thumbnail bulunamadı</div>
+        <div class="thumb-wrap">
+          <img class="thumb thumb--fallback" src={defaultImage} alt={talk.title} />
+          <div class="play-badge">
+            <Icon name="play" width={78} height={78} />
+          </div>
+        </div>
       {/if}
     </div>
 

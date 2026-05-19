@@ -69,4 +69,9 @@
   font-size: 14px;
   color: $greyTextColor;
   padding: 12px 0;
+  min-height: 8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
